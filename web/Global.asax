@@ -8,7 +8,7 @@
         //在应用程序启动时运行的代码
         RegexRouteModule.AddRouter(new AppRoot_RouteExecutor());
         RegexRouteModule.AddRouter(new JSRouteExecutor());
-       // RegexRouteModule.AddRouter(new FileRouteExecutor());
+        RegexRouteModule.AddRouter(new FileRouteExecutor());
         RegexRouteModule.AddRouter(new CallServerModule());
 
         

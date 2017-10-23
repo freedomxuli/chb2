@@ -35,14 +35,10 @@
         System.Text.StringBuilder sb = new System.Text.StringBuilder(1024);
         sb.AppendFormat("<link type='text/css' href='{0}' rel='Stylesheet' />", GetVPath("~/js/extjs/resources/css/ext-all.css"));
         sb.AppendFormat("<link type='text/css' href='{0}' rel='Stylesheet' />", GetVPath("~/css/ext-patch.css"));
-        sb.AppendFormat("<link type='text/css' href='{0}' rel='Stylesheet' />", GetVPath("~/css/ext-patch2.css"));
-        sb.AppendFormat("<link type='text/css' href='{0}' rel='Stylesheet' />", GetVPath("~/js/easyui/themes/default/easyui.css"));
-        sb.AppendFormat("<link type='text/css' href='{0}' rel='Stylesheet' />", GetVPath("~/js/easyui/themes/icon.css"));
         sb.AppendFormat("<link type='text/css' href='{0}' rel='Stylesheet' />", GetVPath("~/css/icon.css"));
         sb.AppendFormat("<link type='text/css' href='{0}' rel='Stylesheet' />", GetVPath("~/css/Main.css"));
         sb.AppendFormat("<link type='text/css' href='{0}' rel='Stylesheet' />", GetVPath("~/css/DeskTop.css"));
         sb.AppendFormat("\r\n<script type='text/javascript' src='{0}'></script>", GetVPath("~/js/jquery-1.7.1.min.js"));
-        sb.AppendFormat("\r\n<script type='text/javascript' src='{0}'></script>", GetVPath("~/js/easyui/jquery.easyui.min.js"));
         sb.AppendFormat("\r\n<script type='text/javascript' src='{0}'></script>",
             GetVPath(IsDebugMode ? "~/js/extjs/ext-all-debug-w-comments.js" : "~/js/extjs/ext-all.js"));
         sb.AppendFormat("\r\n<script type='text/javascript' src='{0}'></script>", GetVPath("~/js/SFW4Uploader.js"));
@@ -52,6 +48,7 @@
         sb.AppendFormat("\r\n<script type='text/javascript' src='{0}'></script>", GetVPath("~/js/fun.js"));
         sb.AppendFormat("\r\n<script type='text/javascript' src='{0}'></script>", GetVPath("~/js/extjs/ext-lang-zh_CN.js"));
         sb.AppendFormat("\r\n<script type='text/javascript' src='{0}'></script>", GetVPath("~/js/FrameStack.js"));
+        sb.AppendFormat("\r\n<script type='text/javascript' src='{0}'></script>", GetVPath("~/js/city.js"));
         
         Hashtable ht = new Hashtable();
         foreach (var key in Request.QueryString.AllKeys)
