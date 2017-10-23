@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="DSQX" targetNamespace="http://tempuri.org/DSQX.xsd" xmlns:mstns="http://tempuri.org/DSQX.xsd" xmlns="http://tempuri.org/DSQX.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections>
+          <Connection AppSettingsObjectName="Web.config" AppSettingsPropertyName="CZCLZConnectionString" ConnectionStringObject="" IsAppSettingsProperty="true" Modifier="Assembly" Name="CZCLZConnectionString (Web.config)" ParameterPrefix="@" PropertyReference="AppConfig.System.Configuration.ConfigurationManager.0.ConnectionStrings.CZCLZConnectionString.ConnectionString" Provider="System.Data.SqlClient" />
+        </Connections>
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="DSQX" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:Generator_UserDSName="DSQX" msprop:Generator_DataSetName="DSQX">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="tb_b_YHQX" msprop:Generator_UserTableName="tb_b_YHQX" msprop:Generator_RowDeletedName="tb_b_YHQXRowDeleted" msprop:Generator_TableClassName="tb_b_YHQXDataTable" msprop:Generator_RowChangedName="tb_b_YHQXRowChanged" msprop:Generator_RowClassName="tb_b_YHQXRow" msprop:Generator_RowChangingName="tb_b_YHQXRowChanging" msprop:Generator_RowEvArgName="tb_b_YHQXRowChangeEvent" msprop:Generator_RowEvHandlerName="tb_b_YHQXRowChangeEventHandler" msprop:Generator_TablePropName="tb_b_YHQX" msprop:Generator_TableVarName="tabletb_b_YHQX" msprop:Generator_RowDeletingName="tb_b_YHQXRowDeleting">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="PRIVILEGECODE" msdata:DataType="System.Guid, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" msprop:Generator_UserColumnName="PRIVILEGECODE" msprop:Generator_ColumnPropNameInRow="PRIVILEGECODE" msprop:Generator_ColumnVarNameInTable="columnPRIVILEGECODE" msprop:Generator_ColumnPropNameInTable="PRIVILEGECODEColumn" type="xs:string" minOccurs="0" />
+              <xs:element name="PRIVILEGENAME" msprop:Generator_UserColumnName="PRIVILEGENAME" msprop:Generator_ColumnPropNameInRow="PRIVILEGENAME" msprop:Generator_ColumnVarNameInTable="columnPRIVILEGENAME" msprop:Generator_ColumnPropNameInTable="PRIVILEGENAMEColumn" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="150" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="MODULENAME" msprop:Generator_UserColumnName="MODULENAME" msprop:Generator_ColumnPropNameInRow="MODULENAME" msprop:Generator_ColumnVarNameInTable="columnMODULENAME" msprop:Generator_ColumnPropNameInTable="MODULENAMEColumn" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="150" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="ORDERNO" msprop:Generator_UserColumnName="ORDERNO" msprop:Generator_ColumnPropNameInRow="ORDERNO" msprop:Generator_ColumnVarNameInTable="columnORDERNO" msprop:Generator_ColumnPropNameInTable="ORDERNOColumn" type="xs:int" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

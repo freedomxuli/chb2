@@ -1,0 +1,65 @@
+﻿.x-window-header-text, x-panel-header-text{  
+    font-size:9pt!important;  
+}  
+.x-panel-header-text, .x-window-header-text{  
+    font-size:9pt!important;  
+}  
+.x-column-header-text
+{
+    font-size:9pt!important;  
+}
+.x-grid-cell
+{
+    font-size:10pt!important;  
+    font-family:宋体!important;
+}
+.x-btn-default-toolbar-small .x-btn-inner
+{
+    font-size:9pt!important;  
+}
+.x-tab-default-top .x-tab-inner
+{
+    height:16px!important;
+    line-height:16px!important;
+}
+
+.x-toolbar
+{
+    font-size:9pt!important;
+}
+
+.x-toolbar .x-form-item-label
+{
+    font-size:9pt!important;
+}
+
+.x-form-cb-wrap
+{
+    padding-top:0px!important;
+}
+.x-grid-cell-inner {line-height: 20px!important;}
+.custom-grid .x-grid-cell { 
+    background-color: white; 
+    border-bottom-color: #009; 
+    border-top-color: #ff5; 
+    color: #009; 
+}
+
+.custom-grid-top .x-grid-cell-inner span { 
+    line-height: 40px!important;
+}
+
+
+.custom-grid-top .x-column-header-inner {
+    height:40px;
+    line-height: 40px!important;
+}
+
+
+.x-tree-node-text {
+    font-size:10pt!important;
+}
+
+.x-form-display-field {
+    font-size:9pt!important;
+}

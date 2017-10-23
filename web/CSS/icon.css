@@ -1,0 +1,314 @@
+﻿.locked {
+    background-image:url(images/locked.gif) !important;
+}
+.computer {
+    background-image:url(images/computer.png) !important;
+}
+.database {
+    background-image:url(images/database.png) !important;
+}
+.drive {
+    background-image:url(images/drive.png) !important;
+}
+.application {
+    background-image:url(images/application.png) !important;
+}
+.add {
+    background-image:url(images/add.gif) !important;
+}
+.delete {
+    background-image:url(images/delete.gif) !important;
+}
+.dropno {
+    background-image:url(images/drop-no.gif) !important;
+}
+.dropyes {
+    background-image:url(images/drop-yes.gif) !important;
+}
+.edit {
+    background-image:url(images/edit.gif) !important;
+}
+.forward {
+    background-image:url(images/forward.gif) !important;
+}
+.back {
+    background-image:url(images/back.gif) !important;
+}
+.grid {
+    background-image:url(images/icon-grid.gif) !important;
+}
+.items {
+    background-image:url(images/list-items.gif) !important;
+}
+.printer {
+    background-image:url(images/printer.gif) !important;
+}
+.preview {
+    background-image:url(images/printpreview.gif) !important;
+}
+.excel {
+    background-image:url(images/excel.gif) !important;
+}
+.pdf{
+    background-image:url(images/pdf.gif) !important;
+}
+.doc{
+    background-image:url(images/doc.gif) !important;
+}
+.save {
+    background-image:url(images/save.gif) !important;
+}
+.auth {
+    background-image:url(images/auth.gif) !important;
+}
+.view {
+    background-image:url(images/view.gif) !important;
+}
+.join {
+    background-image:url(images/join.gif) !important;
+}
+.search {
+    background-image:url(images/find.gif) !important;
+}
+.refresh {
+    background-image:url(images/refresh.gif) !important;
+}
+.close {
+    background-image:url(images/close.png) !important;
+}
+.user {
+    background-image:url(images/user.gif) !important;
+}
+.folder {
+    background-image:url(images/folder_go.png) !important;
+}
+.book {
+    background-image:url(images/book.png) !important;
+}
+.upload
+{
+    background-image:url(images/upload.png) !important;
+}
+.download
+{
+    background-image:url(images/download.png) !important;
+}
+.update
+{
+    background-image:url(images/update.png) !important;
+}
+.report
+{
+    background-image:url(images/report.png) !important;
+}
+.offline {
+    background-image:url(images/offline.png ) !important;
+}
+.online {
+    background-image:url(images/online.gif ) !important;
+}
+.emailto{
+    background-image:url(images/email_go.png ) !important;
+}
+.fileto{
+    background-image:url(images/file_go.png) !important;
+}
+.msg{
+    background-image:url(images/msg.png) !important;
+}
+.x-edit-wordpaste 
+{
+    background-image:url(images/Word_Icon.png) !important;
+}
+.cog
+{
+    background-image:url(images/cog.png) !important;
+}
+.drive
+{
+    background-image:url(images/drive.png) !important;
+}
+.note
+{
+    background-image:url(images/note.png) !important;
+}
+.email_add
+{
+    background-image:url(images/email_add.png) !important;
+}
+.file
+{
+    background-image:url(images/file.png) !important;
+    background-repeat: no-repeat;
+    height: 22px;
+    text-indent: 20px;
+}
+.doc
+{
+    background-image:url(images/doc.gif) !important;
+    background-repeat: no-repeat;
+    text-indent: 20px;
+}
+.xls
+{
+    background-image:url(images/xls.gif) !important;
+    background-repeat: no-repeat;
+    text-indent: 20px;
+}
+.mdb
+{
+    background-image:url(images/mdb.gif) !important;
+    background-repeat: no-repeat;
+    text-indent: 20px;
+}
+.ppt
+{
+    background-image:url(images/ppt.gif) !important;
+    background-repeat: no-repeat;
+    text-indent: 20px;
+}
+.jpg
+{
+    background-image:url(images/jpg.gif) !important;
+    background-repeat: no-repeat;
+    text-indent: 20px;
+}
+.pdf
+{
+    background-image:url(images/pdf.gif) !important;
+    background-repeat: no-repeat;
+    text-indent: 20px;
+}
+.txt
+{
+    background-image:url(images/txt.gif) !important;
+    background-repeat: no-repeat;
+    text-indent: 20px;
+}
+.swf
+{
+    background-image:url(images/swf.gif) !important;
+    background-repeat: no-repeat;
+    text-indent: 20px;
+}
+.rmvb
+{
+    background-image:url(images/rm.gif) !important;
+    background-repeat: no-repeat;
+    text-indent: 20px;
+}
+.rm
+{
+    background-image:url(images/rm.gif) !important;
+    background-repeat: no-repeat;
+    text-indent: 20px;
+}
+.mp3
+{
+    background-image:url(images/mp3.gif) !important;
+    background-repeat: no-repeat;
+    text-indent: 20px;
+}
+.rar
+{
+    background-image:url(images/rar.gif) !important;
+    background-repeat: no-repeat;
+    text-indent: 20px;
+}
+.zip
+{
+    background-image:url(images/zip.gif) !important;
+    background-repeat: no-repeat;
+    text-indent: 20px;
+}
+.bmp
+{
+    background-image:url(images/bmp.gif) !important;
+    background-repeat: no-repeat;
+    text-indent: 20px;
+}
+.htm
+{
+    background-image:url(images/htm.gif) !important;
+    background-repeat: no-repeat;
+    text-indent: 20px;
+}
+.html
+{
+    background-image:url(images/htm.gif) !important;
+    background-repeat: no-repeat;
+    text-indent: 20px;
+}
+.exe
+{
+    background-image:url(images/exe.gif) !important;
+    background-repeat: no-repeat;
+    text-indent: 20px;
+}
+.a2
+{
+    background-image:url(images/note_edit.png) !important;
+}
+.a3
+{
+    background-image:url(images/Word_Icon.png) !important;
+}
+
+.be
+{
+    background-image:url(images/note_add.png) !important;
+}
+
+.b3
+{
+    background-image:url(images/stop.png) !important;
+}
+
+.b4
+{
+    background-image:url(images/end.png) !important;
+}
+
+.cf
+{
+    background-image:url(images/images.png) !important;
+}
+
+.a5
+{
+    background-image:url(images/open.png) !important;
+}
+
+.bf
+{
+    background-image:url(images/book.png) !important;
+}
+.qh {
+    background-image:url(images/back.gif) !important;
+}
+.s3 {
+    background-image:url(images/drop-yes.gif) !important;
+}
+.bd {
+    background-image:url(images/go.png) !important;
+}
+.return
+{
+    background-image:url(images/return.png) !important;
+}
+.man
+{
+    background-image:url(images/man.png) !important;
+}
+.woman
+{
+    background-image:url(images/woman.png) !important;
+}
+.enable
+{
+    background-image:url(images/enable.png) !important;
+}
+.disable
+{
+    background-image:url(images/disable.png) !important;
+}

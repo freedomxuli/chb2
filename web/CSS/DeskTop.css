@@ -1,0 +1,25 @@
+﻿.fixedHeader th{
+	cursor:pointer;
+	color:#0CF;
+}
+
+.fixedHeader th a{
+	text-decoration:none;
+	color:#0CF;
+}
+
+.fixedHeader{
+	table-layout:fixed;
+	background-color:#ffffff;
+	width:100%;
+}
+
+.yd-data{
+	cursor:pointer;
+}
+.yd-data tr td:hover{
+	background:#CFF;
+}
+.confirm {
+	background:#CFF;
+}

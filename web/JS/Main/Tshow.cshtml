@@ -1,0 +1,743 @@
+﻿@{
+    System.Collections.Generic.List<string> days = Model.Data.days;
+    System.Collections.Generic.List<string> week = Model.Data.week;
+    System.Data.DataTable dt_room = Model.Data.dt_room;
+    System.Data.DataTable dt_order = Model.Data.dt_order;
+    System.Int32 num = 10 - dt_room.Rows.Count;
+    System.Int32 dcldd = Model.Data.dcldd;
+    System.Int32 jrrz = Model.Data.jrrz;
+    System.Int32 jrdtf = Model.Data.jrdtf;
+    System.Int32 jrkf = Model.Data.jrkf;
+}
+
+<div style="overflow:hidden;height:95%;">
+    	<table width="100%" cellpadding="0"  cellspacing="0" border="1" bordercolor="#cccccc">
+            <thead class="fixedHeader" width="100%">
+                <tr>
+                    <th width="15%" height="80"><a href="javascript:void(0);" onclick="selecttime();">选择时间</a></th>
+                    @{
+                        for(int i = 0;i < days.Count;i++)
+                        {
+                            <th width="12.14%">@days[i] <br /> @week[i]</th>
+                        }
+                     }
+                </tr>
+            </thead>
+        </table>
+        <div style="overflow-y:auto;height:78%;margin-right:-18px;">
+        <table id="yd-data" class="yd-data" width="100%" cellpadding="0" cellspacing="0" border="1" bordercolor="#cccccc">
+@*                                <tr>
+                        <td width="15%" height="80">&nbsp;</td>
+                        <td bgcolor="#0F0">&nbsp;</td>
+                        <td bgcolor="#0FF">&nbsp;</td>
+                        <td bgcolor="#FF0">&nbsp;</td>
+                        <td bgcolor="#C9F">&nbsp;</td>
+                        <td bgcolor="#999">&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>*@
+            @{
+                for(int i = 0;i<dt_room.Rows.Count;i++)
+                {
+                    <tr>
+                        <td width="15%" height="80" align="center" style="color:#000000;font-weight:bold;font-size:12px;">房间号：@dt_room.Rows[i]["RoomNo"]</td>
+                        @{
+                            if (dt_room.Rows[i]["IsClose"].ToString()=="1")
+                            { 
+                                <td bgcolor="#999"  width="12.14%">
+                                    <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                    <input type="hidden" value="2" />
+                                </td>
+                                <td bgcolor="#999"  width="12.14%">
+                                    <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                    <input type="hidden" value="2" />
+                                </td>
+                                <td bgcolor="#999"  width="12.14%">
+                                    <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                    <input type="hidden" value="2" />
+                                </td>
+                                <td bgcolor="#999"  width="12.14%">
+                                    <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                    <input type="hidden" value="2" />
+                                </td>
+                                <td bgcolor="#999"  width="12.14%">
+                                    <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                    <input type="hidden" value="2" />
+                                </td>
+                                <td bgcolor="#999"  width="12.14%">
+                                    <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                    <input type="hidden" value="2" />
+                                </td>
+                                <td bgcolor="#999"  width="12.14%">
+                                    <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                    <input type="hidden" value="2" />
+                                </td>
+                            }else
+                            {
+                                System.Data.DataRow[] drs1 = dt_order.Select("LiveStartDate <= '" + dt_room.Rows[i]["DAY1"] + "' and LiveEndDate >= '" + dt_room.Rows[i]["DAY1"] + "' and RoomId = '" + dt_room.Rows[i]["ID"] + "'");
+                                System.Data.DataRow[] drs2 = dt_order.Select("LiveStartDate <= '" + dt_room.Rows[i]["DAY2"] + "' and LiveEndDate >= '" + dt_room.Rows[i]["DAY2"] + "' and RoomId = '" + dt_room.Rows[i]["ID"] + "'");
+                                System.Data.DataRow[] drs3 = dt_order.Select("LiveStartDate <= '" + dt_room.Rows[i]["DAY3"] + "' and LiveEndDate >= '" + dt_room.Rows[i]["DAY3"] + "' and RoomId = '" + dt_room.Rows[i]["ID"] + "'");
+                                System.Data.DataRow[] drs4 = dt_order.Select("LiveStartDate <= '" + dt_room.Rows[i]["DAY4"] + "' and LiveEndDate >= '" + dt_room.Rows[i]["DAY4"] + "' and RoomId = '" + dt_room.Rows[i]["ID"] + "'");
+                                System.Data.DataRow[] drs5 = dt_order.Select("LiveStartDate <= '" + dt_room.Rows[i]["DAY5"] + "' and LiveEndDate >= '" + dt_room.Rows[i]["DAY5"] + "' and RoomId = '" + dt_room.Rows[i]["ID"] + "'");
+                                System.Data.DataRow[] drs6 = dt_order.Select("LiveStartDate <= '" + dt_room.Rows[i]["DAY6"] + "' and LiveEndDate >= '" + dt_room.Rows[i]["DAY6"] + "' and RoomId = '" + dt_room.Rows[i]["ID"] + "'");
+                                System.Data.DataRow[] drs7 = dt_order.Select("LiveStartDate <= '" + dt_room.Rows[i]["DAY7"] + "' and LiveEndDate >= '" + dt_room.Rows[i]["DAY7"] + "' and RoomId = '" + dt_room.Rows[i]["ID"] + "'");
+                                
+                                if (drs1.Length > 0)
+                                {
+                                    if (drs1[0]["AuthorLiveStatus"].ToString() == "0")
+                                    {
+                                        <td bgcolor="#0F0"  align="center" width="12.14%">
+                                            <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                            <input type="hidden" value="1" />
+                                            <input type="hidden" value="@drs1[0]["AuthorizeNo"].ToString()" />
+                                            <div>@drs1[0]["RealName"].ToString()</div>
+                                            <div>@drs1[0]["AuthorRoomStyle"].ToString()</div>
+                                            <div>@drs1[0]["PlatType"].ToString()</div>
+                                            <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                        </td>
+                                    }
+                                    else if (drs1[0]["AuthorLiveStatus"].ToString() == "1" || drs1[0]["AuthorLiveStatus"].ToString() == "2" || drs1[0]["AuthorLiveStatus"].ToString() == "3")
+                                    {
+                                        if (drs1[0]["ISRZ"].ToString() == "0")
+                                        { 
+                                            <td bgcolor="#0FF" align="center"  width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="1" />
+                                                <input type="hidden" value="@drs1[0]["AuthorizeNo"].ToString()" />
+                                                <div>@drs1[0]["RealName"].ToString()</div>
+                                                <div>@drs1[0]["AuthorRoomStyle"].ToString()</div>
+                                                <div>@drs1[0]["PlatType"].ToString()</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td bgcolor="#FF0"  align="center" width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="1" />
+                                                <input type="hidden" value="@drs1[0]["AuthorizeNo"].ToString()" />
+                                                <div>@drs1[0]["RealName"].ToString()</div>
+                                                <div>@drs1[0]["AuthorRoomStyle"].ToString()</div>
+                                                <div>@drs1[0]["PlatType"].ToString()</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                    }
+                                    else if (drs1[0]["AuthorLiveStatus"].ToString() == "4" || drs1[0]["AuthorLiveStatus"].ToString() == "6")
+                                    {
+                                        if (drs1[0]["ISSERVICE"].ToString() == "0")
+                                        { 
+                                            <td bgcolor="#C9F"  align="center" width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="1" />
+                                                <input type="hidden" value="@drs1[0]["AuthorizeNo"].ToString()" />
+                                                <div>@drs1[0]["RealName"].ToString()</div>
+                                                <div>@drs1[0]["AuthorRoomStyle"].ToString()</div>
+                                                <div>@drs1[0]["PlatType"].ToString()</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td align="center" width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="0" />
+                                                <input type="hidden" value="@dt_room.Rows[i]["IsCanClose"].ToString()" />
+                                                <div>（空闲）</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                    }else
+                                    {
+                                        <td bgcolor="#0F0"  align="center" width="12.14%">
+                                            <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                            <input type="hidden" value="1" />
+                                            <input type="hidden" value="@drs1[0]["AuthorizeNo"].ToString()" />
+                                            <div>@drs1[0]["RealName"].ToString()</div>
+                                            <div>@drs1[0]["AuthorRoomStyle"].ToString()</div>
+                                            <div>@drs1[0]["PlatType"].ToString()</div>
+                                            <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                        </td>
+                                    }
+                                }
+                                else
+                                { 
+                                    <td align="center" width="12.14%">
+                                        <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                        <input type="hidden" value="0" />
+                                        <input type="hidden" value="@dt_room.Rows[i]["IsCanClose"].ToString()" />
+                                        <div>（空闲）</div>
+                                        <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                    </td>
+                                }
+                                
+                                if (drs2.Length > 0)
+                                {
+                                    if (drs2[0]["AuthorLiveStatus"].ToString() == "0")
+                                    {
+                                        <td bgcolor="#0F0"  align="center" width="12.14%">
+                                            <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                            <input type="hidden" value="1" />
+                                            <input type="hidden" value="@drs2[0]["AuthorizeNo"].ToString()" />
+                                            <div>@drs2[0]["RealName"].ToString()</div>
+                                            <div>@drs2[0]["AuthorRoomStyle"].ToString()</div>
+                                            <div>@drs2[0]["PlatType"].ToString()</div>
+                                            <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                        </td>
+                                    }
+                                    else if (drs2[0]["AuthorLiveStatus"].ToString() == "1" || drs2[0]["AuthorLiveStatus"].ToString() == "2" || drs2[0]["AuthorLiveStatus"].ToString() == "3")
+                                    {
+                                        if (drs2[0]["ISRZ"].ToString() == "0")
+                                        { 
+                                            <td bgcolor="#0FF" align="center"  width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="1" />
+                                                <input type="hidden" value="@drs2[0]["AuthorizeNo"].ToString()" />
+                                                <div>@drs2[0]["RealName"].ToString()</div>
+                                                <div>@drs2[0]["AuthorRoomStyle"].ToString()</div>
+                                                <div>@drs2[0]["PlatType"].ToString()</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td bgcolor="#FF0"  align="center" width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="1" />
+                                                <input type="hidden" value="@drs2[0]["AuthorizeNo"].ToString()" />
+                                                <div>@drs2[0]["RealName"].ToString()</div>
+                                                <div>@drs2[0]["AuthorRoomStyle"].ToString()</div>
+                                                <div>@drs2[0]["PlatType"].ToString()</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                    }
+                                    else if (drs2[0]["AuthorLiveStatus"].ToString() == "4" || drs2[0]["AuthorLiveStatus"].ToString() == "6")
+                                    {
+                                        if (drs2[0]["ISSERVICE"].ToString() == "0")
+                                        { 
+                                            <td bgcolor="#C9F"  align="center" width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="1" />
+                                                <input type="hidden" value="@drs2[0]["AuthorizeNo"].ToString()" />
+                                                <div>@drs2[0]["RealName"].ToString()</div>
+                                                <div>@drs2[0]["AuthorRoomStyle"].ToString()</div>
+                                                <div>@drs2[0]["PlatType"].ToString()</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td align="center" width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="0" />
+                                                <input type="hidden" value="@dt_room.Rows[i]["IsCanClose"].ToString()" />
+                                                <div>（空闲）</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                    }else
+                                    {
+                                        <td bgcolor="#0F0"  align="center" width="12.14%">
+                                            <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                            <input type="hidden" value="1" />
+                                            <input type="hidden" value="@drs2[0]["AuthorizeNo"].ToString()" />
+                                            <div>@drs2[0]["RealName"].ToString()</div>
+                                            <div>@drs2[0]["AuthorRoomStyle"].ToString()</div>
+                                            <div>@drs2[0]["PlatType"].ToString()</div>
+                                            <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                        </td>
+                                    }
+                                }
+                                else
+                                { 
+                                    <td align="center" width="12.14%">
+                                        <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                        <input type="hidden" value="0" />
+                                        <input type="hidden" value="@dt_room.Rows[i]["IsCanClose"].ToString()" />
+                                        <div>（空闲）</div>
+                                        <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                    </td>
+                                }
+                                
+                                if (drs3.Length > 0)
+                                {
+                                    if (drs3[0]["AuthorLiveStatus"].ToString() == "0")
+                                    {
+                                        <td bgcolor="#0F0"  align="center" width="12.14%">
+                                            <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                            <input type="hidden" value="1" />
+                                            <input type="hidden" value="@drs3[0]["AuthorizeNo"].ToString()" />
+                                            <div>@drs3[0]["RealName"].ToString()</div>
+                                            <div>@drs3[0]["AuthorRoomStyle"].ToString()</div>
+                                            <div>@drs3[0]["PlatType"].ToString()</div>
+                                            <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                        </td>
+                                    }
+                                    else if (drs3[0]["AuthorLiveStatus"].ToString() == "1" || drs3[0]["AuthorLiveStatus"].ToString() == "2" || drs3[0]["AuthorLiveStatus"].ToString() == "3")
+                                    {
+                                        if (drs3[0]["ISRZ"].ToString() == "0")
+                                        { 
+                                            <td bgcolor="#0FF" align="center"  width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="1" />
+                                                <input type="hidden" value="@drs3[0]["AuthorizeNo"].ToString()" />
+                                                <div>@drs3[0]["RealName"].ToString()</div>
+                                                <div>@drs3[0]["AuthorRoomStyle"].ToString()</div>
+                                                <div>@drs3[0]["PlatType"].ToString()</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td bgcolor="#FF0"  align="center" width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="1" />
+                                                <input type="hidden" value="@drs3[0]["AuthorizeNo"].ToString()" />
+                                                <div>@drs3[0]["RealName"].ToString()</div>
+                                                <div>@drs3[0]["AuthorRoomStyle"].ToString()</div>
+                                                <div>@drs3[0]["PlatType"].ToString()</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                    }
+                                    else if (drs3[0]["AuthorLiveStatus"].ToString() == "4" || drs3[0]["AuthorLiveStatus"].ToString() == "6")
+                                    {
+                                        if (drs3[0]["ISSERVICE"].ToString() == "0")
+                                        { 
+                                            <td bgcolor="#C9F"  align="center" width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="1" />
+                                                <input type="hidden" value="@drs3[0]["AuthorizeNo"].ToString()" />
+                                                <div>@drs3[0]["RealName"].ToString()</div>
+                                                <div>@drs3[0]["AuthorRoomStyle"].ToString()</div>
+                                                <div>@drs3[0]["PlatType"].ToString()</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td align="center" width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="0" />
+                                                <input type="hidden" value="@dt_room.Rows[i]["IsCanClose"].ToString()" />
+                                                <div>（空闲）</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                    }else
+                                    {
+                                        <td bgcolor="#0F0"  align="center" width="12.14%">
+                                            <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                            <input type="hidden" value="1" />
+                                            <input type="hidden" value="@drs3[0]["AuthorizeNo"].ToString()" />
+                                            <div>@drs3[0]["RealName"].ToString()</div>
+                                            <div>@drs3[0]["AuthorRoomStyle"].ToString()</div>
+                                            <div>@drs3[0]["PlatType"].ToString()</div>
+                                            <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                        </td>
+                                    }
+                                }
+                                else
+                                { 
+                                    <td align="center" width="12.14%">
+                                        <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                        <input type="hidden" value="0" />
+                                        <input type="hidden" value="@dt_room.Rows[i]["IsCanClose"].ToString()" />
+                                        <div>（空闲）</div>
+                                        <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                    </td>
+                                }
+
+                                if (drs4.Length > 0)
+                                {
+                                    if (drs4[0]["AuthorLiveStatus"].ToString() == "0")
+                                    {
+                                        <td bgcolor="#0F0"  align="center" width="12.14%">
+                                            <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                            <input type="hidden" value="1" />
+                                            <input type="hidden" value="@drs4[0]["AuthorizeNo"].ToString()" />
+                                            <div>@drs4[0]["RealName"].ToString()</div>
+                                            <div>@drs4[0]["AuthorRoomStyle"].ToString()</div>
+                                            <div>@drs4[0]["PlatType"].ToString()</div>
+                                            <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                        </td>
+                                    }
+                                    else if (drs4[0]["AuthorLiveStatus"].ToString() == "1" || drs4[0]["AuthorLiveStatus"].ToString() == "2" || drs4[0]["AuthorLiveStatus"].ToString() == "3")
+                                    {
+                                        if (drs4[0]["ISRZ"].ToString() == "0")
+                                        { 
+                                            <td bgcolor="#0FF" align="center"  width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="1" />
+                                                <input type="hidden" value="@drs4[0]["AuthorizeNo"].ToString()" />
+                                                <div>@drs4[0]["RealName"].ToString()</div>
+                                                <div>@drs4[0]["AuthorRoomStyle"].ToString()</div>
+                                                <div>@drs4[0]["PlatType"].ToString()</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td bgcolor="#FF0"  align="center" width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="1" />
+                                                <input type="hidden" value="@drs4[0]["AuthorizeNo"].ToString()" />
+                                                <div>@drs4[0]["RealName"].ToString()</div>
+                                                <div>@drs4[0]["AuthorRoomStyle"].ToString()</div>
+                                                <div>@drs4[0]["PlatType"].ToString()</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                    }
+                                    else if (drs4[0]["AuthorLiveStatus"].ToString() == "4" || drs4[0]["AuthorLiveStatus"].ToString() == "6")
+                                    {
+                                        if (drs4[0]["ISSERVICE"].ToString() == "0")
+                                        { 
+                                            <td bgcolor="#C9F"  align="center" width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="1" />
+                                                <input type="hidden" value="@drs4[0]["AuthorizeNo"].ToString()" />
+                                                <div>@drs4[0]["RealName"].ToString()</div>
+                                                <div>@drs4[0]["AuthorRoomStyle"].ToString()</div>
+                                                <div>@drs4[0]["PlatType"].ToString()</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td align="center" width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="0" />
+                                                <input type="hidden" value="@dt_room.Rows[i]["IsCanClose"].ToString()" />
+                                                <div>（空闲）</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                    }else
+                                    {
+                                        <td bgcolor="#0F0"  align="center" width="12.14%">
+                                            <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                            <input type="hidden" value="1" />
+                                            <input type="hidden" value="@drs4[0]["AuthorizeNo"].ToString()" />
+                                            <div>@drs4[0]["RealName"].ToString()</div>
+                                            <div>@drs4[0]["AuthorRoomStyle"].ToString()</div>
+                                            <div>@drs4[0]["PlatType"].ToString()</div>
+                                            <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                        </td>
+                                    }
+                                }
+                                else
+                                { 
+                                    <td align="center" width="12.14%">
+                                        <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                        <input type="hidden" value="0" />
+                                        <input type="hidden" value="@dt_room.Rows[i]["IsCanClose"].ToString()" />
+                                        <div>（空闲）</div>
+                                        <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                    </td>
+                                }
+                                
+                                if (drs5.Length > 0)
+                                {
+                                    if (drs5[0]["AuthorLiveStatus"].ToString() == "0")
+                                    {
+                                        <td bgcolor="#0F0"  align="center" width="12.14%">
+                                            <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                            <input type="hidden" value="1" />
+                                            <input type="hidden" value="@drs5[0]["AuthorizeNo"].ToString()" />
+                                            <div>@drs5[0]["RealName"].ToString()</div>
+                                            <div>@drs5[0]["AuthorRoomStyle"].ToString()</div>
+                                            <div>@drs5[0]["PlatType"].ToString()</div>
+                                            <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                        </td>
+                                    }
+                                    else if (drs5[0]["AuthorLiveStatus"].ToString() == "1" || drs5[0]["AuthorLiveStatus"].ToString() == "2" || drs5[0]["AuthorLiveStatus"].ToString() == "3")
+                                    {
+                                        if (drs5[0]["ISRZ"].ToString() == "0")
+                                        { 
+                                            <td bgcolor="#0FF" align="center"  width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="1" />
+                                                <input type="hidden" value="@drs5[0]["AuthorizeNo"].ToString()" />
+                                                <div>@drs5[0]["RealName"].ToString()</div>
+                                                <div>@drs5[0]["AuthorRoomStyle"].ToString()</div>
+                                                <div>@drs5[0]["PlatType"].ToString()</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td bgcolor="#FF0"  align="center" width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="1" />
+                                                <input type="hidden" value="@drs5[0]["AuthorizeNo"].ToString()" />
+                                                <div>@drs5[0]["RealName"].ToString()</div>
+                                                <div>@drs5[0]["AuthorRoomStyle"].ToString()</div>
+                                                <div>@drs5[0]["PlatType"].ToString()</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                    }
+                                    else if (drs5[0]["AuthorLiveStatus"].ToString() == "4" || drs5[0]["AuthorLiveStatus"].ToString() == "6")
+                                    {
+                                        if (drs5[0]["ISSERVICE"].ToString() == "0")
+                                        { 
+                                            <td bgcolor="#C9F"  align="center" width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="1" />
+                                                <input type="hidden" value="@drs5[0]["AuthorizeNo"].ToString()" />
+                                                <div>@drs5[0]["RealName"].ToString()</div>
+                                                <div>@drs5[0]["AuthorRoomStyle"].ToString()</div>
+                                                <div>@drs5[0]["PlatType"].ToString()</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td align="center" width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="0" />
+                                                <input type="hidden" value="@dt_room.Rows[i]["IsCanClose"].ToString()" />
+                                                <div>（空闲）</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                    }else
+                                    {
+                                        <td bgcolor="#0F0"  align="center" width="12.14%">
+                                            <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                            <input type="hidden" value="1" />
+                                            <input type="hidden" value="@drs5[0]["AuthorizeNo"].ToString()" />
+                                            <div>@drs5[0]["RealName"].ToString()</div>
+                                            <div>@drs5[0]["AuthorRoomStyle"].ToString()</div>
+                                            <div>@drs5[0]["PlatType"].ToString()</div>
+                                            <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                        </td>
+                                    }
+                                }
+                                else
+                                { 
+                                    <td align="center" width="12.14%">
+                                        <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                        <input type="hidden" value="0" />
+                                        <input type="hidden" value="@dt_room.Rows[i]["IsCanClose"].ToString()" />
+                                        <div>（空闲）</div>
+                                        <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                    </td>
+                                }
+                                
+                                if (drs6.Length > 0)
+                                {
+                                    if (drs6[0]["AuthorLiveStatus"].ToString() == "0")
+                                    {
+                                        <td bgcolor="#0F0"  align="center" width="12.14%">
+                                            <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                            <input type="hidden" value="1" />
+                                            <input type="hidden" value="@drs6[0]["AuthorizeNo"].ToString()" />
+                                            <div>@drs6[0]["RealName"].ToString()</div>
+                                            <div>@drs6[0]["AuthorRoomStyle"].ToString()</div>
+                                            <div>@drs6[0]["PlatType"].ToString()</div>
+                                            <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                        </td>
+                                    }
+                                    else if (drs6[0]["AuthorLiveStatus"].ToString() == "1" || drs6[0]["AuthorLiveStatus"].ToString() == "2" || drs6[0]["AuthorLiveStatus"].ToString() == "3")
+                                    {
+                                        if (drs6[0]["ISRZ"].ToString() == "0")
+                                        { 
+                                            <td bgcolor="#0FF" align="center"  width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="1" />
+                                                <input type="hidden" value="@drs6[0]["AuthorizeNo"].ToString()" />
+                                                <div>@drs6[0]["RealName"].ToString()</div>
+                                                <div>@drs6[0]["AuthorRoomStyle"].ToString()</div>
+                                                <div>@drs6[0]["PlatType"].ToString()</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td bgcolor="#FF0"  align="center" width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="1" />
+                                                <input type="hidden" value="@drs6[0]["AuthorizeNo"].ToString()" />
+                                                <div>@drs6[0]["RealName"].ToString()</div>
+                                                <div>@drs6[0]["AuthorRoomStyle"].ToString()</div>
+                                                <div>@drs6[0]["PlatType"].ToString()</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                    }
+                                    else if (drs6[0]["AuthorLiveStatus"].ToString() == "4" || drs6[0]["AuthorLiveStatus"].ToString() == "6")
+                                    {
+                                        if (drs6[0]["ISSERVICE"].ToString() == "0")
+                                        { 
+                                            <td bgcolor="#C9F" align="center"  width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="1" />
+                                                <input type="hidden" value="@drs6[0]["AuthorizeNo"].ToString()" />
+                                                <div>@drs6[0]["RealName"].ToString()</div>
+                                                <div>@drs6[0]["AuthorRoomStyle"].ToString()</div>
+                                                <div>@drs6[0]["PlatType"].ToString()</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td align="center" width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="0" />
+                                                <input type="hidden" value="@dt_room.Rows[i]["IsCanClose"].ToString()" />
+                                                <div>（空闲）</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                    }else
+                                    {
+                                        <td bgcolor="#0F0"  align="center" width="12.14%">
+                                            <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                            <input type="hidden" value="1" />
+                                            <input type="hidden" value="@drs6[0]["AuthorizeNo"].ToString()" />
+                                            <div>@drs6[0]["RealName"].ToString()</div>
+                                            <div>@drs6[0]["AuthorRoomStyle"].ToString()</div>
+                                            <div>@drs6[0]["PlatType"].ToString()</div>
+                                            <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                        </td>
+                                    }
+                                }
+                                else
+                                { 
+                                    <td align="center" width="12.14%">
+                                        <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                        <input type="hidden" value="0" />
+                                        <input type="hidden" value="@dt_room.Rows[i]["IsCanClose"].ToString()" />
+                                        <div>（空闲）</div>
+                                        <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                    </td>
+                                }
+                                
+                                if (drs7.Length > 0)
+                                {
+                                    if (drs7[0]["AuthorLiveStatus"].ToString() == "0")
+                                    {
+                                        <td bgcolor="#0F0"  align="center" width="12.14%">
+                                            <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                            <input type="hidden" value="1" />
+                                            <input type="hidden" value="@drs7[0]["AuthorizeNo"].ToString()" />
+                                            <div>@drs7[0]["RealName"].ToString()</div>
+                                            <div>@drs7[0]["AuthorRoomStyle"].ToString()</div>
+                                            <div>@drs7[0]["PlatType"].ToString()</div>
+                                            <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                        </td>
+                                    }
+                                    else if (drs7[0]["AuthorLiveStatus"].ToString() == "1" || drs7[0]["AuthorLiveStatus"].ToString() == "2" || drs7[0]["AuthorLiveStatus"].ToString() == "3")
+                                    {
+                                        if (drs7[0]["ISRZ"].ToString() == "0")
+                                        { 
+                                            <td bgcolor="#0FF" align="center"  width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="1" />
+                                                <input type="hidden" value="@drs7[0]["AuthorizeNo"].ToString()" />
+                                                <div>@drs7[0]["RealName"].ToString()</div>
+                                                <div>@drs7[0]["AuthorRoomStyle"].ToString()</div>
+                                                <div>@drs7[0]["PlatType"].ToString()</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td bgcolor="#FF0"  align="center" width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="1" />
+                                                <input type="hidden" value="@drs7[0]["AuthorizeNo"].ToString()" />
+                                                <div>@drs7[0]["RealName"].ToString()</div>
+                                                <div>@drs7[0]["AuthorRoomStyle"].ToString()</div>
+                                                <div>@drs7[0]["PlatType"].ToString()</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                    }
+                                    else if (drs7[0]["AuthorLiveStatus"].ToString() == "4" || drs7[0]["AuthorLiveStatus"].ToString() == "6")
+                                    {
+                                        if (drs7[0]["ISSERVICE"].ToString() == "0")
+                                        { 
+                                            <td bgcolor="#C9F"  align="center" width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="1" />
+                                                <input type="hidden" value="@drs7[0]["AuthorizeNo"].ToString()" />
+                                                <div>@drs7[0]["RealName"].ToString()</div>
+                                                <div>@drs7[0]["AuthorRoomStyle"].ToString()</div>
+                                                <div>@drs7[0]["PlatType"].ToString()</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td align="center" width="12.14%">
+                                                <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                                <input type="hidden" value="0" />
+                                                <input type="hidden" value="@dt_room.Rows[i]["IsCanClose"].ToString()" />
+                                                <div>（空闲）</div>
+                                                <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                            </td>
+                                        }
+                                    }else
+                                    {
+                                        <td bgcolor="#0F0"  align="center" width="12.14%">
+                                            <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                            <input type="hidden" value="1" />
+                                            <input type="hidden" value="@drs7[0]["AuthorizeNo"].ToString()" />
+                                            <div>@drs7[0]["RealName"].ToString()</div>
+                                            <div>@drs7[0]["AuthorRoomStyle"].ToString()</div>
+                                            <div>@drs7[0]["PlatType"].ToString()</div>
+                                            <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                        </td>
+                                    }
+                                }
+                                else
+                                { 
+                                    <td align="center" width="12.14%">
+                                        <input type="hidden" value="@dt_room.Rows[i]["ID"].ToString()" />
+                                        <input type="hidden" value="0" />
+                                        <input type="hidden" value="@dt_room.Rows[i]["IsCanClose"].ToString()" />
+                                        <div>（空闲）</div>
+                                        <div>电量：@dt_room.Rows[i]["DL"].ToString()</div>
+                                    </td>
+                                }
+                            }
+                         }
+                    </tr>
+                }   
+             }
+            @{
+                for(int i = 0;i<num;i++)
+                {
+                    <tr>
+                        <td width="15%" height="80">&nbsp;</td>
+                        <td  width="12.14%">&nbsp;</td>
+                        <td  width="12.14%">&nbsp;</td>
+                        <td  width="12.14%">&nbsp;</td>
+                        <td  width="12.14%">&nbsp;</td>
+                        <td  width="12.14%">&nbsp;</td>
+                        <td  width="12.14%">&nbsp;</td>
+                        <td  width="12.14%">&nbsp;</td>
+                    </tr>
+                }   
+             }
+        </table>
+    </div>
+    <div style="border-top:2px solid #cccccc;height:40px;line-height:40px;color:red;font-weight:bold;">
+    	<div style="float:left;">待处理：</div>
+        <div style="float:left;">@dcldd 条</div>
+        <div style="float:left;">　　</div>
+        <div style="float:left;">今日入住：</div>
+        <div style="float:left;">@jrrz 条</div>
+        <div style="float:left;">　　</div>
+        <div style="float:left;">今天待退房：</div>
+        <div style="float:left;">@jrdtf 条</div>
+        <div style="float:left;">　　</div>
+        <div style="float:left;">今天空房：</div>
+        <div style="float:left;">@jrkf 条</div>
+        <div style="float:left;">　　</div>
+    </div>
+</div>

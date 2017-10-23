@@ -1,0 +1,327 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Text;
+using System.Xml;
+
+/// <summary>
+///MenuControl 的摘要说明
+/// </summary>
+public class MenuControl
+{
+    //<Tab p='Smart.SystemPrivilege.信息采集_平价商店数据.不符合要求的数据统计表' Name='不符合要求的数据统计表'>approot/r/page/jkpt/BFHYQTable.html</Tab>
+
+    //<Tab p='Smart.SystemPrivilege.考核评分_网络监督考核.显示屏联网考核' Name='显示屏联网考核'>approot/r/page/LhKh/XspShow.html</Tab>
+
+    public static  String xmlMenu = @"
+        <MainMenu>
+            <Menu Name='平价数据审核'>
+                <Item Name='平价公示审核'>
+                    <Tab p='Smart.SystemPrivilege.平价数据审核_平价商店数据.平价公示审核' Name='平价公示审核'>approot/r/page/jkpt/ShpjdKsj.html</Tab>                                  
+                </Item>
+                <Item Name='平价执行审核'>
+                    <Tab p='Smart.SystemPrivilege.平价数据审核_平价商店数据.平价执行审核' Name='平价执行审核'>approot/r/page/jkpt/ShpjdRxs.htmll</Tab>
+                </Item>  
+                <Item Name='数据审核情况'>
+                    <Tab p='Smart.SystemPrivilege.平价数据审核_数据审核情况.上报情况统计' Name='上报情况汇总'>approot/r/page/jkpt/WSBTable.html</Tab>
+                    <Tab p='Smart.SystemPrivilege.平价数据审核_数据审核情况.审核情况汇总' Name='审核情况汇总'>approot/r/page/jkpt/GQSHQKTJ.html</Tab>
+                    <Tab p='Smart.SystemPrivilege.平价数据审核_数据审核情况.公示情况汇总' Name='公示情况汇总'>approot/r/page/jkpt/PJGSQKTJ.html</Tab>
+                    <Tab p='Smart.SystemPrivilege.平价数据审核_数据审核情况.执行情况汇总' Name='执行情况汇总'>approot/r/page/jkpt/PJZXQKTJ.html</Tab>                    
+                </Item>             
+            </Menu>
+            <Menu Name='价格数据采集'>            
+                <Item Name='农贸市场'>
+                    <Tab p='Smart.SystemPrivilege.价格数据采集_农贸市场.数据上报' Name='数据上报'>approot/r/page/jkpt/NMSC.html</Tab>
+                    <Tab p='Smart.SystemPrivilege.价格数据采集_农贸市场.任务审核' Name='任务审核'>approot/r/page/Jgjc/JcSbsjSh.html</Tab>
+                    <Tab p='Smart.SystemPrivilege.价格数据采集_农贸市场.汇总审核' Name='汇总审核(需调整)'>approot/r/page/Jgjc/BdhzList.html</Tab>
+                </Item>
+                <Item Name='批发市场'>
+                    <Tab p='Smart.SystemPrivilege.价格数据采集_批发市场.数据上报' Name='数据上报'>approot/r/page/jkpt/PFSC.html</Tab>
+                    <Tab p='Smart.SystemPrivilege.价格数据采集_批发市场.任务审核' Name='任务审核(需调整)'></Tab>
+                    <Tab p='Smart.SystemPrivilege.价格数据采集_批发市场.汇总审核' Name='汇总审核(需调整)'></Tab>
+                </Item>
+                <Item Name='生产基地'>
+                    <Tab p='Smart.SystemPrivilege.价格数据采集_生产基地.数据上报' Name='数据上报'>approot/r/page/jkpt/SCJD.html</Tab>
+                    <Tab p='Smart.SystemPrivilege.价格数据采集_生产基地.任务审核' Name='任务审核(需调整)'></Tab>
+                    <Tab p='Smart.SystemPrivilege.价格数据采集_生产基地.汇总审核' Name='汇总审核(需调整)'></Tab>
+                </Item>
+            </Menu>
+            <Menu Name='数据汇总分析'> 
+                <Item Name='价格数据汇总'>
+                    <Tab p='Smart.SystemPrivilege.数据汇总分析_价格数据汇总.平价数据汇总' Name='平价数据汇总'>approot/r/page/jkpt/HZTable.html</Tab>
+                    <Tab p='Smart.SystemPrivilege.数据汇总分析_价格数据汇总.农贸市场价格' Name='农贸市场价格'>approot/r/page/Jgjc/BdhzTable.html</Tab>
+                    <Tab p='Smart.SystemPrivilege.数据汇总分析_价格数据汇总.批发市场价格' Name='批发市场价格(需调整)'></Tab>
+                    <Tab p='Smart.SystemPrivilege.数据汇总分析_价格数据汇总.生产基地价格' Name='生产基地价格(需调整)'></Tab>
+                </Item>
+                <Item Name='销量数据分析'>
+                    <Tab p='Smart.SystemPrivilege.数据汇总分析_销量数据分析.每日销量分析' Name='每日销量分析'>approot/r/page/JXPG/PJSDXLTJ_day.html</Tab>
+                    <Tab p='Smart.SystemPrivilege.数据汇总分析_销量数据分析.销量对比分析' Name='销量对比分析'>approot/r/page/JXPG/PJSDXLTJ.html</Tab>
+                    <Tab p='Smart.SystemPrivilege.数据汇总分析_销量数据分析.平均销量对比' Name='平均销量对比'>approot/r/page/JDZD/DYPJXL_PJD.html</Tab>
+                    <Tab p='Smart.SystemPrivilege.数据汇总分析_销量数据分析.品种销量分析' Name='品种销量分析'>approot/r/page/JDZD/Pjspxsqk.html</Tab>
+                </Item>
+                <Item Name='惠民情况分析'>
+                    <Tab p='Smart.SystemPrivilege.数据汇总分析_惠民情况分析.每日惠民情况' Name='每日惠民情况'>approot/r/page/JDZD/PJSDPH_day.html</Tab>
+                    <Tab p='Smart.SystemPrivilege.数据汇总分析_惠民情况分析.惠民情况统计' Name='惠民情况统计'>approot/r/page/JDZD/PJSDPH.html</Tab>
+                </Item>
+            </Menu>
+            <Menu Name='统计报表分析'>
+                <Item Name='总体情况统计'>
+                    <Tab p='Smart.SystemPrivilege.统计报表分析_总体情况统计.省统计表' Name='省统计表'></Tab>
+                </Item>
+                <Item Name='分类情况统计'>
+                    <Tab p='Smart.SystemPrivilege.统计报表分析_分类情况统计.市统计表' Name='市统计表'></Tab>
+                </Item>
+                <Item Name='每日售价分析'>
+                    <Tab p='Smart.SystemPrivilege.统计报表分析_每日售价分析.日售价统计表' Name='日售价统计表'></Tab>
+                </Item>
+                <Item Name='销售价格统计'>
+                    <Tab p='Smart.SystemPrivilege.统计报表分析_销售价格统计.时段售价统计表' Name='时段售价统计表'></Tab>
+                </Item>
+            </Menu>
+            <Menu Name='运营分析'>
+                <Item Name='成本毛利分析'>
+                    <Tab p='Smart.SystemPrivilege.运营分析_成本毛利分析.成本毛利分析' Name='成本毛利分析'>approot/r/page/JXPG/CBML.html</Tab>
+                </Item>
+                <Item Name='流通差价分析'>
+                    <Tab p='Smart.SystemPrivilege.运营分析_流通差价分析.流通差价分析' Name='流通差价分析'>approot/r/page/JXPG/JGYD.html</Tab>
+                </Item> 
+            </Menu>
+            <Menu Name='监督管理指导'>
+                <Item Name='平价商店管理'>
+                    <Tab p='Smart.SystemPrivilege.监督管理指导_平价商店管理.平价商店管理' Name='平价商店管理'></Tab>
+                </Item>
+                <Item Name='平价店分布图'>
+                    <Tab p='Smart.SystemPrivilege.监督管理指导_平价店分布图.平价店分布图' Name='平价店分布图'></Tab>
+               </Item> 
+                <Item Name='客户端联网情况'>
+                    <Tab p='Smart.SystemPrivilege.监督管理指导_客户端联网情况.客户端联网情况' Name='客户端联网情况'></Tab>
+                </Item>
+                <Item Name='显示屏联网情况'>
+                    <Tab p='Smart.SystemPrivilege.监督管理指导_显示屏联网情况.显示屏联网情况' Name='显示屏联网情况'></Tab>
+                </Item> 
+                <Item Name='每日量化考核'>
+                    <Tab p='Smart.SystemPrivilege.监督管理指导_每日量化考核.每日量化考核' Name='每日量化考核'></Tab>
+                </Item>
+                <Item Name='品种销量排行'>
+                    <Tab p='Smart.SystemPrivilege.监督管理指导_品种销量排行.平价商品销量排行' Name='平价商品销量排行'></Tab>
+                </Item> 
+                <Item Name='惠民情况排行'>
+                    <Tab p='Smart.SystemPrivilege.监督管理指导_惠民情况排行.平价商店惠民排行' Name='平价商店惠民排行'></Tab>
+                </Item> 
+            </Menu>
+
+
+            <Menu Name='考核评分'>
+                <Item Name='评分汇总'>
+                    <Tab p='Smart.SystemPrivilege.考核评分_评分汇总.考核评分汇总' Name='考核评分汇总'>approot/r/page/LhKh/Pfhz_TY.html</Tab>
+                </Item>
+                <Item Name='每日量化考核'>
+                    <Tab p='Smart.SystemPrivilege.考核评分_每日量化考核.每日量化考核' Name='每日量化考核'>approot/r/page/JDZD/MRLHKH.html</Tab>
+                </Item>
+                <Item Name='网络监督考核'>
+                    <Tab p='Smart.SystemPrivilege.考核评分_网络监督考核.数据上报情况' Name='数据上报情况'>approot/r/page/LhKh/Sjsbqk.html</Tab>
+                    <Tab p='Smart.SystemPrivilege.考核评分_网络监督考核.达标情况统计' Name='达标情况统计'>approot/r/page/LhKh/DbTj.html</Tab>
+                    <Tab p='Smart.SystemPrivilege.考核评分_网络监督考核.销售情况统计' Name='销量情况统计'>approot/r/page/LhKh/XlTj.html</Tab>                    
+                </Item>                
+                <Item Name='现场检查考核'>
+                    <Tab p='Smart.SystemPrivilege.考核评分_现场检查考核.巡查考核统计' Name='巡查考核统计'>approot/r/page/LhKh/KhList_xctj.html</Tab>
+                    <Tab p='Smart.SystemPrivilege.考核评分_现场检查考核.考核情况填报' Name='巡查考核填报'>approot/r/page/LhKh/KhList_xckh.html</Tab>
+                </Item>
+                <Item Name='专项检查考核'>
+                    <Tab p='Smart.SystemPrivilege.考核评分_专项检查考核.考核情况填报' Name='专项考核填报'>approot/r/page/LhKh/KhList_zxkh.html</Tab>
+                </Item>
+                <Item Name='问卷调查考核'>
+                    <Tab p='Smart.SystemPrivilege.考核评分_问卷调查考核.问卷调查考核' Name='问卷调查考核'>approot/r/page/TpPage/looklist.html</Tab>
+                </Item>
+                <Item Name='奖励加分填报'>
+                    <Tab p='Smart.SystemPrivilege.考核评分_奖励加分填报.奖励加分填报' Name='奖励加分填报'>approot/r/page/LhKh/KhList_Jljf.html</Tab>
+                </Item>
+                <Item Name='考核项目管理'>
+                    <Tab p='Smart.SystemPrivilege.考核评分_考核项目管理.考核项目管理' Name='考核项目管理'>approot/r/page/LhKh/KHYJ.html</Tab>
+                </Item>
+            </Menu>
+            <Menu Name='预警预报'>              
+                <Item Name='价格波动预警'>
+                    <Tab p='Smart.SystemPrivilege.预警预报_价格波动预警.价格波动预警' Name='价格波动预警'>approot/r/page/YJ/JgbdYJ.html</Tab>
+                </Item>
+                <Item Name='供应增减预警'>
+                    <Tab p='Smart.SystemPrivilege.预警预报_供应增减预警.供应增减预警' Name='供应增减预警'>approot/r/page/YJ/GyzjYJ.html</Tab>
+                </Item>
+                <Item Name='预警值设置'>
+                    <Tab p='Smart.SystemPrivilege.预警预报_预警值设置.预警值设置' Name='预警值设置'>approot/r/page/YJ/YJSet.html</Tab>
+                </Item>
+            </Menu>
+            <Menu Name='系统管理'>
+                <Item Name='用户管理'>
+                    <Tab p='Smart.SystemPrivilege.系统管理_用户管理.人员权限管理' Name='人员权限管理'>approot/r/page/UserMag/UserManage.html</Tab>
+                </Item>
+                <Item Name='商品管理'>
+                    <Tab p='Smart.SystemPrivilege.系统管理_商品管理.商品类别' Name='商品类别'>approot/r/page/Product/ProTypeMag.html</Tab>
+                    <Tab p='Smart.SystemPrivilege.系统管理_商品管理.商品维护' Name='商品维护'>approot/r/page/Product/ProMag.html</Tab>
+                </Item>
+                <Item Name='角色管理'>
+                    <Tab p='Smart.SystemPrivilege.系统管理_角色管理.角色管理' Name='角色管理'>approot/r/page/UserMag/JsManage.html</Tab>
+                </Item>       
+                <Item Name='平价商店管理'>
+                    <Tab p='Smart.SystemPrivilege.系统管理_平价商店管理.平价商店管理' Name='平价商店管理'>approot/r/page/System/Pjsd.html</Tab>
+                </Item>         
+                <Item Name='参数设置'>
+                    <Tab p='Smart.SystemPrivilege.系统管理_参数设置.时间设定' Name='时间设定'>approot/r/page/jkpt/JgptSet.html</Tab>
+                    <Tab p='Smart.SystemPrivilege.系统管理_参数设置.上报类型设定' Name='上报类型设定'>approot/r/page/jkpt/SBTypeSet.html</Tab>
+                    <Tab p='Smart.SystemPrivilege.系统管理_参数设置.商品幅度设定' Name='商品幅度设定'>approot/r/page/Product/ProSet.html</Tab>
+                    <Tab p='Smart.SystemPrivilege.系统管理_参数设置.上报商品品种设定' Name='上报商品品种设定'>approot/r/page/Product/ProCat_kh.html</Tab>
+                </Item>                
+                <Item Name='客户端联网管理'>
+                    <Tab p='Smart.SystemPrivilege.系统管理_客户端联网管理.客户端联网情况' Name='客户端联网管理'>approot/r/page/System/NetLog.html</Tab>
+                </Item>
+            </Menu>
+            <Menu Name='信息平台'> 
+                <Item Name='用户组管理'>
+                    <Tab p='Smart.SystemPrivilege.信息平台_用户组管理.用户组管理' Name='用户组管理'>approot/r/page/Message/UserGroupMag.html</Tab>
+                </Item>
+                <Item Name='用户管理'>
+                    <Tab p='Smart.SystemPrivilege.信息平台_用户管理.用户管理' Name='用户管理'>approot/r/page/Message/UserMag.html</Tab>
+                </Item>
+                <Item Name='发送短信'>
+                    <Tab p='Smart.SystemPrivilege.信息平台_发送短信.发送短信' Name='发送短信'>approot/r/page/Message/SendMsg.html</Tab>
+                </Item>  
+                <Item Name='发信箱'>
+                    <Tab p='Smart.SystemPrivilege.信息平台_发信箱.发信箱' Name='发信箱'>approot/r/page/Message/SearchMsgList.html</Tab>
+                </Item> 
+                <Item Name='收信箱'>
+                    <Tab p='Smart.SystemPrivilege.信息平台_收信箱.收信箱' Name='收信箱'>approot/r/page/Message/ReceiveMsgList.html</Tab>
+                </Item>
+                <Item Name='信息公告'>
+                    <Tab p='Smart.SystemPrivilege.信息平台_信息公告.信息内容管理' Name='信息内容管理'>approot/r/page/NewsList/NewsList.html</Tab>
+                    <Tab p='Smart.SystemPrivilege.信息平台_信息公告.信息类别维护' Name='信息类别维护'>approot/r/page/NewsList/LmAdd.html</Tab>
+                </Item>
+                <Item Name='咨询答复'>
+                    <Tab p='Smart.SystemPrivilege.信息平台_咨询答复.咨询答复' Name='咨询答复'>approot/r/page/zxts/wjj_list.html</Tab>
+                </Item> 
+                <Item Name='平价商店概况'>
+                    <Tab p='Smart.SystemPrivilege.信息平台_平价商店分布图.平价商店分布图' Name='平价商店概况'>approot/r/map.aspx?full</Tab>
+                </Item>               
+            </Menu> 
+            
+            <Menu Name='信息采集'>
+                <Item Name='公示价格'>
+                    <Tab p='Smart.SystemPrivilege.平价商店权限_信息采集_公示价格.公示价格' Name='公示价格'>approot/r/page/POSCX/SJSB/CXpjdKsj.html</Tab>
+                </Item>
+                <Item Name='销售价格'>
+                    <Tab p='Smart.SystemPrivilege.平价商店权限_信息采集_销售价格.销售价格' Name='销售价格'>approot/r/page/POSCX/SJSB/CXpjdRxs.html</Tab>
+                </Item>
+            </Menu>
+            <Menu Name='考核查询'>
+                <Item Name='网上监测'>
+                    <Tab p='Smart.SystemPrivilege.平价商店权限_量化考核_网上监测.网上监测' Name='网上监测'>approot/r/page/POSCX/Lhkh/wsjc.html</Tab>
+                </Item>
+                <Item Name='巡查记录'>
+                    <Tab p='Smart.SystemPrivilege.平价商店权限_量化考核_巡查记录.巡查记录' Name='巡查记录'>approot/r/page/POSCX/Lhkh/Xcjl.html@type=1</Tab>
+                </Item>
+                <Item Name='专项检查'>
+                    <Tab p='Smart.SystemPrivilege.平价商店权限_量化考核_专项检查.专项检查' Name='专项检查'>approot/r/page/POSCX/Lhkh/Xcjl.html@type=2</Tab>
+                </Item>
+                <Item Name='季度考评'>
+                    <Tab p='Smart.SystemPrivilege.平价商店权限_量化考核_季度考评.季度考评' Name='季度考评'>approot/r/page/POSCX/Lhkh/Jdkp.html</Tab>
+                </Item>
+            </Menu>
+            <Menu Name='价格中心'>
+                <Item Name='平价商品价格'>
+                    <Tab p='Smart.SystemPrivilege.平价商店权限_价格中心_平价商品价格.平价商品价格' Name='平价商品价格'>approot/r/page/POSCX/JGCX/PJSPJG.html</Tab>
+                </Item>
+                <Item Name='平价商店比较'>
+                    <Tab p='Smart.SystemPrivilege.平价商店权限_价格中心_平价商店比较.平价商店比较' Name='平价商店比较'>approot/r/page/POSCX/JGCX/PJSDBJ.html</Tab>
+                </Item>
+                <Item Name='批发市场价格'>
+                    <Tab p='Smart.SystemPrivilege.平价商店权限_价格中心_批发市场价格.批发市场价格' Name='批发市场价格'>approot/r/page/POSCX/JGCX/PFSCJG.html</Tab>
+                </Item>
+            </Menu>
+            <Menu Name='宣传推荐'>
+                <Item Name='公示价格查询'>
+                    <Tab p='Smart.SystemPrivilege.平价商店权限_宣传推荐_公示价格查询.公示价格查询' Name='公示价格查询'>approot/r/page/POSCX/JGGS/POSGSJ.html</Tab>
+                </Item>
+            </Menu>
+            <Menu Name='信息服务'>
+                <Item Name='信息公告'>
+                    <Tab p='Smart.SystemPrivilege.平价商店权限_信息服务_信息公告.信息公告' Name='信息公告'>approot/r/page/POSCX/NewsListXXZX/NewsShow.html@newstid=03e70194-22a5-46d8-9a50-933364a4ef89</Tab>
+                </Item>
+                <Item Name='咨询答复'>
+                    <Tab p='Smart.SystemPrivilege.平价商店权限_信息服务_咨询答复.咨询答复' Name='咨询答复'>approot/r/page/POSCX/NewsListXXZX/wjj_list.html</Tab>
+                </Item>
+            </Menu>
+            
+        </MainMenu>
+    ";
+
+
+
+
+    public static string GenerateMenuByPrivilege()
+    {
+        System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+        doc.LoadXml(xmlMenu);
+        StringBuilder sb = new StringBuilder();
+        int num = 0;
+
+        var cu = SystemUser.CurrentUser;
+        
+        sb.Append("[");
+        foreach (System.Xml.XmlElement MenuEL in doc.SelectNodes("/MainMenu/Menu"))
+        {
+            if (num > 0)
+            {
+                sb.Append(",");
+            }
+            num++;
+
+            string title = MenuEL.GetAttribute("Name").ToString().Trim();
+
+            
+
+            string lis = "";
+            foreach (System.Xml.XmlElement ItemEl in MenuEL.SelectNodes("Item"))
+            {
+                string secname = ItemEl.GetAttribute("Name");
+                string msg = "";
+                foreach (XmlElement TabEl in ItemEl.SelectNodes("Tab"))
+                {
+                    string p = TabEl.GetAttribute("p").ToString().Trim();
+                    if (cu.CheckPrivilegeString(p))
+                    {
+                        string pantitle = TabEl.GetAttribute("Name").ToString().Trim();
+                        string src = TabEl.InnerText;
+                        if (msg == "")
+                        {
+                            msg += pantitle + "," + src;
+                        }
+                        else
+                        {
+                            msg += "|" + pantitle + "," + src;
+                        }
+                    }
+                }
+                if (msg != "")
+                {
+                    lis += "+ '<li class=\"fore\"><a class=\"MenuItem\" href=\"page/TabMenu.html?msg=" + msg + "\" target=\"mainframe\"><img height=16 width=16 align=\"absmiddle\" style=\"border:0\" src=\"../CSS/images/application.png\" />　" + secname + "</a></li>'";
+                    
+                }
+            }
+
+            if (lis != "")
+            {
+                sb.Append("{");
+                sb.Append("xtype: 'panel',");
+                sb.Append("collapsed: false,");
+                sb.Append("iconCls: 'cf',");
+                sb.Append("title: '" + title + "',");
+                sb.Append("html: '<ul class=\"MenuHolder\">'");
+                sb.Append(lis);
+                sb.Append("+ '</ul>'");
+                sb.Append("}");
+            }
+        }
+        sb.Append("]");
+        return sb.ToString();
+    }
+}

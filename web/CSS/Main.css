@@ -1,0 +1,255 @@
+﻿body 
+{
+    font-size:12px;
+}
+#MainHeader
+{
+    height:30px;
+    line-height:30px;
+
+}
+
+.MenuHolder {
+    list-style:none;
+    padding:0px;
+    margin:0px;
+}
+
+
+.MenuHolder a
+{
+    height:25px;
+    line-height:25px;
+    cursor:pointer;
+}
+.MenuHolder  a
+{
+    height:25px;
+    display:block;
+    line-height:25px;
+    padding-left:20px;
+    text-decoration:underline;
+    color:Black;
+}
+.MenuHolder  a:hover
+{
+    background-color:#dfe9f6;
+    border-top:1px solid #98bce8;
+    border-bottom:1px solid #98bce8;
+    height:23px;
+     line-height:23px;
+    width:100%;
+     text-decoration:none;
+    color:Black;
+}
+.MenuHolder  a:link,.MenuHolder  a:visited
+{
+    text-decoration:none;
+    color:Black;
+}
+.MenuHolder  a:hover
+{
+    height:25px;
+    line-height:25px;
+    border-top:0px;
+    text-decoration:none;
+    color:Black;
+}
+.MenuHolder a:link,.MenuHolder MenuItem .fore a:visited
+{
+    height:25px;
+    line-height:25px;
+    border-top:0px;
+    text-decoration:none;
+    color:Black;
+}
+.picitem
+{
+    width: 130px;
+    height: 110px;
+    border:1px solid #99bce8;
+    text-align:center;
+    padding:5px;
+    float:left;
+    margin:4px;
+}
+.picHolder
+{
+    width:80px;
+    height:120px;
+}
+
+
+.clsUnselected {border:none;}
+.clsSelected {border:1px solid #99bce8;}
+
+#RightHeader img
+{
+    border:none;
+}
+#RightHeader a
+{
+    text-decoration:none;
+    font-size:12px;
+    color:Black;
+}
+#RightHeader a:visited 
+{
+    text-decoration:none;
+    font-size:12px;
+    color:Black;
+}
+#MainHeader
+{
+    background:url(../images/bg_header.jpg) repeat-x;
+}
+#RightHeader
+{
+    float:right;
+    background:url(../images/bg_right.jpg);
+    width:525px;
+    height:45px;
+    line-height:45px;
+    text-align:right;
+}
+a
+{
+    text-decoration:none;
+    color:blue;
+}
+a:visited
+{
+    text-decoration:none;
+    color:blue;
+}
+
+.PSZXDetail tr,.PSZXDetail td
+{
+    border:1px solid black;
+    border-collapse:collapse;
+}
+.HeaderUnit
+{
+    background-color:White;
+    font-size:14px;
+    padding: 5px 0px 5px 4px;
+    height:24px;
+    line-height:24px;
+}
+
+.search-item
+{
+    background-color:White;
+    border-bottom:1px dashed #98bce8;
+    overflow:hidden;
+    height:24px;
+    line-height:24px;
+    white-space:nowrap;
+    font-size:12px;
+}
+
+.search-item a
+{
+    float:left;
+    color: Black;
+    text-decoration:none;
+    font-weight:normal;
+}
+.search-item a:link
+{
+    color: Black;
+}
+.search-item span
+{
+    float:right;
+    width:100px;
+}
+.search-item2
+{
+    background-color:White;
+    border-bottom:1px dashed #98bce8;
+    overflow:hidden;
+    height:24px;
+    line-height:24px;
+    white-space:nowrap;
+    font-size:12px;
+}
+
+.TaskItem
+{
+    line-height:32px;
+    height:32px;
+    border-bottom:1px dashed #98bce8;
+}
+.LoginHeader
+{
+    height: 45px;
+    overflow:hidden;
+    white-space:nowrap;
+}
+.LoginInfo
+{
+    border: 1px solid #98bce8;
+    line-height: 24px;
+    background: url(../images/panel-header-default-top-bg.gif) repeat-x;
+    margin:7px 0px;
+}
+.rightHeader
+{
+    float: right;
+    height: 45px;
+    line-height: 45px;
+    width: 525px;
+    text-align: right;
+    background: url(../images/bg_right.jpg);
+    overflow: hidden;
+    white-space: nowrap;
+}
+.rightHeader a,.rightHeader a:link ,.rightHeader a:visited ,.rightHeader a:hover ,.rightHeader a:active  
+{
+    color:Black;
+    text-decoration:none;
+}
+.leftHeader
+{
+    float: left;
+    height: 45px;
+    line-height: 45px;
+}
+
+.Ema a
+{
+    font-size:12px;
+    color:Black;
+    text-decoration:underline;
+}
+.Ema a:visited 
+{
+    font-size:12px;
+    color:Black;
+    text-decoration:underline;
+}
+
+.fxcl td
+{
+    height:20px;    
+}
+
+.datatable td
+{
+    border:1px solid #DDDDDD;
+} 
+.x-grid-record-red .x-grid-cell{  
+     background-color: #FF0000;  
+ }    
+
+.x-grid-record-yellow .x-grid-cell{  
+     background-color: #FFDE88;  
+ }
+.tbyc .STYLE1 {
+	font-family: "宋体";
+	font-size: 20px;
+	color: #FFFFFF;
+	font-weight: bold;
+}
+.tbyc  .STYLE2 {font-size: 20px}
