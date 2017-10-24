@@ -17,12 +17,9 @@ public class MenuControl
     public static String xmlMenu = @"
         <MainMenu>
         
-            <Menu Name='制单/退单'>            
+            <Menu Name='制单'>            
                 <Item Name='制单'>
                    <Tab p='' Name='制单'>approot/r/page/zhidan/zhidan.html</Tab>
-                </Item>
-               <Item Name='退单'>
-                   <Tab p='' Name='退单'>approot/r/page/zhidan/tuidan.html</Tab>
                 </Item>
             </Menu>
             <Menu Name='运单查询'>            
