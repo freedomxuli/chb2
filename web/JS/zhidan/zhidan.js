@@ -93,7 +93,7 @@ Ext.onReady(function () {
                                         queryMode: 'local',
                                         store:province,
                                         id: 'QiShiZhan_Province',
-                                        fieldLabel: '出发地',
+                                        fieldLabel: '起始站',
                                         listeners: {
                                             change: function(data,newValue, oldValue, eOpts) {
                                                 city.loadData(newcity[newValue]);
@@ -118,7 +118,7 @@ Ext.onReady(function () {
                                         queryMode: 'local',
                                         store: province,
                                         id: 'DaoDaZhan_Province',
-                                        fieldLabel: '目的地',
+                                        fieldLabel: '到达站',
                                         listeners: {
                                             change: function (data, newValue, oldValue, eOpts) {
                                                 city2.loadData(newcity[newValue]);

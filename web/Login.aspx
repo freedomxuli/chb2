@@ -29,6 +29,8 @@ body,td,th {
     <script type="text/javascript" src="js/cb.js"></script>
 
     <script type="text/javascript" src="js/fun.js"></script>
+    
+    <script type="text/javascript" src="JS/city.js"></script>
 
     <script type="text/javascript">
         function code(v) {
@@ -84,7 +86,7 @@ body,td,th {
                       <tr>
                         <td width="31%" height="36">&nbsp;</td>
                         <td width="20%" align="center"><a href="#" onclick="return Login();"><img src="images/1.jpg" width="60" height="24" border="0"></a></td>
-                        <td width="21%" align="center"><a href="#" onclick="javascript:var win = window.open('', '_self');win.close();return false;"><img src="images/2.jpg" width="60" height="24" border="0"></a></td>
+                        <td width="21%" align="center"><a href="#" onclick="javascript:var win = window.open('', '_self');win.close();return false;"><img src="images/2.jpg" width="60" height="24" border="0" onclick="zhuce();"></a></td>
                         <td width="28%">&nbsp;</td>
                       </tr>
                     </table></td>
@@ -101,7 +103,136 @@ body,td,th {
     </table></td>
   </tr>
 </table>
+    <script type="text/javascript">
+        var newcity = {};
 
+        var province = Ext.create('Ext.data.Store', {
+            fields: [
+                'ID', 'MC'
+            ]
+        });
+
+        var city = Ext.create('Ext.data.Store', {
+            fields: [
+                'ID', 'MC'
+            ]
+        });
+
+        Ext.define('zhuceWin', {
+            extend: 'Ext.window.Window',
+
+            height: document.documentElement.clientHeight/1.5,
+            width: document.documentElement.clientWidth / 2,
+            layout: {
+                type: 'fit'
+            },
+            title: '注册',
+
+            modal:true,
+
+            initComponent: function () {
+                var me = this;
+
+                Ext.applyIf(me, {
+                    items: [
+                        {
+                            xtype: 'panel',
+                            layout: {
+                                align: 'center',
+                                type: 'vbox'
+                            },
+                            items: [
+                                {
+                                    xtype: 'panel',
+                                    flex: 1,
+                                    width: 471,
+                                    layout: {
+                                        type: 'column'
+                                    },
+                                    border: 0,
+                                    items: [
+                                        {
+                                            xtype: 'combobox',
+                                            columnWidth: 0.65,
+                                            padding: 20,
+                                            valueField: 'ID',
+                                            displayField: 'MC',
+                                            queryMode: 'local',
+                                            store: province,
+                                            id: 'User_Province',
+                                            fieldLabel: '所在城市',
+                                            listeners: {
+                                                change: function (data, newValue, oldValue, eOpts) {
+                                                    city.loadData(newcity[newValue]);
+                                                }
+                                            }
+                                        },
+                                        {
+                                            xtype: 'combobox',
+                                            columnWidth: 0.35,
+                                            padding: 20,
+                                            valueField: 'ID',
+                                            displayField: 'MC',
+                                            queryMode: 'local',
+                                            store: city,
+                                            id: 'User_City'
+                                        },
+                                        {
+                                            xtype: 'textfield',
+                                            columnWidth: 1,
+                                            padding: 20,
+                                            fieldLabel: '手机号码'
+                                        },
+                                        {
+                                            xtype: 'textfield',
+                                            columnWidth: 1,
+                                            padding: 20,
+                                            fieldLabel: '登录密码'
+                                        },
+                                        {
+                                            xtype: 'textfield',
+                                            columnWidth: 1,
+                                            padding: 20,
+                                            fieldLabel: '确认密码'
+                                        },
+                                        {
+                                            xtype: 'textfield',
+                                            columnWidth: 0.8,
+                                            padding: 20,
+                                            fieldLabel: '验证码'
+                                        },
+                                        {
+                                            xtype: 'button',
+                                            margin: '20 0 20 10',
+                                            text: '发送'
+                                        }
+                                    ],
+                                    buttonAlign: 'center',
+                                    buttons: [
+                                        {
+                                            text: '注册',
+                                            handler: function () {
+                                                alert(1);
+                                            }
+                                        },
+                                        {
+                                            text: '关闭',
+                                            handler: function () {
+                                                me.close();
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                });
+
+                me.callParent(arguments);
+            }
+
+        });
+    </script>
     <script type="text/javascript">
         function Send() {
             if (window.event.keyCode == 13) {
@@ -139,6 +270,31 @@ body,td,th {
             var win = window.open('', '_self');
             win.close();
             return false;
+        }
+        function zhuce() {
+
+            var win = new zhuceWin();
+            win.show(null, function () {
+                
+                var provincesData = [];
+                for (var i = 0; i < cityList.provinces.length; i++) {
+                    var obj = {};
+                    obj.ID = cityList.provinces[i].name;
+                    obj.MC = cityList.provinces[i].name;
+                    provincesData.push(obj);
+
+                    var cityData = [];
+                    for (var j = 0; j < cityList.provinces[i].citys.length; j++) {
+                        var obj2 = {};
+                        obj2.ID = cityList.provinces[i].citys[j];
+                        obj2.MC = cityList.provinces[i].citys[j];
+                        cityData.push(obj2);
+                    }
+                    newcity[cityList.provinces[i].name] = cityData;
+                }
+                province.loadData(provincesData);
+
+            });
         }
     </script>
 
