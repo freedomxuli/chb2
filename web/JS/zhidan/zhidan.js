@@ -1,4 +1,18 @@
-﻿var newcity = {};
+﻿var pageSize = 15;
+
+var ddStore = createSFW4Store({
+    pageSize: pageSize,
+    total: 1,
+    currentPage: 1,
+    fields: [
+        'UserDenno', 'QiShiZhan', 'DaoDaZhan', 'SuoShuGongSi', 'BangDingTime'
+    ],
+    onPageChange: function (sto, nPage, sorters) {
+        DataBind(nPage);
+    }
+});
+
+var newcity = {};
 
 var province = Ext.create('Ext.data.Store', {
     fields: [
@@ -36,6 +50,7 @@ Ext.onReady(function () {
                         xtype: 'gridpanel',
                         columnLines: 1,
                         border: 1,
+                        store:ddStore,
                         columns: [
                             {
                                 xtype: 'gridcolumn',
@@ -151,7 +166,10 @@ Ext.onReady(function () {
                                     {
                                         xtype: 'button',
                                         iconCls:'search',
-                                        text: '查询'
+                                        text: '查询',
+                                        handler: function () {
+                                            DataBind(1);
+                                        }
                                     },
                                     {
                                         xtype: 'button',
@@ -161,7 +179,7 @@ Ext.onReady(function () {
                                             FrameStack.pushFrame({
                                                 url: "AddYunDan.html",
                                                 onClose: function (ret) {
-                                                    DataBind();
+                                                    DataBind(1);
                                                 }
                                             });
                                         }
@@ -172,6 +190,7 @@ Ext.onReady(function () {
                                 xtype: 'pagingtoolbar',
                                 dock: 'bottom',
                                 width: 360,
+                                store: ddStore,
                                 displayInfo: true
                             }
                         ]
@@ -188,7 +207,7 @@ Ext.onReady(function () {
 
     cityBind();
 
-    DataBind();
+    DataBind(1);
 });
 
 function cityBind() {
@@ -213,6 +232,16 @@ function cityBind() {
     province.loadData(provincesData);
 }
 
-function DataBind() {
-    
+function DataBind(cp) {
+    CS('CZCLZ.Handler.GetZhiDanList', function (retVal) {
+        if (retVal)
+        {
+            ddStore.setData({
+                data: retVal.dt,
+                pageSize: pageSize,
+                total: retVal.ac,
+                currentPage: retVal.cp
+            });
+        }
+    }, CS.onError, cp, pageSize, Ext.getCmp('QiShiZhan_Province').getValue(), Ext.getCmp('QiShiZhan_City').getValue(), Ext.getCmp('DaoDaZhan_Province').getValue(), Ext.getCmp('DaoDaZhan_City').getValue(), Ext.getCmp('SuoShuGongSi').getValue(), Ext.getCmp('UserDenno').getValue());
 }
