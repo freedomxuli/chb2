@@ -1,4 +1,5 @@
-﻿
+﻿var UserID = queryString.UserID;
+var YunDanDenno = queryString.YunDanDenno;
 
 Ext.onReady(function () {
     Ext.define('MainView', {
@@ -16,6 +17,7 @@ Ext.onReady(function () {
                     {
                         xtype: 'panel',
                         title: '运单轨迹',
+                        id:'YDGJ',
                         html:'<iframe width=100% height=100% frameborder=0 scrolling=auto src="http://www.baidu.com"></iframe>',
                         buttonAlign: 'center',
                         buttons: [
@@ -44,4 +46,14 @@ Ext.onReady(function () {
     });
 
     new MainView();
+
+    DataBind();
+
 });
+
+function DataBind()
+{
+    var src = "http://chb.yk56.net/Map?UserID=" + UserID + "&YunDanDenno=" + YunDanDenno;
+
+    Ext.getCmp('YDGJ').update("<iframe width=100% height=100% frameborder=0 scrolling=auto src='" + src + "'></iframe>");
+}

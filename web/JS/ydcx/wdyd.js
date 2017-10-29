@@ -1,4 +1,19 @@
-﻿
+﻿Ext.QuickTips.init();
+
+var pageSize = 15;
+
+var myStore = createSFW4Store({
+    pageSize: pageSize,
+    total: 1,
+    currentPage: 1,
+    fields: [
+        'BangDingTime', 'UserDenno', 'QiShiZhan', 'DaoDaZhan', 'SuoShuGongSi', 'GpsDeviceID', 'YunDanRemark', 'Gps_lastinfo', 'YunDanDenno', 'UserID', 'Gps_lasttime'
+    ],
+    onPageChange: function (sto, nPage, sorters) {
+        DataBind(nPage);
+    }
+});
+
 Ext.onReady(function () {
 
     Ext.define('mainView', {
@@ -17,13 +32,15 @@ Ext.onReady(function () {
                         xtype: 'gridpanel',
                         columnLines: 1,
                         border: 1,
+                        store: myStore,
                         columns: [
                             {
-                                xtype: 'gridcolumn',
+                                xtype: 'datecolumn',
                                 dataIndex: 'BangDingTime',
                                 flex: 1,
                                 sortable: false,
                                 menuDisabled: true,
+                                format: 'Y-m-d',
                                 text: '日期'
                             },
                             {
@@ -77,10 +94,16 @@ Ext.onReady(function () {
                             {
                                 xtype: 'gridcolumn',
                                 dataIndex: 'Gps_lastinfo',
-                                flex: 1,
+                                flex: 3,
                                 sortable: false,
                                 menuDisabled: true,
-                                text: '当前位置'
+                                text: '当前位置',
+                                renderer: function (value, cellmeta, record, rowIndex, columnIndex, store) {
+                                    if (record.data.Gps_lasttime != "" && record.data.Gps_lasttime != null)
+                                        return "(" + record.data.Gps_lasttime.toCHString() + ")" + value;
+                                    else
+                                        return value;
+                                }
                             },
                             {
                                 xtype: 'gridcolumn',
@@ -118,19 +141,9 @@ Ext.onReady(function () {
                                     {
                                         xtype: 'button',
                                         iconCls: 'search',
-                                        text: '查询'
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        iconCls: 'add',
-                                        text: '查看轨迹',
+                                        text: '查询',
                                         handler: function () {
-                                            FrameStack.pushFrame({
-                                                url: "chadanyundanguiji.html",
-                                                onClose: function (ret) {
-                                                    DataBind();
-                                                }
-                                            });
+                                            DataBind();
                                         }
                                     }
                                 ]
@@ -139,6 +152,7 @@ Ext.onReady(function () {
                                 xtype: 'pagingtoolbar',
                                 dock: 'bottom',
                                 width: 360,
+                                store: myStore,
                                 displayInfo: true
                             }
                         ]
@@ -153,18 +167,27 @@ Ext.onReady(function () {
 
     new mainView();
 
-    DataBind();
+    DataBind(1);
 });
 
-function DataBind() {
-
+function DataBind(cp) {
+    CS('CZCLZ.Handler.SearchMyYunDan', function (retVal) {
+        if (retVal) {
+            myStore.setData({
+                data: retVal.dt,
+                pageSize: pageSize,
+                total: retVal.ac,
+                currentPage: retVal.cp
+            });
+        }
+    }, CS.onError, cp, pageSize, Ext.getCmp('UserDenno').getValue());
 }
 
 function ShowGJ(UserID, YunDanDenno) {
     FrameStack.pushFrame({
-        url: "chadanyundanguiji.html?UserID=" + UserID + "&YunDanDenno=" + YunDanDenno + "&type=" + wodeyundan,
+        url: "chadanyundanguiji.html?UserID=" + UserID + "&YunDanDenno=" + YunDanDenno + "&type=wodeyundan",
         onClose: function (ret) {
-            DataBind();
+            
         }
     });
 }

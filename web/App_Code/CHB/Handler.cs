@@ -170,6 +170,35 @@ public class Handler
         }
     }
 
+    [CSMethod("SearchMyYunDan")]
+    public object SearchMyYunDan(int CurrentPage,int PageSize, string UserDenno)
+    {
+        using(var db = new DBConnection())
+        {
+            try
+            {
+                int cp = CurrentPage;
+                int ac = 0;
+
+                string conn = "";
+                if (!string.IsNullOrEmpty(UserDenno))
+                    conn += " and UserDenno like @UserDenno";
+                string sql = "select * from YunDan where UserID = @UserID" + conn;
+                SqlCommand cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID",SystemUser.CurrentUser.UserID);
+                if (!string.IsNullOrEmpty(conn))
+                    cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno + "%");
+                DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
+
+                return new { dt = dt, cp = cp, ac = ac };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
     #region webservice请求方法
     private static readonly string DefaultUserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; SV1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)";
 
