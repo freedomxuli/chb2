@@ -99,10 +99,13 @@ Ext.onReady(function () {
                                 menuDisabled: true,
                                 text: '当前位置',
                                 renderer: function (value, cellmeta, record, rowIndex, columnIndex, store) {
-                                    if (record.data.Gps_lasttime != "" && record.data.Gps_lasttime != null)
-                                        return "(" + record.data.Gps_lasttime.toCHString() + ")" + value;
-                                    else
+                                    if (record.data.Gps_lasttime != "" && record.data.Gps_lasttime != null) {
+                                        return "<span data-qtip='" + value + "'>" + "(" + record.data.Gps_lasttime.toCHString() + ")" + value + "</span>";
+                                    }
+                                    else {
+                                        return "<span data-qtip='" + value + "'>" + value + "</span>";
                                         return value;
+                                    }
                                 }
                             },
                             {
@@ -143,7 +146,7 @@ Ext.onReady(function () {
                                         iconCls: 'search',
                                         text: '查询',
                                         handler: function () {
-                                            DataBind();
+                                            DataBind(1);
                                         }
                                     }
                                 ]

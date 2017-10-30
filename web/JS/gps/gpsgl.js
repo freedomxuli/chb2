@@ -1,4 +1,18 @@
-﻿Ext.onReady(function () {
+﻿var pageSize = 15;
+
+var gpsStore = createSFW4Store({
+    pageSize: pageSize,
+    total: 1,
+    currentPage: 1,
+    fields: [
+        'GpsDeviceID', 'IsBangding'
+    ],
+    onPageChange: function (sto, nPage, sorters) {
+        DataBind(nPage);
+    }
+});
+
+Ext.onReady(function () {
 
     Ext.define('mainView', {
         extend: 'Ext.container.Viewport',
@@ -16,15 +30,9 @@
                         xtype: 'gridpanel',
                         columnLines: 1,
                         border: 1,
+                        store: gpsStore,
                         columns: [
-                            {
-                                xtype: 'gridcolumn',
-                                dataIndex: 'xuhao',
-                                flex: 1,
-                                sortable: false,
-                                menuDisabled: true,
-                                text: '序号'
-                            },
+                            Ext.create('Ext.grid.RowNumberer'),
                             {
                                 xtype: 'gridcolumn',
                                 dataIndex: 'GpsDeviceID',
@@ -47,6 +55,7 @@
                                 xtype: 'pagingtoolbar',
                                 dock: 'bottom',
                                 width: 360,
+                                store: gpsStore,
                                 displayInfo: true
                             }
                         ]
@@ -61,9 +70,18 @@
 
     new mainView();
 
-    DataBind();
+    DataBind(1);
 });
 
-function DataBind() {
-
+function DataBind(cp) {
+    CS('CZCLZ.Handler.GPSGL', function (retVal) {
+        if (retVal) {
+            gpsStore.setData({
+                data: retVal.dt,
+                pageSize: pageSize,
+                total: retVal.ac,
+                currentPage: retVal.cp
+            });
+        }
+    }, CS.onError, cp, pageSize);
 }

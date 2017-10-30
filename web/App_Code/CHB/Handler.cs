@@ -190,6 +190,388 @@ public class Handler
                     cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno + "%");
                 DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
 
+                #region  插入操作表
+                DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
+                DataRow dr = dt_caozuo.NewRow();
+                dr["UserID"] = SystemUser.CurrentUser.UserID;
+                dr["CaoZuoLeiXing"] = "我的运单";
+                dr["CaoZuoNeiRong"] = "web登录我的运单查询，搜索单号：" + UserDenno;
+                dr["CaoZuoTime"] = DateTime.Now;
+                dr["CaoZuoRemark"] = "";
+                dt_caozuo.Rows.Add(dr);
+                db.InsertTable(dt_caozuo);
+                #endregion
+
+                return new { dt = dt, cp = cp, ac = ac };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
+    [CSMethod("SearchGSYunDan")]
+    public object SearchGSYunDan(int CurrentPage, int PageSize, string SuoShuGongSi, string UserDenno)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                int cp = CurrentPage;
+                int ac = 0;
+
+                string conn = "";
+                if (!string.IsNullOrEmpty(UserDenno))
+                    conn += " and UserDenno like @UserDenno";
+                if (!string.IsNullOrEmpty(SuoShuGongSi))
+                    conn += " and SuoShuGongSi like @SuoShuGongSi";
+                string sql = "select * from YunDan where UserID = @UserID" + conn;
+                SqlCommand cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno + "%");
+                cmd.Parameters.AddWithValue("@SuoShuGongSi", "%" + SuoShuGongSi + "%");
+                DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
+
+                #region  插入操作表
+                DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
+                DataRow dr = dt_caozuo.NewRow();
+                dr["UserID"] = SystemUser.CurrentUser.UserID;
+                dr["CaoZuoLeiXing"] = "自由查单";
+                dr["CaoZuoNeiRong"] = "web登录自由查单查询，搜索单号：" + UserDenno + "；搜索公司：" + SuoShuGongSi + "。";
+                dr["CaoZuoTime"] = DateTime.Now;
+                dr["CaoZuoRemark"] = "";
+                dt_caozuo.Rows.Add(dr);
+                db.InsertTable(dt_caozuo);
+                #endregion
+
+                #region 插入历史查询表
+                string conn2 = "";
+                if (!string.IsNullOrEmpty(SuoShuGongSi))
+                    conn2 += " and Value = @Value";
+                sql = "select * from SearchHistory where UserID = @UserID and Type = '自由查单_公司'" + conn2;
+                SqlCommand cmd2 = db.CreateCommand(sql);
+                cmd2.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                cmd2.Parameters.AddWithValue("@Value", SuoShuGongSi);
+                DataTable dt_search = db.ExecuteDataTable(cmd2);
+
+                if (dt_search.Rows.Count == 0)
+                {
+                    DataTable dt_his = db.GetEmptyDataTable("SearchHistory");
+                    DataRow dr_his = dt_his.NewRow();
+                    dr_his["UserID"] = SystemUser.CurrentUser.UserID;
+                    dr_his["Type"] = "自由查单_公司";
+                    dr_his["Value"] = SuoShuGongSi;
+                    dt_his.Rows.Add(dr_his);
+                    db.InsertTable(dt_his);
+                }
+                #endregion
+
+                return new { dt = dt, cp = cp, ac = ac };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
+    [CSMethod("GetSearchHis")]
+    public DataTable GetSearchHis()
+    {
+        try
+        {
+            DataTable dt_gs = new DataTable();
+            dt_gs.Columns.Add("SuoShuGongSi");
+
+            string url = "http://chb.yk56.net/WebService/APP_ZiYouChaDanLoad.ashx";
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("UserName", SystemUser.CurrentUser.UserName);
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+            if (obj["sign"].ToString() == "1")
+            {
+                JArray jary = obj["gongsis"] as JArray;
+                for (int i = 0; i < jary.Count; i++)
+                {
+                    DataRow dr = dt_gs.NewRow();
+                    dr["SuoShuGongSi"] = jary[i]["text"].ToString();
+                    dt_gs.Rows.Add(dr);
+                }
+            }
+            return dt_gs;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    [CSMethod("CloseBD")]
+    public bool CloseBD(string UserID, string YunDanDenno)
+    {
+        try
+        {
+            string url = "http://chb.yk56.net/WebService/APP_JieChuBangDing.ashx";
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("UserID", UserID);
+            parameters.Add("YunDanDenno", YunDanDenno);
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+            if (obj["sign"].ToString() == "1")
+                return true;
+            else
+                return false;
+
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    [CSMethod("GPSGL")]
+    public object GPSGL(int CurrentPage, int PageSize)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                int cp = CurrentPage;
+                int ac = 0;
+
+                string sql = "select * from GpsDevice a where UserID = @UserID";
+                SqlCommand cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
+                dt.Columns.Add("IsBangding");
+
+                sql = "select YunDanDenno,GpsDeviceID from YunDan where IsBangding = 1";
+                DataTable dt_yun = db.ExecuteDataTable(sql);
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    DataRow[] drs = dt_yun.Select("GpsDeviceID = '" + dt.Rows[i]["GpsDeviceID"].ToString() + "'");
+                    if(drs.Length > 0)
+                        dt.Rows[i]["IsBangding"] = "已绑定";
+                    else
+                        dt.Rows[i]["IsBangding"] = "未绑定";
+                }
+
+                #region  插入操作表
+                DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
+                DataRow dr = dt_caozuo.NewRow();
+                dr["UserID"] = SystemUser.CurrentUser.UserID;
+                dr["CaoZuoLeiXing"] = "GPS管理";
+                dr["CaoZuoNeiRong"] = "web内用户查询GPS设备列表。";
+                dr["CaoZuoTime"] = DateTime.Now;
+                dr["CaoZuoRemark"] = "";
+                dt_caozuo.Rows.Add(dr);
+                db.InsertTable(dt_caozuo);
+                #endregion
+
+                return new { dt = dt, cp = cp, ac = ac };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
+    [CSMethod("GPSDD")]
+    public object GPSDD(int CurrentPage, int PageSize)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                int cp = CurrentPage;
+                int ac = 0;
+
+                string sql = "select * from GpsDingDan a where UserID = @UserID and GpsDingDanIsEnd = 1 order by GpsDingDanTime asc";
+                SqlCommand cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
+
+                #region  插入操作表
+                DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
+                DataRow dr = dt_caozuo.NewRow();
+                dr["UserID"] = SystemUser.CurrentUser.UserID;
+                dr["CaoZuoLeiXing"] = "订单列表";
+                dr["CaoZuoNeiRong"] = "web内用户查询订单列表。";
+                dr["CaoZuoTime"] = DateTime.Now;
+                dr["CaoZuoRemark"] = "";
+                dt_caozuo.Rows.Add(dr);
+                db.InsertTable(dt_caozuo);
+                #endregion
+
+                return new { dt = dt, cp = cp, ac = ac };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
+    [CSMethod("AddGPS")]
+    public object AddGPS(string GpsDeviceID)
+    {
+        try
+        {
+            string url = "http://chb.yk56.net/WebService/APP_ShengChengDingDan.ashx";
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("UserName", SystemUser.CurrentUser.UserName);
+            parameters.Add("GpsDeviceID", GpsDeviceID);
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+            if (obj["sign"].ToString() == "1")
+                return new { sign = "true", msg = "添加成功！", OrderDenno = obj["OrderDenno"].ToString() };
+            else
+                return new { sign = "false", msg = obj["msg"].ToString() };
+
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    [CSMethod("GetZhiFuGPS")]
+    public object GetZhiFuGPS()
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                string username = SystemUser.CurrentUser.UserName;
+                string userid = SystemUser.CurrentUser.UserID;
+
+                string sql = "select * from GpsDingDan where UserID = '" + userid + "' and GpsDingDanIsEnd = 0";
+                DataTable dt_gpsdd = db.ExecuteDataTable(sql);
+                if (dt_gpsdd.Rows.Count > 0)
+                {
+                    sql = "select * from GpsDingDanMingXi where GpsDingDanDenno = '" + dt_gpsdd.Rows[0]["GpsDingDanDenno"].ToString() + "'";
+                    DataTable dt = db.ExecuteDataTable(sql);
+                    return new { dt = dt, OrderDenno = dt_gpsdd.Rows[0]["OrderDenno"].ToString() };
+                }
+                else
+                {
+                    DataTable dt = db.GetEmptyDataTable("GpsDingDanMingXi");
+                    return new { dt = dt, OrderDenno = "" };
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
+    [CSMethod("TJDD")]
+    public object TJDD(string OrderDenno)
+    {
+        try
+        {
+            string url = "http://chb.yk56.net/WebService/APP_TiJiaoDingDan.ashx";
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("UserName", SystemUser.CurrentUser.UserName);
+            parameters.Add("OrderDenno", OrderDenno);
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+
+            if(obj["sign"].ToString() == "1")
+                return new { sign = "true", msg = "添加成功！", GpsDingDanJinE = obj["GpsDingDanJinE"].ToString() };
+            else
+                return new { sign = "false", msg = obj["msg"].ToString() };
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    [CSMethod("ZF")]
+    public object ZF(string OrderDenno,string lx)
+    {
+        try
+        {
+            string pay = "";
+            if (lx == "wxpay")
+                pay = "http://chb.yk56.net/WebService/APP_WeiXinPay.ashx";
+            else
+                pay = "http://chb.yk56.net/WebService/APP_ALiYunPay.ashx";
+            string url = pay;
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("OrderDenno", OrderDenno);
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+
+            if (obj["sign"].ToString() == "1")
+                return new { sign = "true", msg = "添加成功！" };
+            else
+                return new { sign = "false", msg = obj["msg"].ToString() };
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    [CSMethod("GPSTD")]
+    public object GPSTD(int CurrentPage, int PageSize)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                int cp = CurrentPage;
+                int ac = 0;
+
+                string sql = "select * from GpsTuiDan a where UserID = @UserID and GpsTuiDanIsEnd = 1 order by GpsTuiDanTime asc";
+                SqlCommand cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
+
+                #region  插入操作表
+                DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
+                DataRow dr = dt_caozuo.NewRow();
+                dr["UserID"] = SystemUser.CurrentUser.UserID;
+                dr["CaoZuoLeiXing"] = "退单列表";
+                dr["CaoZuoNeiRong"] = "web内用户查询退单列表。";
+                dr["CaoZuoTime"] = DateTime.Now;
+                dr["CaoZuoRemark"] = "";
+                dt_caozuo.Rows.Add(dr);
+                db.InsertTable(dt_caozuo);
+                #endregion
+
                 return new { dt = dt, cp = cp, ac = ac };
             }
             catch (Exception ex)

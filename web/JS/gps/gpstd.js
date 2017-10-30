@@ -1,4 +1,17 @@
-﻿
+﻿var pageSize = 15;
+
+var tdStore = createSFW4Store({
+    pageSize: pageSize,
+    total: 1,
+    currentPage: 1,
+    fields: [
+        'GpsDingDanTime', 'OrderDenno', 'GpsDingDanShuLiang', 'GpsDingDanJinE', 'GpsDingDanZhiFuZhuangTai'
+    ],
+    onPageChange: function (sto, nPage, sorters) {
+        DataBind(nPage);
+    }
+});
+
 Ext.onReady(function () {
 
     Ext.define('mainView', {
@@ -17,15 +30,9 @@ Ext.onReady(function () {
                         xtype: 'gridpanel',
                         columnLines: 1,
                         border: 1,
+                        store: tdStore,
                         columns: [
-                            {
-                                xtype: 'gridcolumn',
-                                dataIndex: 'xuhao',
-                                flex: 1,
-                                sortable: false,
-                                menuDisabled: true,
-                                text: '序号'
-                            },
+                            Ext.create('Ext.grid.RowNumberer'),
                             {
                                 xtype: 'datecolumn',
                                 dataIndex: 'GpsDingDanTime',
@@ -65,45 +72,55 @@ Ext.onReady(function () {
                                 flex: 1,
                                 sortable: false,
                                 menuDisabled: true,
-                                text: '状态'
+                                text: '状态',
+                                renderer: function (value, cellmeta, record, rowIndex, columnIndex, store) {
+                                    if (value == "0")
+                                        return "已支付";
+                                    else
+                                        return "未支付";
+                                }
                             }
                         ],
                         dockedItems: [
-                            {
-                                xtype: 'toolbar',
-                                dock: 'top',
-                                items: [
-                                    {
-                                        xtype: 'textfield',
-                                        width: 130,
-                                        labelWidth: 30,
-                                        id: 'UserDenno',
-                                        fieldLabel: '单号'
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        iconCls: 'search',
-                                        text: '查询'
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        iconCls: 'add',
-                                        text: '生成退单',
-                                        handler: function () {
-                                            FrameStack.pushFrame({
-                                                url: "AddGpsTuidan.html",
-                                                onClose: function (ret) {
-                                                    DataBind();
-                                                }
-                                            });
-                                        }
-                                    }
-                                ]
-                            },
+                            //{
+                            //    xtype: 'toolbar',
+                            //    dock: 'top',
+                            //    items: [
+                            //        {
+                            //            xtype: 'textfield',
+                            //            width: 130,
+                            //            labelWidth: 30,
+                            //            id: 'UserDenno',
+                            //            fieldLabel: '单号'
+                            //        },
+                            //        {
+                            //            xtype: 'button',
+                            //            iconCls: 'search',
+                            //            text: '查询',
+                            //            handler: function () {
+
+                            //            }
+                            //        },
+                            //        {
+                            //            xtype: 'button',
+                            //            iconCls: 'add',
+                            //            text: '生成退单',
+                            //            handler: function () {
+                            //                FrameStack.pushFrame({
+                            //                    url: "AddGpsTuidan.html",
+                            //                    onClose: function (ret) {
+                            //                        DataBind();
+                            //                    }
+                            //                });
+                            //            }
+                            //        }
+                            //    ]
+                            //},
                             {
                                 xtype: 'pagingtoolbar',
                                 dock: 'bottom',
                                 width: 360,
+                                store: tdStore,
                                 displayInfo: true
                             }
                         ]
@@ -118,9 +135,19 @@ Ext.onReady(function () {
 
     new mainView();
 
-    DataBind();
+    DataBind(1);
 });
 
 function DataBind() {
-
+    CS('CZCLZ.Handler.GPSTD', function (retVal) {
+        if (retVal)
+        {
+            tdStore.setData({
+                data: retVal.dt,
+                pageSize: pageSize,
+                total: retVal.ac,
+                currentPage: retVal.cp
+            });
+        }
+    }, CS.onError, cp, pageSize);
 }

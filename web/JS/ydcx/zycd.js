@@ -1,4 +1,25 @@
-﻿
+﻿Ext.QuickTips.init();
+
+var pageSize = 15;
+
+var myStore = createSFW4Store({
+    pageSize: pageSize,
+    total: 1,
+    currentPage: 1,
+    fields: [
+        'BangDingTime', 'UserDenno', 'QiShiZhan', 'DaoDaZhan', 'SuoShuGongSi', 'GpsDeviceID', 'YunDanRemark', 'Gps_lastinfo', 'YunDanDenno', 'UserID', 'Gps_lasttime'
+    ],
+    onPageChange: function (sto, nPage, sorters) {
+        DataBind(nPage);
+    }
+});
+
+var gsStore = Ext.create('Ext.data.Store', {
+    fields: [
+        'SuoShuGongSi'
+    ]
+});
+
 Ext.onReady(function () {
 
     Ext.define('mainView', {
@@ -17,13 +38,15 @@ Ext.onReady(function () {
                         xtype: 'gridpanel',
                         columnLines: 1,
                         border: 1,
+                        store: myStore,
                         columns: [
                             {
-                                xtype: 'gridcolumn',
+                                xtype: 'datecolumn',
                                 dataIndex: 'BangDingTime',
                                 flex: 1,
                                 sortable: false,
                                 menuDisabled: true,
+                                format: 'Y-m-d',
                                 text: '日期'
                             },
                             {
@@ -77,10 +100,19 @@ Ext.onReady(function () {
                             {
                                 xtype: 'gridcolumn',
                                 dataIndex: 'Gps_lastinfo',
-                                flex: 1,
+                                flex: 3,
                                 sortable: false,
                                 menuDisabled: true,
-                                text: '当前位置'
+                                text: '当前位置',
+                                renderer: function (value, cellmeta, record, rowIndex, columnIndex, store) {
+                                    if (record.data.Gps_lasttime != "" && record.data.Gps_lasttime != null) {
+                                        return "<span data-qtip='" + value + "'>" + "(" + record.data.Gps_lasttime.toCHString() + ")" + value + "</span>";
+                                    }
+                                    else {
+                                        return "<span data-qtip='" + value + "'>" + value + "</span>";
+                                        return value;
+                                    }
+                                }
                             },
                             {
                                 xtype: 'gridcolumn',
@@ -116,28 +148,36 @@ Ext.onReady(function () {
                                         fieldLabel: '公司'
                                     },
                                     {
+                                        xtype: 'button',
+                                        iconCls: 'add',
+                                        text: '选择',
+                                        handler: function () {
+                                            var win = new PickCompany();
+                                            win.show(null, function () {
+                                                CS('CZCLZ.Handler.GetSearchHis', function (retVal) {
+                                                    if (retVal) {
+                                                        gsStore.loadData(retVal);
+                                                    }
+                                                }, CS.onError);
+                                            });
+                                        }
+                                    },
+                                    {
                                         xtype: 'textfield',
                                         width: 160,
                                         labelWidth: 60,
                                         id: 'UserDenno',
-                                        fieldLabel: '单号'
+                                        fieldLabel: '　单号'
                                     },
                                     {
                                         xtype: 'button',
                                         iconCls: 'search',
-                                        text: '查询'
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        iconCls: 'add',
-                                        text: '查看轨迹',
+                                        text: '查询',
                                         handler: function () {
-                                            FrameStack.pushFrame({
-                                                url: "chadanyundanguiji.html",
-                                                onClose: function (ret) {
-                                                    DataBind();
-                                                }
-                                            });
+                                            if (Ext.getCmp("SuoShuGongSi").getValue() != "" && Ext.getCmp("SuoShuGongSi").getValue() != null && Ext.getCmp("UserDenno").getValue() != "" && Ext.getCmp("UserDenno").getValue() != null)
+                                                DataBind(1);
+                                            else
+                                                Ext.Msg.alert("提示","公司名称和单号必填！");
                                         }
                                     }
                                 ]
@@ -160,18 +200,101 @@ Ext.onReady(function () {
 
     new mainView();
 
-    DataBind();
 });
 
-function DataBind() {
-
+function DataBind(cp) {
+    CS('CZCLZ.Handler.SearchGSYunDan', function (retVal) {
+        if (retVal) {
+            myStore.setData({
+                data: retVal.dt,
+                pageSize: pageSize,
+                total: retVal.ac,
+                currentPage: retVal.cp
+            });
+        }
+    }, CS.onError, cp, pageSize, Ext.getCmp('SuoShuGongSi').getValue(), Ext.getCmp('UserDenno').getValue());
 }
 
 function ShowGJ(UserID, YunDanDenno) {
     FrameStack.pushFrame({
-        url: "chadanyundanguiji.html?UserID=" + UserID + "&YunDanDenno=" + YunDanDenno + "&type=" + wodeyundan,
+        url: "chadanyundanguiji.html?UserID=" + UserID + "&YunDanDenno=" + YunDanDenno + "&type=ziyouchadan",
         onClose: function (ret) {
-            DataBind();
+            
         }
     });
+}
+
+Ext.define('PickCompany', {
+    extend: 'Ext.window.Window',
+
+    height: document.documentElement.clientHeight - 200,
+    width: document.documentElement.clientWidth / 4,
+    layout: {
+        type: 'fit'
+    },
+    title: '公司选择',
+    id: 'pcWin',
+    modal: true,
+    initComponent: function () {
+        var me = this;
+
+        Ext.applyIf(me, {
+            items: [
+                {
+                    xtype: 'panel',
+                    id: 'xy',
+                    layout: {
+                        type: 'fit'
+                    },
+                    items: [
+                      {
+                          xtype: 'gridpanel',
+                          columnLines: 1,
+                          border: 1,
+                          store: gsStore,
+                          autoScroll: true,
+                          columns: [
+                              {
+                                  xtype: 'gridcolumn',
+                                  dataIndex: 'SuoShuGongSi',
+                                  flex: 3,
+                                  sortable: false,
+                                  menuDisabled: true,
+                                  text: '公司'
+                              },
+                              {
+                                  xtype: 'gridcolumn',
+                                  flex: 1,
+                                  sortable: false,
+                                  menuDisabled: true,
+                                  text: '操作',
+                                  renderer: function (value, cellmeta, record, rowIndex, columnIndex, store) {
+                                      return "<a href = 'javascript:void(0);' onClick='PickCom(\"" + record.data.SuoShuGongSi + "\");'>选择</a>";
+                                  }
+                              }
+                          ]
+                      }
+                    ],
+                    buttonAlign: 'center',
+                    buttons: [
+                        {
+                            text: '关闭',
+                            iconCls: 'close',
+                            handler: function () {
+                                me.close();
+                            }
+                        }
+                    ]
+                }
+            ]
+        });
+
+        me.callParent(arguments);
+    }
+
+});
+
+function PickCom(gs) {
+    Ext.getCmp("SuoShuGongSi").setValue(gs);
+    Ext.getCmp("pcWin").close();
 }

@@ -134,7 +134,8 @@ Ext.onReady(function () {
                                 columnWidth: 1,
                                 padding: 20,
                                 id: 'GpsDeviceID',
-                                fieldLabel: '扫描码'
+                                readOnly: true,
+                                fieldLabel: '扫描码(使用时鼠标指定位置)'
                             },
                             {
                                 xtype: 'textarea',

@@ -34,6 +34,9 @@ public class MenuControl
                 <Item Name='GPS管理'>
                    <Tab p='' Name='GPS管理'>approot/r/page/gps/gpsgl.html</Tab>
                 </Item>
+               <Item Name='GPS订单新增'>
+                   <Tab p='' Name='GPS订单新增'>approot/r/page/gps/AddGpsDingdan.html</Tab>
+                </Item>
                <Item Name='GPS订单'>
                    <Tab p='' Name='GPS订单'>approot/r/page/gps/gpsdd.html</Tab>
                 </Item>

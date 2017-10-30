@@ -1,5 +1,6 @@
 ﻿var UserID = queryString.UserID;
 var YunDanDenno = queryString.YunDanDenno;
+var type = queryString.type;
 
 Ext.onReady(function () {
     Ext.define('MainView', {
@@ -24,8 +25,15 @@ Ext.onReady(function () {
                             {
                                 text: '解除绑定',
                                 iconCls: 'close',
+                                id:'jcbd',
                                 handler: function () {
-
+                                    CS('CZCLZ.Handler.CloseBD', function (retVal) {
+                                        if (retVal) {
+                                            Ext.Msg.alert("提示", "解除绑定成功！", function () {
+                                                FrameStack.popFrame();
+                                            });
+                                        }
+                                    }, CS.onError, UserID, YunDanDenno);
                                 }
                             },
                             {
@@ -56,4 +64,9 @@ function DataBind()
     var src = "http://chb.yk56.net/Map?UserID=" + UserID + "&YunDanDenno=" + YunDanDenno;
 
     Ext.getCmp('YDGJ').update("<iframe width=100% height=100% frameborder=0 scrolling=auto src='" + src + "'></iframe>");
+
+    if (type == "ziyouchadan")
+    {
+        Ext.getCmp("jcbd").hide();
+    }
 }
