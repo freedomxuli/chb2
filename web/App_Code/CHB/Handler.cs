@@ -609,42 +609,6 @@ public class Handler
         }
     }
 
-    [CSMethod("GPSTD")]
-    public object GPSTD(int CurrentPage, int PageSize)
-    {
-        using (var db = new DBConnection())
-        {
-            try
-            {
-                int cp = CurrentPage;
-                int ac = 0;
-
-                string sql = "select * from GpsTuiDan a where UserID = @UserID and GpsTuiDanIsEnd = 1 order by GpsTuiDanTime asc";
-                SqlCommand cmd = db.CreateCommand(sql);
-                cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
-                DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
-
-                #region  插入操作表
-                DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
-                DataRow dr = dt_caozuo.NewRow();
-                dr["UserID"] = SystemUser.CurrentUser.UserID;
-                dr["CaoZuoLeiXing"] = "退单列表";
-                dr["CaoZuoNeiRong"] = "web内用户查询退单列表。";
-                dr["CaoZuoTime"] = DateTime.Now;
-                dr["CaoZuoRemark"] = "";
-                dt_caozuo.Rows.Add(dr);
-                db.InsertTable(dt_caozuo);
-                #endregion
-
-                return new { dt = dt, cp = cp, ac = ac };
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-    }
-
     [CSMethod("DelTD")]
     public object DelTD(string OrderDenno)
     {
@@ -673,8 +637,151 @@ public class Handler
         }
     }
 
-    [CSMethod("")]
-    public 
+    [CSMethod("DeleteDDItem")]
+    public object DeleteDDItem(string GpsDingDanMingXiID)
+    {
+        try
+        {
+            string url = "http://chb.yk56.net/WebService/APP_ShanChuDingDanOne.ashx";
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("UserName", SystemUser.CurrentUser.UserName);
+            parameters.Add("GpsDingDanMingXiID", GpsDingDanMingXiID);
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+
+            if (obj["sign"].ToString() == "1")
+                return new { sign = "true", msg = "删除成功！" };
+            else
+                return new { sign = "false", msg = obj["msg"].ToString() };
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    [CSMethod("GetTuiDanGPS")]
+    public object GetTuiDanGPS()
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                string username = SystemUser.CurrentUser.UserName;
+                string userid = SystemUser.CurrentUser.UserID;
+
+                string sql = "select * from GpsTuiDan where UserID = '" + userid + "' and GpsTuiDanIsEnd = 0";
+                DataTable dt_gpstd = db.ExecuteDataTable(sql);
+                if (dt_gpstd.Rows.Count > 0)
+                {
+                    sql = "select * from GpsTuiDanMingXi where GpsTuiDanDenno = '" + dt_gpstd.Rows[0]["GpsTuiDanDenno"].ToString() + "'";
+                    DataTable dt = db.ExecuteDataTable(sql);
+                    return new { dt = dt, OrderDenno = dt_gpstd.Rows[0]["OrderDenno"].ToString() };
+                }
+                else
+                {
+                    DataTable dt = db.GetEmptyDataTable("GpsTuiDanMingXi");
+                    return new { dt = dt, OrderDenno = "" };
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
+    [CSMethod("AddTuiDanGPS")]
+    public object AddTuiDanGPS(string GpsDeviceID)
+    {
+        try
+        {
+            string url = "http://chb.yk56.net/WebService/APP_ShengChengTuiDan.ashx";
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("UserName", SystemUser.CurrentUser.UserName);
+            parameters.Add("GpsDeviceID", GpsDeviceID);
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+            if (obj["sign"].ToString() == "1")
+                return new { sign = "true", msg = "添加成功！", OrderDenno = obj["OrderDenno"].ToString() };
+            else
+                return new { sign = "false", msg = obj["msg"].ToString() };
+
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }      
+    }
+
+    [CSMethod("DeleteTDItem")]
+    public object DeleteTDItem(string GpsTuiDanMingXiID)
+    {
+        try
+        {
+            string url = "http://chb.yk56.net/WebService/APP_ShanChuTuiDanOne.ashx";
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("UserName", SystemUser.CurrentUser.UserName);
+            parameters.Add("GpsTuiDanMingXiID", GpsTuiDanMingXiID);
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+
+            if (obj["sign"].ToString() == "1")
+                return new { sign = "true", msg = "删除成功！" };
+            else
+                return new { sign = "false", msg = obj["msg"].ToString() };
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    [CSMethod("TJTD")]
+    public object TJTD(string OrderDenno)
+    {
+        try
+        {
+            string url = "http://chb.yk56.net/WebService/APP_TiJiaoTuiDan.ashx";
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("UserName", SystemUser.CurrentUser.UserName);
+            parameters.Add("OrderDenno", OrderDenno);
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+
+            if (obj["sign"].ToString() == "1")
+                return new { sign = "true", msg = "添加成功！", GpsDingDanJinE = obj["GpsTuiDanJinE"].ToString() };
+            else
+                return new { sign = "false", msg = obj["msg"].ToString() };
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+
     #region webservice请求方法
     private static readonly string DefaultUserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; SV1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)";
 

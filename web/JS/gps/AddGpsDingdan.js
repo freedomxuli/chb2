@@ -114,7 +114,12 @@ Ext.onReady(function () {
                                         flex: 1,
                                         sortable: false,
                                         menuDisabled: true,
-                                        text: '操作'
+                                        text: '操作',
+                                        dataIndex: 'GpsDingDanMingXiID',
+                                        renderer: function (value, cellmeta, record, rowIndex, columnIndex, store)
+                                        {
+                                            return "<a href='javascript:void(0);' onclick='del(\"" + value + "\");'>删除</a>";
+                                        }
                                     }
                                 ]
                             }
@@ -175,6 +180,21 @@ function dataBind() {
             OrderDenno = retVal.OrderDenno;
         }
     },CS.onError)
+}
+
+function del(GpsDingDanMingXiID) {
+    CS('CZCLZ.Handler.DeleteDDItem', function (retVal) {
+        if (retVal) {
+            if (retVal.sign == "true") {
+                Ext.Msg.alert("提示", "删除成功！", function () {
+                    dataBind();
+                });
+            } else {
+                Ext.Msg.alert("提示", retVal.msg);
+                return false;
+            }
+        }
+    }, CS.onError, GpsDingDanMingXiID)
 }
 
 Ext.define('zhifu', {
