@@ -125,30 +125,30 @@ Ext.onReady(function () {
                                 text: '支付订单',
                                 iconCls:'enable',
                                 handler: function () {
-                                    var win = new zhifu();
-                                    win.show(null, function () {
-                                        Ext.getCmp("GpsDingDanJinE").update("<span style='font-size:25px;color:red;font-weight:bold;'>押金为：" + 100000.000 + "元</span>");
-                                    });
-                                    //if (OrderDenno != "") {
-                                    //    CS('CZCLZ.Handler.TJDD', function (retVal) {
-                                    //        if (retVal) {
-                                    //            if (retVal.sign == "true") {
-                                    //                GpsDingDanJinE = retVal.GpsDingDanJinE;
-                                    //                var win = new zhifu();
-                                    //                win.show(null, function () {
-                                    //                    Ext.getCmp("GpsDingDanJinE").update("<span style='font-size:25px;color:red;font-weight:bold;'>押金为：" + GpsDingDanJinE + "元</span>");
-                                    //                });
-                                    //            } else {
-                                    //                Ext.Msg.alert("提示", retVal.msg);
-                                    //                return false;
-                                    //            }
-                                    //        }
-                                    //    }, CS.onError, OrderDenno)
-                                    //}
-                                    //else {
-                                    //    Ext.Msg.alert("提示", "请先生成支付单！");
-                                    //    return false;
-                                    //}
+                                    //var win = new zhifu();
+                                    //win.show(null, function () {
+                                    //    Ext.getCmp("GpsDingDanJinE").update("<span style='font-size:25px;color:red;font-weight:bold;'>押金为：" + 100000.000 + "元</span>");
+                                    //});
+                                    if (OrderDenno != "") {
+                                        CS('CZCLZ.Handler.TJDD', function (retVal) {
+                                            if (retVal) {
+                                                if (retVal.sign == "true") {
+                                                    GpsDingDanJinE = retVal.GpsDingDanJinE;
+                                                    var win = new zhifu();
+                                                    win.show(null, function () {
+                                                        Ext.getCmp("GpsDingDanJinE").update("<span style='font-size:25px;color:red;font-weight:bold;'>押金为：" + GpsDingDanJinE + "元</span>");
+                                                    });
+                                                } else {
+                                                    Ext.Msg.alert("提示", retVal.msg);
+                                                    return false;
+                                                }
+                                            }
+                                        }, CS.onError, OrderDenno)
+                                    }
+                                    else {
+                                        Ext.Msg.alert("提示", "请先生成支付单！");
+                                        return false;
+                                    }
                                 }
                             }
                         ]

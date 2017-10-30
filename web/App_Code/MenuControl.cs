@@ -40,6 +40,9 @@ public class MenuControl
                <Item Name='GPS订单'>
                    <Tab p='' Name='GPS订单'>approot/r/page/gps/gpsdd.html</Tab>
                 </Item>
+               <Item Name='GPS退单新增'>
+                   <Tab p='' Name='GPS退单新增'>approot/r/page/gps/AddGpsTuidan.html</Tab>
+                </Item>
                <Item Name='GPS退单'>
                    <Tab p='' Name='GPS退单'>approot/r/page/gps/gpstd.html</Tab>
                 </Item>

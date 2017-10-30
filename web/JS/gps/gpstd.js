@@ -5,7 +5,7 @@ var tdStore = createSFW4Store({
     total: 1,
     currentPage: 1,
     fields: [
-        'GpsDingDanTime', 'OrderDenno', 'GpsDingDanShuLiang', 'GpsDingDanJinE', 'GpsDingDanZhiFuZhuangTai'
+        'GpsTuiDanTime', 'OrderDenno', 'GpsTuiDanShuLiang', 'GpsTuiDanJinE', 'GpsTuiDanTuiHuanZhuangTai'
     ],
     onPageChange: function (sto, nPage, sorters) {
         DataBind(nPage);
@@ -35,7 +35,7 @@ Ext.onReady(function () {
                             Ext.create('Ext.grid.RowNumberer'),
                             {
                                 xtype: 'datecolumn',
-                                dataIndex: 'GpsDingDanTime',
+                                dataIndex: 'GpsTuiDanTime',
                                 flex: 1,
                                 sortable: false,
                                 menuDisabled: true,
@@ -52,7 +52,7 @@ Ext.onReady(function () {
                             },
                             {
                                 xtype: 'gridcolumn',
-                                dataIndex: 'GpsDingDanShuLiang',
+                                dataIndex: 'GpsTuiDanShuLiang',
                                 flex: 1,
                                 sortable: false,
                                 menuDisabled: true,
@@ -60,7 +60,7 @@ Ext.onReady(function () {
                             },
                             {
                                 xtype: 'gridcolumn',
-                                dataIndex: 'GpsDingDanJinE',
+                                dataIndex: 'GpsTuiDanJinE',
                                 flex: 1,
                                 sortable: false,
                                 menuDisabled: true,
@@ -68,7 +68,7 @@ Ext.onReady(function () {
                             },
                             {
                                 xtype: 'gridcolumn',
-                                dataIndex: 'GpsDingDanZhiFuZhuangTai',
+                                dataIndex: 'GpsTuiDanTuiHuanZhuangTai',
                                 flex: 1,
                                 sortable: false,
                                 menuDisabled: true,
@@ -79,43 +79,19 @@ Ext.onReady(function () {
                                     else
                                         return "未支付";
                                 }
+                            },
+                            {
+                                xtype: 'gridcolumn',
+                                flex: 1,
+                                sortable: false,
+                                menuDisabled: true,
+                                text: '操作',
+                                renderer: function (value, cellmeta, record, rowIndex, columnIndex, store) {
+                                    return "<a href='javascript:void(0);' onClick='Del(\"" + record.data.OrderDenno + "\");'>删除</a>";
+                                }
                             }
                         ],
                         dockedItems: [
-                            //{
-                            //    xtype: 'toolbar',
-                            //    dock: 'top',
-                            //    items: [
-                            //        {
-                            //            xtype: 'textfield',
-                            //            width: 130,
-                            //            labelWidth: 30,
-                            //            id: 'UserDenno',
-                            //            fieldLabel: '单号'
-                            //        },
-                            //        {
-                            //            xtype: 'button',
-                            //            iconCls: 'search',
-                            //            text: '查询',
-                            //            handler: function () {
-
-                            //            }
-                            //        },
-                            //        {
-                            //            xtype: 'button',
-                            //            iconCls: 'add',
-                            //            text: '生成退单',
-                            //            handler: function () {
-                            //                FrameStack.pushFrame({
-                            //                    url: "AddGpsTuidan.html",
-                            //                    onClose: function (ret) {
-                            //                        DataBind();
-                            //                    }
-                            //                });
-                            //            }
-                            //        }
-                            //    ]
-                            //},
                             {
                                 xtype: 'pagingtoolbar',
                                 dock: 'bottom',
@@ -150,4 +126,21 @@ function DataBind() {
             });
         }
     }, CS.onError, cp, pageSize);
+}
+
+function Del(OrderDenno) {
+    CS('CZCLZ.Handler.DelTD', function (retVal) {
+        if (retVal) {
+            if (retVal.sign == "true") {
+                Ext.Msg.alert("提示", "删除成功！", function () {
+                    DataBind(1);
+                });
+            }
+            else {
+                Ext.Msg.alert("提示", msg, function () {
+                    return false;
+                });
+            }
+        }
+    }, CS.onError, OrderDenno);
 }

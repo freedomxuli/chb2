@@ -581,6 +581,100 @@ public class Handler
         }
     }
 
+    [CSMethod("DelDD")]
+    public object DelDD(string OrderDenno)
+    {
+        try
+        {
+            string url = "http://chb.yk56.net/WebService/APP_ShanChuDingDan.ashx";
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("UserName", SystemUser.CurrentUser.UserName);
+            parameters.Add("OrderDenno", OrderDenno);
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+
+            if (obj["sign"].ToString() == "1")
+                return new { sign = "true", msg = "删除成功！" };
+            else
+                return new { sign = "false", msg = obj["msg"].ToString() };
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    [CSMethod("GPSTD")]
+    public object GPSTD(int CurrentPage, int PageSize)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                int cp = CurrentPage;
+                int ac = 0;
+
+                string sql = "select * from GpsTuiDan a where UserID = @UserID and GpsTuiDanIsEnd = 1 order by GpsTuiDanTime asc";
+                SqlCommand cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
+
+                #region  插入操作表
+                DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
+                DataRow dr = dt_caozuo.NewRow();
+                dr["UserID"] = SystemUser.CurrentUser.UserID;
+                dr["CaoZuoLeiXing"] = "退单列表";
+                dr["CaoZuoNeiRong"] = "web内用户查询退单列表。";
+                dr["CaoZuoTime"] = DateTime.Now;
+                dr["CaoZuoRemark"] = "";
+                dt_caozuo.Rows.Add(dr);
+                db.InsertTable(dt_caozuo);
+                #endregion
+
+                return new { dt = dt, cp = cp, ac = ac };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
+    [CSMethod("DelTD")]
+    public object DelTD(string OrderDenno)
+    {
+        try
+        {
+            string url = "http://chb.yk56.net/WebService/APP_ShanChuTuiDan.ashx";
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("UserName", SystemUser.CurrentUser.UserName);
+            parameters.Add("OrderDenno", OrderDenno);
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+
+            if (obj["sign"].ToString() == "1")
+                return new { sign = "true", msg = "删除成功！" };
+            else
+                return new { sign = "false", msg = obj["msg"].ToString() };
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    [CSMethod("")]
+    public 
     #region webservice请求方法
     private static readonly string DefaultUserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; SV1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)";
 
