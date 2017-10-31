@@ -781,6 +781,81 @@ public class Handler
         }
     }
 
+    [CSMethod("SendMessage")]
+    public object SendMessage(string type)
+    {
+        try
+        {
+            string url = "http://chb.yk56.net/WebService/APP_GetYanZhengMa.ashx";
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("UserName", SystemUser.CurrentUser.UserName);
+            parameters.Add("type", type);
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+
+            if (obj["sign"].ToString() == "1")
+                return new { sign = "true", msg = "获取验证码成功！" };
+            else
+                return new { sign = "false", msg = obj["msg"].ToString() };
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    [CSMethod("PickBank")]
+    public DataTable PickBank()
+    {
+        try
+        {
+            using(var db = new DBConnection())
+            {
+                string userid = SystemUser.CurrentUser.UserID;
+                string sql = "select distinct GpsTuiDanZhangHao from GpsTuiDan where UserID = '" + userid + "' and GpsTuiDanZhangHao is not null";
+                DataTable dt = db.ExecuteDataTable(sql);
+                return dt;
+            }
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    [CSMethod("QRSQ")]
+    public object QRSQ(string OrderDenno, string GpsTuiDanZhangHao)
+    {
+        try
+        {
+            string url = "http://chb.yk56.net/WebService/APP_TuiDan.ashx";
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("UserName", SystemUser.CurrentUser.UserName);
+            parameters.Add("OrderDenno", OrderDenno);
+            parameters.Add("GpsTuiDanZhangHao", GpsTuiDanZhangHao);
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+            if (obj["sign"].ToString() == "1")
+                return new { sign = "true", msg = "申请成功！" };
+            else
+                return new { sign = "false", msg = obj["msg"].ToString() };
+
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }   
+    }
 
     #region webservice请求方法
     private static readonly string DefaultUserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; SV1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)";

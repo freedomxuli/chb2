@@ -4,9 +4,17 @@
     ]
 });
 
+var bankStore = Ext.create('Ext.data.Store', {
+    fields: [
+        'GpsTuiDanZhangHao'
+    ]
+});
+
 var OrderDenno = "";
 
 var GpsTuiDanJinE = "";
+
+var yanzhengma = "";
 
 Ext.onReady(function () {
     Ext.define('MainView', {
@@ -228,7 +236,7 @@ Ext.define('tuidan', {
                             fieldLabel: '退款卡号',
                             labelWidth: 70,
                             columnWidth: 0.8,
-                            id: 'tuidanzhanghao',
+                            id: 'GpsTuiDanZhangHao',
                             padding: '0 10 50 10'
                         },
                         {
@@ -238,9 +246,14 @@ Ext.define('tuidan', {
                             margin: '0 10 50 0',
                             text: '选择',
                             handler: function () {
-                                var win = new bankWin();
+                                var win = new PickBank();
                                 win.show(null, function () {
-
+                                    CS('CZCLZ.Handler.PickBank', function (retVal) {
+                                        if (retVal)
+                                        {
+                                            bankStore.loadData(retVal);
+                                        }
+                                    },CS.onError)
                                 });
                             }
                         },
@@ -259,7 +272,20 @@ Ext.define('tuidan', {
                             margin: '0 10 50 0',
                             text: '发送',
                             handler: function () {
-
+                                yanzhengma = "";
+                                CS('CZCLZ.Handler.SendMessage', function (retVal) {
+                                    if(retVal)
+                                    {
+                                        if (retVal.sign = "true") {
+                                            yanzhengma = retVal.yanzhengma;
+                                            Ext.Msg.alert("提示", "已成功发送短信！");
+                                            return;
+                                        } else {
+                                            Ext.Msg.alert("提示", retVal.msg);
+                                            return false;
+                                        }
+                                    }
+                                }, CS.onError, 'tuidanshenqing');
                             }
                         }
                     ],
@@ -269,7 +295,31 @@ Ext.define('tuidan', {
                             text: '确认申请',
                             iconCls: 'enable',
                             handler: function () {
-
+                                if (yanzhengma != Ext.getCmp("yanzhengma").getValue())
+                                {
+                                    Ext.Msg.alert("提示", "验证码错误！");
+                                    return false;
+                                }
+                                if(Ext.getCmp("GpsTuiDanZhangHao").getValue()==""||Ext.getCmp("GpsTuiDanZhangHao").getValue()==null)
+                                {
+                                    Ext.Msg.alert("提示", "退单账号不能为空！");
+                                    return false;
+                                }
+                                CS('CZCLZ.Handler.QRSQ', function (retVal) {
+                                    if (retVal) {
+                                        if (retVal.sign == "true") {
+                                            Ext.Msg.alert("提示", "申请成功！");
+                                            OrderDenno = "";
+                                            GpsTuiDanJinE = "";
+                                            yanzhengma = "";
+                                            dataBind();
+                                            me.close();
+                                        } else {
+                                            Ext.Msg.alert("提示", "申请失败，请重试！");
+                                            return false;
+                                        }
+                                    }
+                                }, CS.onError, OrderDenno, Ext.getCmp("GpsTuiDanZhangHao").getValue());
                             }
                         }
                     ]
@@ -281,3 +331,78 @@ Ext.define('tuidan', {
     }
 
 });
+
+Ext.define('PickBank', {
+    extend: 'Ext.window.Window',
+
+    height: document.documentElement.clientHeight - 200,
+    width: document.documentElement.clientWidth / 4,
+    layout: {
+        type: 'fit'
+    },
+    title: '银行账号选择',
+    id: 'pcWin',
+    modal: true,
+    initComponent: function () {
+        var me = this;
+
+        Ext.applyIf(me, {
+            items: [
+                {
+                    xtype: 'panel',
+                    id: 'xy',
+                    layout: {
+                        type: 'fit'
+                    },
+                    items: [
+                      {
+                          xtype: 'gridpanel',
+                          columnLines: 1,
+                          border: 1,
+                          store: bankStore,
+                          autoScroll: true,
+                          columns: [
+                              {
+                                  xtype: 'gridcolumn',
+                                  dataIndex: 'GpsTuiDanZhangHao',
+                                  flex: 3,
+                                  sortable: false,
+                                  menuDisabled: true,
+                                  text: '账号'
+                              },
+                              {
+                                  xtype: 'gridcolumn',
+                                  flex: 1,
+                                  sortable: false,
+                                  menuDisabled: true,
+                                  text: '操作',
+                                  renderer: function (value, cellmeta, record, rowIndex, columnIndex, store) {
+                                      return "<a href = 'javascript:void(0);' onClick='Pick(\"" + record.data.GpsTuiDanZhangHao + "\");'>选择</a>";
+                                  }
+                              }
+                          ]
+                      }
+                    ],
+                    buttonAlign: 'center',
+                    buttons: [
+                        {
+                            text: '关闭',
+                            iconCls: 'close',
+                            handler: function () {
+                                me.close();
+                            }
+                        }
+                    ]
+                }
+            ]
+        });
+
+        me.callParent(arguments);
+    }
+
+});
+
+function Pick(zh) {
+    Ext.getCmp("GpsTuiDanZhangHao").setValue(zh);
+    Ext.getCmp("pcWin").close();
+}
