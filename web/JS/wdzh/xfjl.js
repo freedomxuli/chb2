@@ -1,4 +1,18 @@
-﻿Ext.onReady(function () {
+﻿var pageSize = 15;
+
+var czStore = createSFW4Store({
+    pageSize: pageSize,
+    total: 1,
+    currentPage: 1,
+    fields: [
+       'ChongZhiTime', 'ChongZhiJinE', 'ChongZhiRemark'
+    ],
+    onPageChange: function (sto, nPage, sorters) {
+        DataBind(nPage);
+    }
+});
+
+Ext.onReady(function () {
 
     Ext.define('mainView', {
         extend: 'Ext.container.Viewport',
@@ -16,6 +30,7 @@
                         xtype: 'gridpanel',
                         columnLines: 1,
                         border: 1,
+                        store: czStore,
                         columns: [
                             {
                                 xtype: 'datecolumn',
@@ -53,6 +68,8 @@
                                         editable: false,
                                         labelWidth: 60,
                                         width: 200,
+                                        id: 'startTime',
+                                        format:'Y-m-d',
                                         fieldLabel: '日期'
                                     },
                                     {
@@ -62,12 +79,22 @@
                                     {
                                         xtype: 'datefield',
                                         editable: false,
+                                        id: 'endTime',
+                                        format: 'Y-m-d',
                                         width: 140
                                     },
                                     {
                                         xtype: 'button',
                                         iconCls: 'search',
-                                        text: '查询'
+                                        text: '查询',
+                                        handler: function () {
+                                            if (Ext.getCmp("startTime").getValue() != "" && Ext.getCmp("startTime").getValue() != null && Ext.getCmp("endTime").getValue() != "" && Ext.getCmp("endTime").getValue() != null) {
+                                                DataBind(1);
+                                            } else {
+                                                Ext.Msg.alert("提示", "日期必填！");
+                                                return false;
+                                            }
+                                        }
                                     }
                                 ]
                             },
@@ -75,6 +102,7 @@
                                 xtype: 'pagingtoolbar',
                                 dock: 'bottom',
                                 width: 360,
+                                store: czStore,
                                 displayInfo: true
                             }
                         ]
@@ -89,9 +117,19 @@
 
     new mainView();
 
-    DataBind();
+    DataBind(1);
 });
 
-function DataBind() {
-
+function DataBind(cp) {
+    CS('CZCLZ.Handler.XFJL', function (retVal) {
+        if (retVal)
+        {
+            czStore.setData({
+                data: retVal.dt,
+                pageSize: pageSize,
+                total: retVal.ac,
+                currentPage: retVal.cp
+            });
+        }
+    }, CS.onError, cp, pageSize, Ext.getCmp("startTime").getValue(), Ext.getCmp("endTime").getValue());
 }

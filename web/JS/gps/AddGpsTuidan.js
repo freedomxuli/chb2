@@ -56,8 +56,21 @@ Ext.onReady(function () {
                                             {
                                                 xtype: 'textfield',
                                                 columnWidth: 1,
+                                                id: 'HiddenID',
+                                                fieldLabel: '隐藏设备号',
+                                                margin: '-25 0 0 0',
+                                                listeners: {
+                                                    'change': function (field, newValue, oldValue) {
+                                                        Ext.getCmp("GpsDeviceID").setValue(newValue);
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                xtype: 'textfield',
+                                                columnWidth: 1,
                                                 padding: 20,
                                                 id: 'GpsDeviceID',
+                                                readOnly: true,
                                                 fieldLabel: 'gps设备号'
                                             },
                                             {
@@ -84,6 +97,17 @@ Ext.onReady(function () {
                                                                     });
                                                                 }
                                                             }, CS.onError, Ext.getCmp("GpsDeviceID").getValue());
+                                                        }
+                                                    },
+                                                    {
+                                                        xtype: 'button',
+                                                        margin: '50 0 20 130',
+                                                        iconCls: 'close',
+                                                        text: '重置设备号',
+                                                        handler: function () {
+                                                            Ext.getCmp("GpsDeviceID").setValue("");
+                                                            Ext.getCmp("HiddenID").setValue("");
+                                                            Ext.getCmp('HiddenID').focus(true, true);
                                                         }
                                                     }
                                                 ]
@@ -180,6 +204,8 @@ function dataBind()
         if (retVal) {
             mxStore.loadData(retVal.dt);
             OrderDenno = retVal.OrderDenno;
+            Ext.getCmp("HiddenID").setValue("");
+            Ext.getCmp('HiddenID').focus(true, true);
         }
     }, CS.onError)
 }

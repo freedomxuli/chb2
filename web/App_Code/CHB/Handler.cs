@@ -857,6 +857,65 @@ public class Handler
         }   
     }
 
+    [CSMethod("GetJGCL")]
+    public object GetJGCL()
+    {
+        using (var db = new DBConnection())
+        {
+            string sql = "SELECT * FROM [chahuobao].[dbo].[User] WHERE UserID = '" + SystemUser.CurrentUser.UserID + "'";
+            DataTable dt_user = db.ExecuteDataTable(sql);
+
+            sql = "select * from JiaGeCeLve where JiaGeCeLveLeiXing = 'ChongZhi' order by JiaGeCeLveCiShu";
+            DataTable dt_jg = db.ExecuteDataTable(sql);
+
+            return new { UserRemainder = dt_user.Rows[0]["UserRemainder"], dt_jg = dt_jg };
+        }
+    }
+
+    [CSMethod("CZZH")]
+    public bool CZZH(int num,decimal money,string lx,string memo)
+    {
+        using (var db = new DBConnection())
+        {
+            string OrderDenno = "01" + DateTime.Now.ToString("yyyyMMddHHmmssfff");
+            return true;
+        }
+    }
+
+    [CSMethod("XFJL")]
+    public object XFJL(int CurrentPage,int PageSize,string startTime,string endTime)
+    {
+        using (var db = new DBConnection())
+        {
+            int cp = CurrentPage;
+            int ac = 0;
+
+            string conn = "";
+            if (!string.IsNullOrEmpty(startTime))
+                conn += " and ChongZhiTime > '" + Convert.ToDateTime(startTime) + "'";
+            if (!string.IsNullOrEmpty(endTime))
+                conn += " and ChongZhiTime < '" + Convert.ToDateTime(endTime).AddDays(1) + "'";
+            string sql = "select * from ChongZhi where UserID = @UserID" + conn;
+            SqlCommand cmd = db.CreateCommand(sql);
+            cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+            DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
+
+            #region  插入操作表
+            DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
+            DataRow dr = dt_caozuo.NewRow();
+            dr["UserID"] = SystemUser.CurrentUser.UserID;
+            dr["CaoZuoLeiXing"] = "消费记录";
+            dr["CaoZuoNeiRong"] = "web内用户查询消费记录";
+            dr["CaoZuoTime"] = DateTime.Now;
+            dr["CaoZuoRemark"] = "";
+            dt_caozuo.Rows.Add(dr);
+            db.InsertTable(dt_caozuo);
+            #endregion
+
+            return new { dt = dt, cp = cp, ac = ac };
+        }
+    }
+
     #region webservice请求方法
     private static readonly string DefaultUserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; SV1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)";
 

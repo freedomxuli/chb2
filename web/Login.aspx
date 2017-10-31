@@ -86,7 +86,7 @@ body,td,th {
                       <tr>
                         <td width="31%" height="36">&nbsp;</td>
                         <td width="20%" align="center"><a href="#" onclick="return Login();"><img src="images/1.jpg" width="60" height="24" border="0"></a></td>
-                        <td width="21%" align="center"><a href="#" onclick="javascript:var win = window.open('', '_self');win.close();return false;"><img src="images/2.jpg" width="60" height="24" border="0" onclick="zhuce();"></a></td>
+                        <td width="21%" align="center"><a href="#" onclick="javascript:var win = window.open('', '_self');win.close();return false;"><img src="images/2.jpg" width="60" height="24" border="0" onclick="chongzhi();"></a></td>
                         <td width="28%">&nbsp;</td>
                       </tr>
                     </table></td>
@@ -295,6 +295,11 @@ body,td,th {
                 province.loadData(provincesData);
 
             });
+        }
+        function chongzhi() {
+            document.getElementById('username').value = "";
+            document.getElementById('password').value = "";
+            document.getElementById('captcha').value = "";
         }
     </script>
 
