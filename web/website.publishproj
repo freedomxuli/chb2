@@ -44,21 +44,21 @@ website.publishproj
     </AssemblyAttributes>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Library\SmartFramework4v2\SmartFramework4v2.Data\SmartFramework4v2.Data.csproj">
+    <ProjectReference Include="..\..\LibraryNew\SmartFramework4v2\SmartFramework4v2.Cache\SmartFramework4v2.Cache.csproj">
+      <Project>{DD9DE1B6-79A4-44B9-A326-B14A65A1407D}</Project>
+      <Name>SmartFramework4v2.Cache</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\LibraryNew\SmartFramework4v2\SmartFramework4v2.Data\SmartFramework4v2.Data.csproj">
       <Project>{2A39343D-9F8D-4CB3-98BC-BF1A5D88AD1F}</Project>
       <Name>SmartFramework4v2.Data</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Library\SmartFramework4v2\SmartFramework4v2.Web\SmartFramework4v2.Web.csproj">
+    <ProjectReference Include="..\..\LibraryNew\SmartFramework4v2\SmartFramework4v2.Log\SmartFramework4v2.Log.csproj">
+      <Project>{7461419B-3FB4-4CEC-8033-37B3D2A53D95}</Project>
+      <Name>SmartFramework4v2.Log</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\LibraryNew\SmartFramework4v2\SmartFramework4v2.Web\SmartFramework4v2.Web.csproj">
       <Project>{C9925492-E4ED-4EDD-B2B1-02D32C46D02D}</Project>
       <Name>SmartFramework4v2.Web</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DataCenter\DataCenter.csproj">
-      <Project>{2ECCFE63-F767-4437-BCFE-68D1CAEE04B1}</Project>
-      <Name>DataCenter</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MessageManger\MessageManger.csproj">
-      <Project>{E0126993-8A62-4231-947B-604EC03C5EEA}</Project>
-      <Name>MessageManger</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(_WebPublishTargetsPath)\Web\Microsoft.WebSite.Publishing.targets" />

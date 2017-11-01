@@ -137,7 +137,7 @@ public class SystemUser
 
     public static SystemUser GetUserByID(string userid)
     {
-        string sqlStr = "select UserID YH_ID, UserName YH_DLM,UserName YH_XM from [chahuobao].[dbo].[User] where  UserID = @yh_id";
+        string sqlStr = "select UserID YH_ID, UserName YH_DLM,UserName YH_XM from [dbo].[User] where  UserID = @yh_id";
         SqlCommand cmd = new SqlCommand(sqlStr);
         cmd.Parameters.AddWithValue("@yh_id", userid);
         using (DBConnection dbc = new DBConnection())

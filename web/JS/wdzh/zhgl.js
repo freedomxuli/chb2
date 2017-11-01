@@ -73,12 +73,21 @@ Ext.onReady(function () {
                                         iconCls: 'enable',
                                         text: '微信支付',
                                         handler: function () {
-                                            CS('CZCLZ.Handler.CZZH', function (retVal) {
-                                                if (retVal) {
-                                                    Ext.Msg.alert("提示", "支付成功！");
-                                                    return false;
-                                                }
-                                            }, CS.onError, fin_num, fin_je, "wx");
+                                            var win = new EWM();
+                                            win.show(null, function () {
+                                                CS('CZCLZ.Handler.ShowEWMByCZ', function (retVal) {
+                                                    if (retVal) {
+                                                        Ext.getCmp("ShowEWM").setSrc(retVal);
+                                                    }
+                                                }, CS.onError,"12345678");
+                                            });
+                                            
+                                            //CS('CZCLZ.Handler.CZZH', function (retVal) {
+                                            //    if (retVal) {
+                                            //        Ext.Msg.alert("提示", "支付成功！");
+                                            //        return false;
+                                            //    }
+                                            //}, CS.onError, fin_num, fin_je, memo, "wx");
                                         }
                                     },
                                     {
@@ -87,12 +96,12 @@ Ext.onReady(function () {
                                         margin:'0 0 0 20',
                                         text: '支付宝支付',
                                         handler: function () {
-                                            CS('CZCLZ.Handler.CZZH', function (retVal) {
-                                                if (retVal) {
-                                                    Ext.Msg.alert("提示", "支付成功！");
-                                                    return false;
-                                                }
-                                            }, CS.onError, fin_num, fin_je, "zfb");
+                                            //CS('CZCLZ.Handler.CZZH', function (retVal) {
+                                            //    if (retVal) {
+                                            //        Ext.Msg.alert("提示", "支付成功！");
+                                            //        return false;
+                                            //    }
+                                            //}, CS.onError, fin_num, fin_je, memo, "zfb");
                                         }
                                     }
                                 ]
@@ -209,3 +218,49 @@ function radioBind() {
         }
     },CS.onError);
 }
+
+Ext.define('EWM', {
+    extend: 'Ext.window.Window',
+
+    height: 385,
+    width: 509,
+    layout: {
+        type: 'fit'
+    },
+    title: '支付二维码',
+    modal:true,
+
+    initComponent: function () {
+        var me = this;
+
+        Ext.applyIf(me, {
+            items: [
+                {
+                    xtype: 'panel',
+                    layout: {
+                        type: 'fit'
+                    },
+                    items: [
+                        {
+                            xtype: 'image',
+                            id: 'ShowEWM',
+                            margin:30
+                        }
+                    ],
+                    buttonAlign: 'center',
+                    buttons: [
+                        {
+                            text: '关闭',
+                            handler: function () {
+                                me.close();
+                            }
+                        }
+                    ]
+                }
+            ]
+        });
+
+        me.callParent(arguments);
+    }
+
+});

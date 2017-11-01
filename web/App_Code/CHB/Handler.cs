@@ -15,6 +15,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Drawing;
 using Aspose.BarCode;
+using WxPayAPI;
 
 /// <summary>
 /// Handler 的摘要说明
@@ -875,7 +876,7 @@ public class Handler
     }
 
     [CSMethod("CZZH")]
-    public bool CZZH(int num,decimal money,string lx,string memo)
+    public bool CZZH(int num, decimal money, string memo, string lx)
     {
         using (var db = new DBConnection())
         {
@@ -1068,6 +1069,18 @@ public class Handler
                 throw ex;
             }
         }
+    }
+
+    [CSMethod("ShowEWMByCZ")]
+    public string ShowEWMByCZ(string productId)
+    {
+        NativePay nativePay = new NativePay();
+
+        //生成扫码支付模式二url
+        string url = nativePay.GetPayUrl(productId);
+
+        //将url生成二维码图片
+        return HttpContext.Current.Server.MapPath("Pay/MakeQRCode.aspx?data=" + HttpUtility.UrlEncode(url));
     }
 
     #region webservice请求方法
