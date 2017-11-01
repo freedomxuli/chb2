@@ -106,7 +106,7 @@
 #RightHeader
 {
     float:right;
-    background:url(../images/bg_right.jpg);
+    /*background:url(../images/bg_right.jpg);*/
     width:525px;
     height:45px;
     line-height:45px;
@@ -201,7 +201,7 @@ a:visited
     line-height: 45px;
     width: 525px;
     text-align: right;
-    background: url(../images/bg_right.jpg);
+    /*background: url(../images/bg_right.jpg);*/
     overflow: hidden;
     white-space: nowrap;
 }

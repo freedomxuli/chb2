@@ -60,7 +60,7 @@ public class SystemUser
     {
         using (DBConnection dbc = new DBConnection())
         {
-            string sqlStr = "select UserID YH_ID, UserName YH_DLM,UserName YH_XM from [chahuobao].[dbo].[User] where UserName=@UserName and UserPassword=@UserPassword";
+            string sqlStr = "select UserID YH_ID, UserName YH_DLM,UserName YH_XM from [dbo].[User] where UserName=@UserName and UserPassword=@UserPassword";
             SqlCommand cmd = new SqlCommand(sqlStr);
             cmd.Parameters.AddWithValue("@UserName", username);
             cmd.Parameters.AddWithValue("@UserPassword", password);

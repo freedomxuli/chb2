@@ -23,13 +23,13 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "web", "web\", "{29522DB1-9E
 		DefaultWebSiteLanguage = "Visual C#"
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartFramework4v2.Cache", "E:\svn\Library\SmartFramework4v2\SmartFramework4v2.Cache\SmartFramework4v2.Cache.csproj", "{DD9DE1B6-79A4-44B9-A326-B14A65A1407D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartFramework4v2.Cache", "..\LibraryNew\SmartFramework4v2\SmartFramework4v2.Cache\SmartFramework4v2.Cache.csproj", "{DD9DE1B6-79A4-44B9-A326-B14A65A1407D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartFramework4v2.Data", "E:\svn\Library\SmartFramework4v2\SmartFramework4v2.Data\SmartFramework4v2.Data.csproj", "{2A39343D-9F8D-4CB3-98BC-BF1A5D88AD1F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartFramework4v2.Data", "..\LibraryNew\SmartFramework4v2\SmartFramework4v2.Data\SmartFramework4v2.Data.csproj", "{2A39343D-9F8D-4CB3-98BC-BF1A5D88AD1F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartFramework4v2.Log", "E:\svn\Library\SmartFramework4v2\SmartFramework4v2.Log\SmartFramework4v2.Log.csproj", "{7461419B-3FB4-4CEC-8033-37B3D2A53D95}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartFramework4v2.Log", "..\LibraryNew\SmartFramework4v2\SmartFramework4v2.Log\SmartFramework4v2.Log.csproj", "{7461419B-3FB4-4CEC-8033-37B3D2A53D95}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartFramework4v2.Web", "E:\svn\Library\SmartFramework4v2\SmartFramework4v2.Web\SmartFramework4v2.Web.csproj", "{C9925492-E4ED-4EDD-B2B1-02D32C46D02D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartFramework4v2.Web", "..\LibraryNew\SmartFramework4v2\SmartFramework4v2.Web\SmartFramework4v2.Web.csproj", "{C9925492-E4ED-4EDD-B2B1-02D32C46D02D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

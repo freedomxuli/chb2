@@ -13,6 +13,8 @@ using System.Text;
 using System.IO;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using System.Drawing;
+using Aspose.BarCode;
 
 /// <summary>
 /// Handler 的摘要说明
@@ -862,7 +864,7 @@ public class Handler
     {
         using (var db = new DBConnection())
         {
-            string sql = "SELECT * FROM [chahuobao].[dbo].[User] WHERE UserID = '" + SystemUser.CurrentUser.UserID + "'";
+            string sql = "SELECT * FROM [dbo].[User] WHERE UserID = '" + SystemUser.CurrentUser.UserID + "'";
             DataTable dt_user = db.ExecuteDataTable(sql);
 
             sql = "select * from JiaGeCeLve where JiaGeCeLveLeiXing = 'ChongZhi' order by JiaGeCeLveCiShu";
@@ -943,6 +945,129 @@ public class Handler
         {
             throw ex;
         }  
+    }
+
+    [CSMethod("GetEWM")]
+    public string GetEWM()
+    {
+        string id = Guid.NewGuid().ToString();
+        SetEWM(id);
+        return id;
+    }
+
+    private void SetEWM(string id)
+    {
+        //二维码
+        //System.IO.MemoryStream bms = new MemoryStream();
+        //var url = System.Configuration.ConfigurationSettings.AppSettings["erweima"];
+
+        var url = id;
+        Aspose.BarCode.BarCodeBuilder b = new Aspose.BarCode.BarCodeBuilder(url);
+        b.AutoSize = false;
+        b.ImageWidth = 80;
+        b.ImageHeight = 80;
+        b.SymbologyType = Aspose.BarCode.Symbology.QR;
+        b.BorderVisible = false;
+        b.CodeLocation = Aspose.BarCode.CodeLocation.None;
+        b.QRErrorLevel = Aspose.BarCode.QRErrorLevel.LevelH;
+        b.GetOnlyBarCodeImage();
+        //b.Save(bms, Aspose.BarCode.BarCodeImageFormat.Bmp);
+        //var imgBack = System.Drawing.Image.FromStream(bms);
+        var imgBack = GetBarcodeImage(url, 165, 165);
+        //二维码中加logo
+        //System.Drawing.Image img = System.Drawing.Image.FromFile(System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "main\\images\\logo.jpg");//照片图片    
+        //System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(imgBack);
+        //g.DrawImage(imgBack, 0, 0, imgBack.Width, imgBack.Height);//g.DrawImage(imgBack, 0, 0, 相框宽, 相框高);   
+        //g.FillRectangle(System.Drawing.Brushes.White, imgBack.Width / 2 - img.Width / 2 - 1, imgBack.Width / 2 - img.Width / 2 - 1,1,1);//相片四周刷一层黑色边框  
+        //g.DrawImage(img, 照片与相框的左边距, 照片与相框的上边距, 照片宽, 照片高);  
+        //g.DrawImage(img, imgBack.Width / 2 - img.Width / 2, imgBack.Height / 2 - img.Height / 2, img.Width, img.Height);
+        MemoryStream ms = new MemoryStream();
+        imgBack.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
+        ms.Close();
+        string path = HttpContext.Current.Request.PhysicalApplicationPath;
+        string fullPath = path + "\\erweima\\" + id + ".png";
+        imgBack.Save(fullPath, System.Drawing.Imaging.ImageFormat.Png);  
+    }
+
+    private static Bitmap GetBarcodeImage(string code, int width, int height)
+    {
+        BarCodeBuilder builder = new BarCodeBuilder(code, Symbology.QR);
+        builder.QRErrorLevel = Aspose.BarCode.QRErrorLevel.LevelH;
+        builder.BorderVisible = false;
+        builder.CodeLocation = CodeLocation.None;
+        builder.AspectRatio = 2;
+        builder.Margins.Set(0);
+        builder.GraphicsUnit = GraphicsUnit.Pixel;
+        return builder.GetCustomSizeBarCodeImage(new Size(width, height), false);
+    }
+
+    [CSMethod("LoginByEWM")]
+    public bool LoginByEWM(string id)
+    {
+        using (var db = new DBConnection())
+        {
+            string sql = "select * from EWMLogin where Guid = @Guid";
+            SqlCommand cmd = db.CreateCommand(sql);
+            cmd.Parameters.AddWithValue("@Guid", id);
+            DataTable dt = db.ExecuteDataTable(cmd);
+            if (dt.Rows.Count > 0)
+            {
+                sql = "select * from [dbo].[User] where UserName = @UserName";
+                SqlCommand cmd2 = db.CreateCommand(sql);
+                cmd2.Parameters.AddWithValue("@UserName", dt.Rows[0]["UserName"].ToString());
+                DataTable dt_login = db.ExecuteDataTable(cmd2);
+
+                if (dt_login.Rows.Count > 0)
+                {
+                    var su = SystemUser.Login(dt.Rows[0]["UserName"].ToString(), dt_login.Rows[0]["UserPassword"].ToString());
+                    if (su != null)
+                    {
+                        HttpCookie cookie = new HttpCookie("login_Username", dt.Rows[0]["UserName"].ToString())
+                        {
+                            Expires = DateTime.Now.AddYears(1)
+                        };
+                        HttpContext.Current.Response.Cookies.Add(cookie);
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+
+    public bool InsertGuid(string guid,string username)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                db.BeginTransaction();
+                DataTable dt = db.GetEmptyDataTable("EWMLogin");
+                DataRow dr = dt.NewRow();
+                dr["Guid"] = guid;
+                dr["UserName"] = username;
+                dt.Rows.Add(dr);
+                db.InsertTable(dt);
+                db.CommitTransaction();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                db.RoolbackTransaction();
+                throw ex;
+            }
+        }
     }
 
     #region webservice请求方法

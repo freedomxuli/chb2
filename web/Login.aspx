@@ -59,7 +59,7 @@ body,td,th {
               </table>
               <table width="100%" border="0" cellspacing="0" cellpadding="0">
                 <tr>
-                  <td width="550">&nbsp;</td><%--二维码 --%>
+                  <td width="550" background="images/dl22_r3_c1.jpg"><img id="ewm" src="" style="margin-left:280px;margin-top:30px;" /></td><%--二维码 --%>
                   <td valign="top" background="images/dl22_r3_c2.jpg"><table width="100%" border="0" cellspacing="0" cellpadding="0">
                     <tr>
                       <td height="96" align="right">&nbsp;</td>
@@ -234,6 +234,10 @@ body,td,th {
         });
     </script>
     <script type="text/javascript">
+        window.onload = function () {
+            GetEWM();
+        };
+
         function Send() {
             if (window.event.keyCode == 13) {
                 Login();
@@ -265,6 +269,15 @@ body,td,th {
             document.getElementById('username').value,
             document.getElementById('password').value,
             document.getElementById('captcha').value);
+        }
+        function GetEWM()
+        {
+            CS('CZCLZ.Handler.GetEWM', function (retVal) {
+                if (retVal) {
+                    document.getElementById("ewm").src = "erweima/" + retVal + ".png";
+                    EWMLogin(retVal);
+                }
+            }, CS.onError)
         }
         function Close() {
             var win = window.open('', '_self');
@@ -300,6 +313,16 @@ body,td,th {
             document.getElementById('username').value = "";
             document.getElementById('password').value = "";
             document.getElementById('captcha').value = "";
+        }
+        function EWMLogin(id)
+        {
+            setInterval(function () {
+                ACS('CZCLZ.Handler.LoginByEWM', function (retVal) {
+                    if (retVal) {
+                        window.location.href = 'Main/Index.aspx';
+                    }
+                }, CS.onError, id)
+            }, 2000);
         }
     </script>
 
