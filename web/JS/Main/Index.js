@@ -89,7 +89,7 @@ Ext.onReady(function () {
                 id: 'MainHeader',
                 collapsible: true,
 
-                html: '<div class="LoginHeader"><div class=leftHeader><a href="" target="mainframe"><img alt="平价菜篮子服务平台" src="../images/logo/' + logo + '"></a></div><div class="rightHeader"><a href="" target="mainframe"><img align="absmiddle" src="approot/d/images/home.png">首页</a><a href="approot/r/help.aspx"><img align="absmiddle" src="approot/d/images/help.png">帮助</a><a onclick="logout()" href="javascript:void(0);"><img align="absmiddle" src="approot/d/images/exit.png">退出</a></div></div>'
+                html: '<div class="LoginHeader"><div class=leftHeader><a href="" target="mainframe"><img alt="查货宝订单管理系统" src="../images/logo/' + logo + '"></a></div><div class="rightHeader"><a href="" target="mainframe"><img align="absmiddle" src="approot/d/images/home.png">首页</a><a onclick="logout()" href="javascript:void(0);"><img align="absmiddle" src="approot/d/images/exit.png">退出</a></div></div>'
                 + '<div class="LoginInfo" style="height:24px;line-height:24px;">' + strHelp + '　　欢迎您：' + UserName + '　　　　当前时间：<span id="CurrentTime"></span></div>'
             },
             {
@@ -113,7 +113,7 @@ Ext.onReady(function () {
                 border: false,
                 padding: 2,
                 id: 'MainPanel',
-                html: '<iframe name="mainframe" id="mainframe" frameborder="0" src="page/Main/desktop.html" width="100%" height="100%">'
+                html: '<iframe name="mainframe" id="mainframe" frameborder="0" src="page/zhidan/zhidan.html" width="100%" height="100%">'
             }
             ];
             me.callParent(arguments);//../JS/Main/DeskTop.aspx

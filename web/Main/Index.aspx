@@ -111,7 +111,7 @@
             });
             winMP.show();
         }
-        var strHelp = '<span style="text-align:right;float:right;width: 380px" class="clshelp">　　<a href="javascript:void(0);" onclick="modifyPwd();">修改密码</a>　　<a href="approot/r/help.htm" target="_blank">帮助</a>　　</span>';
+        var strHelp = '';
         
         
     </script>

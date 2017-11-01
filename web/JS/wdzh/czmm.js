@@ -107,9 +107,19 @@ Ext.onReady(function () {
                                             }
                                             CS('CZCLZ.Handler.CZMM', function (retVal) {
                                                 if (retVal) {
-
+                                                    if (retVal.sign == "true") {
+                                                        Ext.Msg.alert("提示", "修改成功！", function () {
+                                                            CS('CZCLZ.UserClass.Logout', function (retVal) {
+                                                                if (retVal)
+                                                                    window.location.href = 'approot/r/login.aspx';
+                                                            }, CS.onError);
+                                                        });
+                                                    } else {
+                                                        Ext.Msg.alert("提示", retVal.Msg);
+                                                        return false;
+                                                    }
                                                 }
-                                            }, CS.onError, Ext.getCmp("UserName").getValue(), Ext.getCmp("UserPassword").getValue(), Ext.getCmp("UserPassword_confirm").getValue(), Ext.getCmp("yanzhengma").getValue());
+                                            }, CS.onError, Ext.getCmp("UserName").getValue(), Ext.getCmp("UserPassword").getValue(), "web");
                                         }
                                     }
                                 ]

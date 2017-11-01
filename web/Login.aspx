@@ -59,7 +59,7 @@ body,td,th {
               </table>
               <table width="100%" border="0" cellspacing="0" cellpadding="0">
                 <tr>
-                  <td width="550"><img src="images/dl22_r3_c1.jpg" width="550" height="288"></td>
+                  <td width="550">&nbsp;</td><%--二维码 --%>
                   <td valign="top" background="images/dl22_r3_c2.jpg"><table width="100%" border="0" cellspacing="0" cellpadding="0">
                     <tr>
                       <td height="96" align="right">&nbsp;</td>
