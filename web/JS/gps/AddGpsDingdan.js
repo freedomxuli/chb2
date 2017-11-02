@@ -223,6 +223,20 @@ function del(GpsDingDanMingXiID) {
     }, CS.onError, GpsDingDanMingXiID)
 }
 
+function getSuccess() {
+    var StartSearch = setInterval(function () {
+        CS('CZCLZ.Handler.StartSearch', function (retVal) {
+            if (retVal) {
+                Ext.getCmp("WXEWM").close();
+                dataBind();
+                Ext.Msg.alert("提示", "充值成功！", function () {
+                    window.clearInterval(StartSearch);
+                });
+            }
+        }, CS.onError, OrderDenno)
+    }, 3000);
+}
+
 Ext.define('zhifu', {
     extend: 'Ext.window.Window',
 
@@ -255,41 +269,99 @@ Ext.define('zhifu', {
                             text: '微信支付',
                             iconCls: 'enable',
                             handler: function () {
-                                CS('CZCLZ.Handler.ZF', function (retVal) {
-                                    if (retVal)
-                                    {
-                                        if (retVal.sign == "true") {
-                                            Ext.Msg.alert("提示", "支付成功！");
-                                            OrderDenno = "";
-                                            GpsDingDanJinE = "";
-                                            dataBind();
-                                            me.close();
-                                        } else {
-                                            Ext.Msg.alert("提示", "支付失败，请重试！");
-                                            return false;
+                                var win = new EWM();
+                                win.show(null, function () {
+                                    CS('CZCLZ.Handler.ShowEWMByYJ', function (retVal) {
+                                        if (retVal) {
+                                            Ext.getCmp("ShowEWM").setSrc("../../Pay/" + retVal);
+                                            getSuccess();
                                         }
-                                    }
-                                }, CS.onError, OrderDenno, "wxpay");
+                                    }, CS.onError, OrderDenno, "web内用户押金，押金方式：微信；押金单号：" + orderdenno + "；押金金额：" + GpsDingDanJinE + "。");
+                                });
+                                //CS('CZCLZ.Handler.ZF', function (retVal) {
+                                //    if (retVal)
+                                //    {
+                                //        if (retVal.sign == "true") {
+                                //            Ext.Msg.alert("提示", "支付成功！");
+                                //            OrderDenno = "";
+                                //            GpsDingDanJinE = "";
+                                //            dataBind();
+                                //            me.close();
+                                //        } else {
+                                //            Ext.Msg.alert("提示", "支付失败，请重试！");
+                                //            return false;
+                                //        }
+                                //    }
+                                //}, CS.onError, OrderDenno, "wxpay");
                             }
-                        },
+                        }
+                        //{
+                        //    text: '支付宝支付',
+                        //    iconCls: 'enable',
+                        //    handler: function () {
+                        //        CS('CZCLZ.Handler.ZF', function (retVal) {
+                        //            if (retVal) {
+                        //                if (retVal.sign == "true") {
+                        //                    Ext.Msg.alert("提示", "支付成功！");
+                        //                    OrderDenno = "";
+                        //                    GpsDingDanJinE = "";
+                        //                    dataBind();
+                        //                    me.close();
+                        //                } else {
+                        //                    Ext.Msg.alert("提示", "支付失败，请重试！");
+                        //                    return false;
+                        //                }
+                        //            }
+                        //        }, CS.onError, OrderDenno, "alipay");
+                        //    }
+                        //}
+                    ]
+                }
+            ]
+        });
+
+        me.callParent(arguments);
+    }
+
+});
+
+Ext.define('EWM', {
+    extend: 'Ext.window.Window',
+
+    height: 385,
+    width: 509,
+    layout: {
+        type: 'fit'
+    },
+    title: '支付二维码',
+    modal: true,
+    id: 'WXEWM',
+
+    initComponent: function () {
+        var me = this;
+
+        Ext.applyIf(me, {
+            items: [
+                {
+                    xtype: 'panel',
+                    layout: {
+                        type: 'fit'
+                    },
+                    items: [
                         {
-                            text: '支付宝支付',
-                            iconCls: 'enable',
+                            xtype: 'image',
+                            id: 'ShowEWM',
+                            margin: 30
+                        }
+                    ],
+                    buttonAlign: 'center',
+                    buttons: [
+                        {
+                            text: '关闭',
+                            iconCls: 'close',
                             handler: function () {
-                                CS('CZCLZ.Handler.ZF', function (retVal) {
-                                    if (retVal) {
-                                        if (retVal.sign == "true") {
-                                            Ext.Msg.alert("提示", "支付成功！");
-                                            OrderDenno = "";
-                                            GpsDingDanJinE = "";
-                                            dataBind();
-                                            me.close();
-                                        } else {
-                                            Ext.Msg.alert("提示", "支付失败，请重试！");
-                                            return false;
-                                        }
-                                    }
-                                }, CS.onError, OrderDenno, "alipay");
+                                window.clearInterval(StartSearch);
+                                me.close();
                             }
                         }
                     ]

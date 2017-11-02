@@ -3,6 +3,7 @@ var sl = {};
 var fin_je = 10;
 var fin_num = 1;
 var memo = "";
+var OrderDenno = "";
 
 Ext.onReady(function () {
     Ext.define('MainView', {
@@ -73,37 +74,31 @@ Ext.onReady(function () {
                                         iconCls: 'enable',
                                         text: '微信支付',
                                         handler: function () {
-                                            var win = new EWM();
-                                            win.show(null, function () {
-                                                CS('CZCLZ.Handler.ShowEWMByCZ', function (retVal) {
-                                                    if (retVal) {
-                                                        Ext.getCmp("ShowEWM").setSrc("../../Pay/"+retVal);
-                                                    }
-                                                }, CS.onError,"12345678");
-                                            });
-                                            
-                                            //CS('CZCLZ.Handler.CZZH', function (retVal) {
-                                            //    if (retVal) {
-                                            //        Ext.Msg.alert("提示", "支付成功！");
-                                            //        return false;
-                                            //    }
-                                            //}, CS.onError, fin_num, fin_je, memo, "wx");
-                                        }
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        iconCls: 'enable',
-                                        margin:'0 0 0 20',
-                                        text: '支付宝支付',
-                                        handler: function () {
-                                            //CS('CZCLZ.Handler.CZZH', function (retVal) {
-                                            //    if (retVal) {
-                                            //        Ext.Msg.alert("提示", "支付成功！");
-                                            //        return false;
-                                            //    }
-                                            //}, CS.onError, fin_num, fin_je, memo, "zfb");
+                                            CS('CZCLZ.Handler.GetOrderDenno', function (ret) {
+                                                if (ret) {
+                                                    OrderDenno = ret;
+                                                    var win = new EWM();
+                                                    win.show(null, function () {
+                                                        CS('CZCLZ.Handler.ShowEWMByCZ', function (retVal) {
+                                                            if (retVal) {
+                                                                Ext.getCmp("ShowEWM").setSrc("../../Pay/" + retVal);
+                                                                getSuccess();
+                                                            }
+                                                        }, CS.onError, OrderDenno, fin_je, fin_num, memo);
+                                                    });
+                                                }
+                                            }, CS.onError, "01");
                                         }
                                     }
+                                    //{
+                                    //    xtype: 'button',
+                                    //    iconCls: 'enable',
+                                    //    margin:'0 0 0 20',
+                                    //    text: '支付宝支付',
+                                    //    handler: function () {
+
+                                    //    }
+                                    //}
                                 ]
                             }
                         ]
@@ -119,7 +114,6 @@ Ext.onReady(function () {
     new MainView();
 
     radioBind();
-
 });
 
 function radioBind() {
@@ -219,6 +213,21 @@ function radioBind() {
     },CS.onError);
 }
 
+function getSuccess() {
+    var StartSearch = setInterval(function () {
+        CS('CZCLZ.Handler.StartSearch', function (retVal) {
+            if (retVal)
+            {
+                Ext.getCmp("WXEWM").close();
+                radioBind();
+                Ext.Msg.alert("提示","充值成功！",function(){
+                    window.clearInterval(StartSearch);
+                });
+            }
+        },CS.onError,OrderDenno)
+    }, 3000);
+}
+
 Ext.define('EWM', {
     extend: 'Ext.window.Window',
 
@@ -228,7 +237,8 @@ Ext.define('EWM', {
         type: 'fit'
     },
     title: '支付二维码',
-    modal:true,
+    modal: true,
+    id:'WXEWM',
 
     initComponent: function () {
         var me = this;
@@ -251,7 +261,9 @@ Ext.define('EWM', {
                     buttons: [
                         {
                             text: '关闭',
+                            iconCls:'close',
                             handler: function () {
+                                window.clearInterval(StartSearch);
                                 me.close();
                             }
                         }

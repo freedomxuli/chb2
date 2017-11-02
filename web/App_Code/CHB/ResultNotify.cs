@@ -58,10 +58,52 @@ namespace WxPayAPI
 
                 using (var db = new DBConnection())
                 {
+                    string OrderDenno = notifyData.GetValue("out_trade_no").ToString();
+                    if (OrderDenno.Substring(0, 2) == "01")
+                    {
+                        string sql = "update ChongZhi set ZhiFuZhuangTai = 1,ZhiFuTime = '" + DateTime.Now + "' where OrderDenno = '" + OrderDenno + "'";
+                        db.ExecuteNonQuery(sql);
+
+                        DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
+                        DataRow dr_caozuo = dt_caozuo.NewRow();
+                        dr_caozuo["UserID"] = SystemUser.CurrentUser.UserID;
+                        dr_caozuo["CaoZuoLeiXing"] = "充值";
+                        dr_caozuo["CaoZuoNeiRong"] = "web内用户充值，充值方式：微信；充值单号：" + OrderDenno + "；充值金额：" + Convert.ToDouble(notifyData.GetValue("total_fee").ToString()) / 100 + "。";
+                        dr_caozuo["CaoZuoTime"] = DateTime.Now;
+                        dr_caozuo["CaoZuoRemark"] = "";
+                        dt_caozuo.Rows.Add(dr_caozuo);
+                        db.InsertTable(dt_caozuo);
+                    }
+                    else
+                    {
+                        string userid = SystemUser.CurrentUser.UserID;
+
+                        string sql = "select * from GpsDingDan where OrderDenno = '" + OrderDenno + "'";
+                        DataTable dt_dingdan = db.ExecuteDataTable(sql);
+
+                        string sql_dingdan = "update GpsDingDan set GpsDingDanZhiFuZhuangTai = 1,GpsDingDanZhiFuShiJian = '" + DateTime.Now + "' where OrderDenno = '" + OrderDenno + "'";
+                        db.ExecuteNonQuery(sql_dingdan);
+
+                        if (dt_dingdan.Rows.Count > 0)
+                        {
+                            string sql_mx = "select * from GpsDingDanMingXi where GpsDingDanDenno = '" + dt_dingdan.Rows[0]["GpsDingDanDenno"].ToString() + "'";
+                            DataTable dt_mx = db.ExecuteDataTable(sql_mx);
+
+                            DataTable dt_device = db.GetEmptyDataTable("GpsDevice");
+                            for (int i = 0; i < dt_mx.Rows.Count; i++)
+                            {
+                                DataRow dr_device = dt_device.NewRow();
+                                dr_device["GpsDeviceID"] = dt_mx.Rows[i]["GpsDeviceID"].ToString();
+                                dr_device["UserID"] = userid;
+                                dt_device.Rows.Add(dr_device);
+                            }
+                            db.InsertTable(dt_device);
+                        }
+                    }
                     DataTable dt = db.GetEmptyDataTable("ZhiFuOrder");
                     DataRow dr = dt.NewRow();
                     dr["Guid"] = Guid.NewGuid();
-                    dr["OrderDenno"] = transaction_id;
+                    dr["OrderDenno"] = OrderDenno;
                     dr["Lx"] = 0;
                     db.InsertTable(dr);
                 }

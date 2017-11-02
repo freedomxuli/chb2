@@ -1072,15 +1072,78 @@ public class Handler
     }
 
     [CSMethod("ShowEWMByCZ")]
-    public string ShowEWMByCZ(string productId)
+    public string ShowEWMByCZ(string OrderDenno, decimal ChongZhiJinE, int ChongZhiCiShu, string ChongZhiRemark)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                DataTable dt = db.GetEmptyDataTable("ChongZhi");
+                DataRow dr = dt.NewRow();
+                dr["UserID"] = SystemUser.CurrentUser.UserID;
+                dr["ChongZhiJinE"] = ChongZhiJinE;
+                dr["ChongZhiCiShu"] = ChongZhiCiShu;
+                dr["ChongZhiTime"] = DateTime.Now;
+                dr["ZhiFuZhuangTai"] = 0;
+                dr["ChongZhiRemark"] = ChongZhiRemark;
+                dr["OrderDenno"] = OrderDenno;
+                dt.Rows.Add(dr);
+                db.InsertTable(dt);
+
+                NativePay nativePay = new NativePay();
+
+                //生成扫码支付模式二url
+                string url = nativePay.GetPayUrl(OrderDenno, ChongZhiRemark);
+
+                //将url生成二维码图片
+                return "MakeQRCode.aspx?data=" + HttpUtility.UrlEncode(url);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
+    [CSMethod("ShowEWMByYJ")]
+    public string ShowEWMByYJ(string OrderDenno, string memo)
     {
         NativePay nativePay = new NativePay();
 
         //生成扫码支付模式二url
-        string url = nativePay.GetPayUrl(productId);
+        string url = nativePay.GetPayUrl(OrderDenno, memo);
 
         //将url生成二维码图片
         return "MakeQRCode.aspx?data=" + HttpUtility.UrlEncode(url);
+    }
+
+    [CSMethod("GetOrderDenno")]
+    public string GetOrderDenno(string lb)
+    {
+        return lb + getdenno();
+    }
+
+    [CSMethod("StartSearch")]
+    public bool StartSearch(string OrderDenno)
+    {
+        using (var db = new DBConnection())
+        {
+            string sql = "select count(*) num from ZhiFuOrder where OrderDenno = @OrderDenno";
+            SqlCommand cmd = db.CreateCommand(sql);
+            cmd.Parameters.AddWithValue("@OrderDenno", OrderDenno);
+            DataTable dt = db.ExecuteDataTable(cmd);
+            if (Convert.ToInt32(dt.Rows[0]["num"].ToString()) > 0)
+                return true;
+            else
+                return false;
+        }
+    }
+
+    public string getdenno()
+    {
+        DateTime dttime = DateTime.Now;
+        string TableID_str = dttime.ToString("yyyyMMddHHmmssfff");
+        return TableID_str;
     }
 
     #region webservice请求方法
