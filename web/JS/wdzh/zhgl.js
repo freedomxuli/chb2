@@ -77,7 +77,7 @@ Ext.onReady(function () {
                                             win.show(null, function () {
                                                 CS('CZCLZ.Handler.ShowEWMByCZ', function (retVal) {
                                                     if (retVal) {
-                                                        Ext.getCmp("ShowEWM").setSrc(retVal);
+                                                        Ext.getCmp("ShowEWM").setSrc("../../Pay/"+retVal);
                                                     }
                                                 }, CS.onError,"12345678");
                                             });

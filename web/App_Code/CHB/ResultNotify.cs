@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using SmartFramework4v2.Web.WebExecutor;
+using SmartFramework4v2.Data.SqlServer;
+using System.Data;
 
 namespace WxPayAPI
 {
@@ -52,6 +55,16 @@ namespace WxPayAPI
                 res.SetValue("return_code", "SUCCESS");
                 res.SetValue("return_msg", "OK");
                 Log.Info(this.GetType().ToString(), "order query success : " + res.ToXml());
+
+                using (var db = new DBConnection())
+                {
+                    DataTable dt = db.GetEmptyDataTable("ZhiFuOrder");
+                    DataRow dr = dt.NewRow();
+                    dr["Guid"] = Guid.NewGuid();
+                    dr["OrderDenno"] = transaction_id;
+                    dr["Lx"] = 0;
+                    db.InsertTable(dr);
+                }
                 page.Response.Write(res.ToXml());
                 page.Response.End();
             }

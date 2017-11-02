@@ -1080,7 +1080,7 @@ public class Handler
         string url = nativePay.GetPayUrl(productId);
 
         //将url生成二维码图片
-        return HttpContext.Current.Server.MapPath("Pay/MakeQRCode.aspx?data=" + HttpUtility.UrlEncode(url));
+        return "MakeQRCode.aspx?data=" + HttpUtility.UrlEncode(url);
     }
 
     #region webservice请求方法

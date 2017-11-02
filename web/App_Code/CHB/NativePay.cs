@@ -47,7 +47,7 @@ namespace WxPayAPI
             data.SetValue("out_trade_no", WxPayApi.GenerateOutTradeNo());//随机字符串
             data.SetValue("total_fee", 1);//总金额
             data.SetValue("spbill_create_ip", "47.96.248.12");//终端IP
-            data.SetValue("notify_url", "http://test.zhisuroom.com/Pay/wxHandler.ashx");//交易类型
+            data.SetValue("notify_url", "http://test.zhisuroom.com/Pay/wxPayHandler.aspx");//交易类型
             data.SetValue("trade_type", "NATIVE");//交易类型
             data.SetValue("product_id", productId);//商品ID
 
