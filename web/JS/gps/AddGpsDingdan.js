@@ -1,12 +1,14 @@
 ﻿var mxStore = Ext.create('Ext.data.Store', {
     fields: [
-        'GpsDingDanMingXiTime', 'GpsDeviceID'
+        'GpsDingDanMingXiTime', 'GpsDeviceID', 'GpsDingDanMingXiID'
     ]
 });
 
 var OrderDenno = "";
 
 var GpsDingDanJinE = "";
+
+var StartSearch;
 
 Ext.onReady(function () {
     Ext.define('MainView', {
@@ -30,7 +32,7 @@ Ext.onReady(function () {
                         items: [
                             {
                                 xtype: 'panel',
-                                height: document.documentElement.clientHeight / 4,
+                                height: document.documentElement.clientHeight / 4 + 100,
                                 layout: {
                                     align: 'center',
                                     type: 'vbox'
@@ -56,6 +58,11 @@ Ext.onReady(function () {
                                                         Ext.getCmp("GpsDeviceID").setValue(newValue);
                                                     }
                                                 }
+                                            },
+                                            {
+                                                xtype: 'label',
+                                                columnWidth: 1,
+                                                html:"<div style='color:red;'>打开页面即可扫描枪扫码，如果获取扫描枪获取不到数据，请点击重置设备号再次尝试！</div>",
                                             },
                                             {
                                                 xtype: 'textfield',
@@ -169,6 +176,7 @@ Ext.onReady(function () {
                                                     });
                                                 } else {
                                                     Ext.Msg.alert("提示", retVal.msg);
+                                                    dataBind();
                                                     return false;
                                                 }
                                             }
@@ -176,6 +184,7 @@ Ext.onReady(function () {
                                     }
                                     else {
                                         Ext.Msg.alert("提示", "请先生成支付单！");
+                                        dataBind();
                                         return false;
                                     }
                                 }
@@ -217,6 +226,7 @@ function del(GpsDingDanMingXiID) {
                 });
             } else {
                 Ext.Msg.alert("提示", retVal.msg);
+                dataBind();
                 return false;
             }
         }
@@ -224,12 +234,12 @@ function del(GpsDingDanMingXiID) {
 }
 
 function getSuccess() {
-    var StartSearch = setInterval(function () {
-        CS('CZCLZ.Handler.StartSearch', function (retVal) {
+    StartSearch = setInterval(function () {
+        ACS('CZCLZ.Handler.StartSearch', function (retVal) {
             if (retVal) {
                 Ext.getCmp("WXEWM").close();
                 dataBind();
-                Ext.Msg.alert("提示", "充值成功！", function () {
+                Ext.Msg.alert("提示", "支付成功！", function () {
                     window.clearInterval(StartSearch);
                 });
             }
@@ -246,7 +256,7 @@ Ext.define('zhifu', {
         type: 'fit'
     },
     title: '支付',
-
+    id:'zhifuShow',
     modal:true,
     initComponent: function () {
         var me = this;
@@ -275,8 +285,9 @@ Ext.define('zhifu', {
                                         if (retVal) {
                                             Ext.getCmp("ShowEWM").setSrc("../../Pay/" + retVal);
                                             getSuccess();
+                                            me.close();
                                         }
-                                    }, CS.onError, OrderDenno, "web内用户押金，押金方式：微信；押金单号：" + orderdenno + "；押金金额：" + GpsDingDanJinE + "。");
+                                    }, CS.onError, OrderDenno, GpsDingDanJinE, "web内用户押金，押金方式：微信；押金单号：" + OrderDenno + "；押金金额：" + GpsDingDanJinE + "。");//GpsDingDanJinE
                                 });
                                 //CS('CZCLZ.Handler.ZF', function (retVal) {
                                 //    if (retVal)
@@ -360,6 +371,7 @@ Ext.define('EWM', {
                             text: '关闭',
                             iconCls: 'close',
                             handler: function () {
+                                dataBind();
                                 window.clearInterval(StartSearch);
                                 me.close();
                             }

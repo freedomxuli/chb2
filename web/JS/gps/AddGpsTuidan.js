@@ -1,6 +1,6 @@
 ﻿var mxStore = Ext.create('Ext.data.Store', {
     fields: [
-        'GpsTuiDanMingXiTime', 'GpsDeviceID'
+        'GpsTuiDanMingXiTime', 'GpsDeviceID', 'GpsTuiDanMingXiID'
     ]
 });
 
@@ -38,7 +38,7 @@ Ext.onReady(function () {
                         items: [
                             {
                                 xtype: 'panel',
-                                height: document.documentElement.clientHeight / 4,
+                                height: document.documentElement.clientHeight / 4 + 100,
                                 layout: {
                                     align: 'center',
                                     type: 'vbox'
@@ -64,6 +64,11 @@ Ext.onReady(function () {
                                                         Ext.getCmp("GpsDeviceID").setValue(newValue);
                                                     }
                                                 }
+                                            },
+                                            {
+                                                xtype: 'label',
+                                                columnWidth: 1,
+                                                html: "<div style='color:red;'>打开页面即可扫描枪扫码，如果获取扫描枪获取不到数据，请点击重置设备号再次尝试！</div>",
                                             },
                                             {
                                                 xtype: 'textfield',
@@ -172,6 +177,7 @@ Ext.onReady(function () {
                                                     });
                                                 } else {
                                                     Ext.Msg.alert("提示", retVal.msg);
+                                                    dataBind();
                                                     return false;
                                                 }
                                             }
@@ -179,6 +185,7 @@ Ext.onReady(function () {
                                     }
                                     else {
                                         Ext.Msg.alert("提示", "请先生成退单！");
+                                        dataBind();
                                         return false;
                                     }
                                 }
@@ -228,7 +235,7 @@ function del(GpsTuiDanMingXiID) {
 Ext.define('tuidan', {
     extend: 'Ext.window.Window',
 
-    height: 500,
+    height: 400,
     width: 350,
     layout: {
         type: 'fit'
@@ -253,7 +260,7 @@ Ext.define('tuidan', {
                             labelWidth: 70,
                             allowDecimals: false,
                             columnWidth: 1,
-                            editable: false,
+                            readOnly: true,
                             id: 'GpsTuiDanJinE',
                             padding: '50 10 50 10'
                         },
@@ -305,9 +312,11 @@ Ext.define('tuidan', {
                                         if (retVal.sign = "true") {
                                             yanzhengma = retVal.yanzhengma;
                                             Ext.Msg.alert("提示", "已成功发送短信！");
+                                            dataBind();
                                             return;
                                         } else {
                                             Ext.Msg.alert("提示", retVal.msg);
+                                            dataBind();
                                             return false;
                                         }
                                     }
@@ -321,14 +330,17 @@ Ext.define('tuidan', {
                             text: '确认申请',
                             iconCls: 'enable',
                             handler: function () {
+                                alert(yanzhengma);
                                 if (yanzhengma != Ext.getCmp("yanzhengma").getValue())
                                 {
                                     Ext.Msg.alert("提示", "验证码错误！");
+                                    dataBind();
                                     return false;
                                 }
                                 if(Ext.getCmp("GpsTuiDanZhangHao").getValue()==""||Ext.getCmp("GpsTuiDanZhangHao").getValue()==null)
                                 {
                                     Ext.Msg.alert("提示", "退单账号不能为空！");
+                                    dataBind();
                                     return false;
                                 }
                                 CS('CZCLZ.Handler.QRSQ', function (retVal) {
@@ -342,6 +354,7 @@ Ext.define('tuidan', {
                                             me.close();
                                         } else {
                                             Ext.Msg.alert("提示", "申请失败，请重试！");
+                                            dataBind();
                                             return false;
                                         }
                                     }
@@ -415,6 +428,7 @@ Ext.define('PickBank', {
                             text: '关闭',
                             iconCls: 'close',
                             handler: function () {
+                                dataBind();
                                 me.close();
                             }
                         }
@@ -429,6 +443,7 @@ Ext.define('PickBank', {
 });
 
 function Pick(zh) {
+    dataBind();
     Ext.getCmp("GpsTuiDanZhangHao").setValue(zh);
     Ext.getCmp("pcWin").close();
 }

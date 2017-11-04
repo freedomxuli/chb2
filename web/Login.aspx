@@ -235,7 +235,7 @@ body,td,th {
     </script>
     <script type="text/javascript">
         window.onload = function () {
-            //GetEWM();
+            GetEWM();
         };
 
         function Send() {

@@ -34,7 +34,7 @@ namespace WxPayAPI
         * @param productId 商品ID
         * @return 模式二URL
         */
-        public string GetPayUrl(string productId,string memo)
+        public string GetPayUrl(string productId, string GpsDingDanJinE, string memo)
         {
             Log.Info(this.GetType().ToString(), "Native pay mode 2 url is producing...");
 
@@ -44,8 +44,8 @@ namespace WxPayAPI
             data.SetValue("nonce_str", WxPayApi.GenerateNonceStr());//随机字符串
             data.SetValue("sign", data.MakeSign());//签名
             data.SetValue("body", memo);//商品描述
-            data.SetValue("out_trade_no", WxPayApi.GenerateOutTradeNo());//随机字符串
-            data.SetValue("total_fee", 1);//总金额
+            data.SetValue("out_trade_no", productId);//订单号
+            data.SetValue("total_fee", (int)(Convert.ToDecimal(GpsDingDanJinE) * 100));//总金额
             data.SetValue("spbill_create_ip", "47.96.248.12");//终端IP
             data.SetValue("notify_url", "http://test.zhisuroom.com/Pay/wxPayHandler.aspx");//交易类型
             data.SetValue("trade_type", "NATIVE");//交易类型

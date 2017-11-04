@@ -774,7 +774,7 @@ public class Handler
             JObject obj = JsonConvert.DeserializeObject(html) as JObject;
 
             if (obj["sign"].ToString() == "1")
-                return new { sign = "true", msg = "添加成功！", GpsDingDanJinE = obj["GpsTuiDanJinE"].ToString() };
+                return new { sign = "true", msg = "添加成功！", GpsTuiDanJinE = obj["GpsTuiDanJinE"].ToString() };
             else
                 return new { sign = "false", msg = obj["msg"].ToString() };
         }
@@ -802,7 +802,7 @@ public class Handler
             JObject obj = JsonConvert.DeserializeObject(html) as JObject;
 
             if (obj["sign"].ToString() == "1")
-                return new { sign = "true", msg = "获取验证码成功！" };
+                return new { sign = "true", msg = "获取验证码成功！", yanzhengma = obj["yanzhengma"].ToString() };
             else
                 return new { sign = "false", msg = obj["msg"].ToString() };
         }
@@ -898,7 +898,7 @@ public class Handler
                 conn += " and ChongZhiTime > '" + Convert.ToDateTime(startTime) + "'";
             if (!string.IsNullOrEmpty(endTime))
                 conn += " and ChongZhiTime < '" + Convert.ToDateTime(endTime).AddDays(1) + "'";
-            string sql = "select * from ChongZhi where UserID = @UserID" + conn;
+            string sql = "select * from ChongZhi where UserID = @UserID and ZhiFuZhuangTai = 1" + conn;
             SqlCommand cmd = db.CreateCommand(sql);
             cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
             DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
@@ -1093,7 +1093,7 @@ public class Handler
                 NativePay nativePay = new NativePay();
 
                 //生成扫码支付模式二url
-                string url = nativePay.GetPayUrl(OrderDenno, ChongZhiRemark);
+                string url = nativePay.GetPayUrl(OrderDenno, ChongZhiJinE.ToString(), ChongZhiRemark);
 
                 //将url生成二维码图片
                 return "MakeQRCode.aspx?data=" + HttpUtility.UrlEncode(url);
@@ -1106,12 +1106,12 @@ public class Handler
     }
 
     [CSMethod("ShowEWMByYJ")]
-    public string ShowEWMByYJ(string OrderDenno, string memo)
+    public string ShowEWMByYJ(string OrderDenno, string GpsDingDanJinE, string memo)
     {
         NativePay nativePay = new NativePay();
 
         //生成扫码支付模式二url
-        string url = nativePay.GetPayUrl(OrderDenno, memo);
+        string url = nativePay.GetPayUrl(OrderDenno, GpsDingDanJinE, memo);
 
         //将url生成二维码图片
         return "MakeQRCode.aspx?data=" + HttpUtility.UrlEncode(url);
@@ -1137,6 +1137,12 @@ public class Handler
             else
                 return false;
         }
+    }
+
+    [CSMethod("GetUserName")]
+    public string GetUserName()
+    {
+        return SystemUser.CurrentUser.UserName;
     }
 
     public string getdenno()

@@ -28,6 +28,7 @@ Ext.onReady(function () {
                                 columnWidth: 1,
                                 padding: 20,
                                 id: 'UserName',
+                                readOnly:true,
                                 fieldLabel: '手机号码'
                             },
                             {
@@ -100,7 +101,7 @@ Ext.onReady(function () {
                                                 Ext.Msg.alert("提示", "确认密码和登录密码必须一致");
                                                 return false;
                                             }
-                                            if (Ext.getCmp("yanzhengma").getValue() != "" && Ext.getCmp("yanzhengma").getValue() != null)
+                                            if (Ext.getCmp("yanzhengma").getValue() == "" || Ext.getCmp("yanzhengma").getValue() == null)
                                             {
                                                 Ext.Msg.alert("提示", "验证码不能为空");
                                                 return false;
@@ -111,7 +112,7 @@ Ext.onReady(function () {
                                                         Ext.Msg.alert("提示", "修改成功！", function () {
                                                             CS('CZCLZ.UserClass.Logout', function (retVal) {
                                                                 if (retVal)
-                                                                    window.location.href = 'approot/r/login.aspx';
+                                                                    top.location.href = 'approot/r/login.aspx';
                                                             }, CS.onError);
                                                         });
                                                     } else {
@@ -119,7 +120,7 @@ Ext.onReady(function () {
                                                         return false;
                                                     }
                                                 }
-                                            }, CS.onError, Ext.getCmp("UserName").getValue(), Ext.getCmp("UserPassword").getValue(), "web");
+                                            }, CS.onError, Ext.getCmp("UserName").getValue(), Ext.getCmp("UserPassword").getValue(), "APP");
                                         }
                                     }
                                 ]
@@ -136,4 +137,15 @@ Ext.onReady(function () {
 
     new MainView();
 
+    dataBind();
 });
+
+function dataBind()
+{
+    CS('CZCLZ.Handler.GetUserName', function (retVal) {
+        if (retVal)
+        {
+            Ext.getCmp("UserName").setValue(retVal);
+        }
+    },CS.onError)
+}

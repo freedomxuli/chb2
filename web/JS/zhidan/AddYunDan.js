@@ -48,6 +48,43 @@ Ext.onReady(function () {
                         border:0,
                         items: [
                             {
+                                xtype: 'textfield',
+                                columnWidth: 1,
+                                id: 'HiddenID',
+                                fieldLabel: '隐藏设备号',
+                                margin: '-25 0 0 0',
+                                listeners: {
+                                    'change': function (field, newValue, oldValue) {
+                                        Ext.getCmp("GpsDeviceID").setValue(newValue);
+                                    }
+                                }
+                            },
+                            {
+                                xtype: 'label',
+                                columnWidth: 1,
+                                html: "<div style='color:red;'>打开页面先扫描枪扫码，如果获取不到数据，请点击重置设备号再次尝试！</div>",
+                            },
+                            {
+                                xtype: 'textfield',
+                                columnWidth: 0.7,
+                                padding: '0 20 20 20',
+                                id: 'GpsDeviceID',
+                                readOnly: true,
+                                fieldLabel: '扫描码'
+                            },
+                            {
+                                xtype: 'button',
+                                iconCls: 'close',
+                                text: '重置设备号',
+                                columnWidth: 0.3,
+                                margin: '0 20 0 0',
+                                handler: function () {
+                                    Ext.getCmp("GpsDeviceID").setValue("");
+                                    Ext.getCmp("HiddenID").setValue("");
+                                    Ext.getCmp('HiddenID').focus(true, true);
+                                }
+                            },
+                            {
                                 xtype: 'combobox',
                                 columnWidth: 0.65,
                                 padding: 20,
@@ -128,14 +165,6 @@ Ext.onReady(function () {
                                 padding: 20,
                                 id: 'UserDenno',
                                 fieldLabel: '单号'
-                            },
-                            {
-                                xtype: 'textfield',
-                                columnWidth: 1,
-                                padding: 20,
-                                id: 'GpsDeviceID',
-                                readOnly: true,
-                                fieldLabel: '扫描码(使用时鼠标指定位置)'
                             },
                             {
                                 xtype: 'textarea',
@@ -222,6 +251,8 @@ Ext.onReady(function () {
 });
 
 function cityBind() {
+    Ext.getCmp("HiddenID").setValue("");
+    Ext.getCmp('HiddenID').focus(true, true);
     var provincesData = [];
     for (var i = 0; i < cityList.provinces.length; i++) {
         var obj = {};

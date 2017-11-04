@@ -2,8 +2,9 @@
 var sl = {};
 var fin_je = 10;
 var fin_num = 1;
-var memo = "";
+var memo = "单次充值，充值：1单。共计：10.000元";
 var OrderDenno = "";
+var StartSearch;
 
 Ext.onReady(function () {
     Ext.define('MainView', {
@@ -84,7 +85,7 @@ Ext.onReady(function () {
                                                                 Ext.getCmp("ShowEWM").setSrc("../../Pay/" + retVal);
                                                                 getSuccess();
                                                             }
-                                                        }, CS.onError, OrderDenno, fin_je, fin_num, memo);
+                                                        }, CS.onError, OrderDenno, fin_je, fin_num, memo);//fin_je
                                                     });
                                                 }
                                             }, CS.onError, "01");
@@ -120,6 +121,15 @@ function radioBind() {
     CS('CZCLZ.Handler.GetJGCL', function (retVal) {
         if(retVal)
         {
+            dg = {};
+            sl = {};
+            fin_je = 10;
+            fin_num = 1;
+            memo = "单次充值，充值：1单。共计：10.000元";
+            OrderDenno = "";
+            Ext.getCmp("taocan").removeAll();
+            Ext.getCmp('je').update('<div style="color:red;font-size:30px;">10元</div>');
+
             Ext.getCmp("UserRemainder").update('<div style="font-size:25px;text-align-center;">剩余单量：' + retVal.UserRemainder + '单</div>');
             if (retVal.dt_jg.length > 0)
             {
@@ -214,13 +224,13 @@ function radioBind() {
 }
 
 function getSuccess() {
-    var StartSearch = setInterval(function () {
-        CS('CZCLZ.Handler.StartSearch', function (retVal) {
+    StartSearch = setInterval(function () {
+        ACS('CZCLZ.Handler.StartSearch', function (retVal) {
             if (retVal)
             {
                 Ext.getCmp("WXEWM").close();
-                radioBind();
-                Ext.Msg.alert("提示","充值成功！",function(){
+                Ext.Msg.alert("提示", "充值成功！", function () {
+                    radioBind();
                     window.clearInterval(StartSearch);
                 });
             }

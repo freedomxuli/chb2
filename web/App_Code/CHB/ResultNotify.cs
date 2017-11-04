@@ -64,20 +64,31 @@ namespace WxPayAPI
                         string sql = "update ChongZhi set ZhiFuZhuangTai = 1,ZhiFuTime = '" + DateTime.Now + "' where OrderDenno = '" + OrderDenno + "'";
                         db.ExecuteNonQuery(sql);
 
-                        DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
-                        DataRow dr_caozuo = dt_caozuo.NewRow();
-                        dr_caozuo["UserID"] = SystemUser.CurrentUser.UserID;
-                        dr_caozuo["CaoZuoLeiXing"] = "充值";
-                        dr_caozuo["CaoZuoNeiRong"] = "web内用户充值，充值方式：微信；充值单号：" + OrderDenno + "；充值金额：" + Convert.ToDouble(notifyData.GetValue("total_fee").ToString()) / 100 + "。";
-                        dr_caozuo["CaoZuoTime"] = DateTime.Now;
-                        dr_caozuo["CaoZuoRemark"] = "";
-                        dt_caozuo.Rows.Add(dr_caozuo);
-                        db.InsertTable(dt_caozuo);
+                        sql = "select * from ChongZhi where OrderDenno = '" + OrderDenno + "'";
+                        DataTable dt_ChongZhi = db.ExecuteDataTable(sql);
+
+                        if (dt_ChongZhi.Rows.Count > 0)
+                        {
+                            sql = "select * from [dbo].[User] where UserID = '" + dt_ChongZhi.Rows[0]["UserID"].ToString() + "'";
+                            DataTable dt_user = db.ExecuteDataTable(sql);
+
+                            int num = Convert.ToInt32(dt_user.Rows[0]["UserRemainder"].ToString()) + Convert.ToInt32(dt_ChongZhi.Rows[0]["ChongZhiCiShu"].ToString());
+                            sql = "update [dbo].[User] set UserRemainder = '" + num + "'";
+                            db.ExecuteNonQuery(sql);
+
+                            DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
+                            DataRow dr_caozuo = dt_caozuo.NewRow();
+                            dr_caozuo["UserID"] = dt_ChongZhi.Rows[0]["UserID"];
+                            dr_caozuo["CaoZuoLeiXing"] = "充值";
+                            dr_caozuo["CaoZuoNeiRong"] = "web内用户充值，充值方式：微信；充值单号：" + OrderDenno + "；充值金额：" + Convert.ToInt32(notifyData.GetValue("total_fee").ToString()) / 100 + "。";
+                            dr_caozuo["CaoZuoTime"] = DateTime.Now;
+                            dr_caozuo["CaoZuoRemark"] = "";
+                            dt_caozuo.Rows.Add(dr_caozuo);
+                            db.InsertTable(dt_caozuo);
+                        }
                     }
                     else
                     {
-                        string userid = SystemUser.CurrentUser.UserID;
-
                         string sql = "select * from GpsDingDan where OrderDenno = '" + OrderDenno + "'";
                         DataTable dt_dingdan = db.ExecuteDataTable(sql);
 
@@ -94,7 +105,7 @@ namespace WxPayAPI
                             {
                                 DataRow dr_device = dt_device.NewRow();
                                 dr_device["GpsDeviceID"] = dt_mx.Rows[i]["GpsDeviceID"].ToString();
-                                dr_device["UserID"] = userid;
+                                dr_device["UserID"] = dt_dingdan.Rows[0]["UserID"].ToString();
                                 dt_device.Rows.Add(dr_device);
                             }
                             db.InsertTable(dt_device);
