@@ -149,8 +149,8 @@ public class Handler
             Encoding encoding = Encoding.GetEncoding("utf-8");
             IDictionary<string, string> parameters = new Dictionary<string, string>();
             parameters.Add("UserName", SystemUser.CurrentUser.UserName);
-            parameters.Add("QiShiZhan", QiShiZhan_Province + "　" + QiShiZhan_City);
-            parameters.Add("DaoDaZhan", DaoDaZhan_Province + "　" + DaoDaZhan_City);
+            parameters.Add("QiShiZhan", QiShiZhan_Province + " " + QiShiZhan_City);
+            parameters.Add("DaoDaZhan", DaoDaZhan_Province + " " + DaoDaZhan_City);
             parameters.Add("SuoShuGongSi", SuoShuGongSi);
             parameters.Add("UserDenno", UserDenno);
             parameters.Add("GpsDeviceID", GpsDeviceID);
@@ -229,9 +229,9 @@ public class Handler
                     conn += " and UserDenno like @UserDenno";
                 if (!string.IsNullOrEmpty(SuoShuGongSi))
                     conn += " and SuoShuGongSi like @SuoShuGongSi";
-                string sql = "select * from YunDan where UserID = @UserID" + conn;
+                string sql = "select * from YunDan where 1=1 " + conn;
                 SqlCommand cmd = db.CreateCommand(sql);
-                cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                //cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
                 cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno + "%");
                 cmd.Parameters.AddWithValue("@SuoShuGongSi", "%" + SuoShuGongSi + "%");
                 DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);

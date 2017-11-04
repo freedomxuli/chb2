@@ -196,8 +196,8 @@ function radioBind() {
                             change: function (field, newValue, oldValue) {
                                 if (newValue == true)
                                 {
-                                    Ext.getCmp('je').update('<div style="color:red;font-size:30px;">' + parseInt(dg[field.id]) * parseInt(sl[field.id]) + '元</div>');
-                                    fin_je = parseInt(dg[field.id]) * parseInt(sl[field.id]);
+                                    Ext.getCmp('je').update('<div style="color:red;font-size:30px;">' + parseInt(dg[field.id]) + '元</div>');
+                                    fin_je = parseInt(dg[field.id]);
                                     fin_num = parseInt(sl[field.id]);
                                     memo = "套餐充值，充值：" + fin_num + "单。共计：" + fin_je + ".000元";
 
