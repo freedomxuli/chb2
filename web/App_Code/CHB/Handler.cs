@@ -51,7 +51,7 @@ public class Handler
                 }
                 if (!string.IsNullOrEmpty(DaoDaZhan_Province))
                 {
-                    DaoDaZhan += QiShiZhan_Province;
+                    DaoDaZhan += DaoDaZhan_Province;
                 }
                 if (!string.IsNullOrEmpty(DaoDaZhan_City))
                 {
@@ -202,7 +202,7 @@ public class Handler
                 }
                 if (!string.IsNullOrEmpty(DaoDaZhan_Province))
                 {
-                    DaoDaZhan += QiShiZhan_Province;
+                    DaoDaZhan += DaoDaZhan_Province;
                 }
                 if (!string.IsNullOrEmpty(DaoDaZhan_City))
                 {
