@@ -87,20 +87,29 @@ Ext.onReady(function () {
                                                         margin: '50 0 20 130',
                                                         iconCls: 'enable',
                                                         text: '确认',
+                                                        style: 'padding:15px;',
                                                         handler: function () {
                                                             if (Ext.getCmp("GpsDeviceID").getValue() != "" && Ext.getCmp("GpsDeviceID").getValue() != null) {
                                                                 var n = Ext.getCmp("GpsDeviceID").getValue().indexOf("1919");
                                                                 if (n == 0) {
-                                                                    CS('CZCLZ.Handler.AddTuiDanGPS', function (retVal) {
-                                                                        if (retVal.sign == "true") {
-                                                                            OrderDenno = retVal.OrderDenno;
-                                                                            Ext.getCmp("GpsDeviceID").setValue("");
-                                                                            Ext.Msg.alert("提示", "添加成功！", function () {
-                                                                                dataBind();
-                                                                            });
+                                                                    CS('CZCLZ.Handler.TuiDanDeciceIsClose', function (ret) {
+                                                                        if (ret) {
+                                                                            CS('CZCLZ.Handler.AddTuiDanGPS', function (retVal) {
+                                                                                if (retVal.sign == "true") {
+                                                                                    OrderDenno = retVal.OrderDenno;
+                                                                                    Ext.getCmp("GpsDeviceID").setValue("");
+                                                                                    Ext.Msg.alert("提示", "添加成功！", function () {
+                                                                                        dataBind();
+                                                                                    });
+                                                                                } else {
+                                                                                    Ext.getCmp("GpsDeviceID").setValue("");
+                                                                                    Ext.Msg.alert("提示", retVal.msg, function () {
+                                                                                        dataBind();
+                                                                                    });
+                                                                                }
+                                                                            }, CS.onError, Ext.getCmp("GpsDeviceID").getValue());
                                                                         } else {
-                                                                            Ext.getCmp("GpsDeviceID").setValue("");
-                                                                            Ext.Msg.alert("提示", retVal.msg, function () {
+                                                                            Ext.Msg.alert("提示", "请先解绑该设备，再退单！", function () {
                                                                                 dataBind();
                                                                             });
                                                                         }
@@ -119,9 +128,10 @@ Ext.onReady(function () {
                                                     },
                                                     {
                                                         xtype: 'button',
-                                                        margin: '50 0 20 130',
+                                                        margin: '50 0 20 90',
                                                         iconCls: 'close',
                                                         text: '重置设备号',
+                                                        style: 'padding:15px;',
                                                         handler: function () {
                                                             Ext.getCmp("GpsDeviceID").setValue("");
                                                             Ext.getCmp("HiddenID").setValue("");
@@ -178,13 +188,14 @@ Ext.onReady(function () {
                             {
                                 text: '申请退单',
                                 iconCls: 'enable',
+                                style: 'padding:15px;',
                                 handler: function () {
                                     if (OrderDenno != "") {
                                         CS('CZCLZ.Handler.TJTD', function (retVal) {
                                             if (retVal) {
                                                 if (retVal.sign == "true") {
                                                     GpsTuiDanJinE = retVal.GpsTuiDanJinE;
-                                                    var win = new tuidan();
+                                                    var win = new tuidan({ OrderDenno: OrderDenno });
                                                     win.show(null, function () {
                                                         Ext.getCmp("GpsTuiDanJinE").setValue(GpsTuiDanJinE);
                                                     });
@@ -325,11 +336,9 @@ Ext.define('tuidan', {
                                         if (retVal.sign = "true") {
                                             yanzhengma = retVal.yanzhengma;
                                             Ext.Msg.alert("提示", "已成功发送短信！");
-                                            dataBind();
                                             return;
                                         } else {
                                             Ext.Msg.alert("提示", retVal.msg);
-                                            dataBind();
                                             return false;
                                         }
                                     }
@@ -343,17 +352,16 @@ Ext.define('tuidan', {
                             text: '确认申请',
                             iconCls: 'enable',
                             handler: function () {
-                                alert(yanzhengma);
+                                if (me.OrderDenno!="")
+                                    OrderDenno = me.OrderDenno;
                                 if (yanzhengma != Ext.getCmp("yanzhengma").getValue())
                                 {
                                     Ext.Msg.alert("提示", "验证码错误！");
-                                    dataBind();
                                     return false;
                                 }
                                 if(Ext.getCmp("GpsTuiDanZhangHao").getValue()==""||Ext.getCmp("GpsTuiDanZhangHao").getValue()==null)
                                 {
                                     Ext.Msg.alert("提示", "退单账号不能为空！");
-                                    dataBind();
                                     return false;
                                 }
                                 CS('CZCLZ.Handler.QRSQ', function (retVal) {
@@ -367,11 +375,10 @@ Ext.define('tuidan', {
                                             me.close();
                                         } else {
                                             Ext.Msg.alert("提示", "申请失败，请重试！");
-                                            dataBind();
                                             return false;
                                         }
                                     }
-                                }, CS.onError, OrderDenno, Ext.getCmp("GpsTuiDanZhangHao").getValue());
+                                }, CS.onError, me.OrderDenno, Ext.getCmp("GpsTuiDanZhangHao").getValue());
                             }
                         }
                     ]

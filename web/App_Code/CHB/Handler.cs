@@ -1219,6 +1219,109 @@ public class Handler
         return TableID_str;
     }
 
+    [CSMethod("TuiDanDeciceIsClose")]
+    public bool TuiDanDeciceIsClose(string GpsDeviceID)
+    {
+        using (var db = new DBConnection())
+        {
+            string sql = "select * from GpsDevice a where UserID = @UserID and GpsDeviceID = @GpsDeviceID";
+            SqlCommand cmd = db.CreateCommand(sql);
+            cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+            cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID);
+            DataTable dt = db.ExecuteDataTable(cmd);
+
+            sql = "select YunDanDenno,GpsDeviceID from YunDan where IsBangding = 1";
+            DataTable dt_yun = db.ExecuteDataTable(sql);
+
+            if (dt.Rows.Count > 0)
+            {
+                DataRow[] drs = dt_yun.Select("GpsDeviceID = '" + dt.Rows[0]["GpsDeviceID"].ToString() + "'");
+                if (drs.Length > 0)
+                    return false;//不可解绑
+                else
+                    return true;//可解绑
+            }
+            else
+            {
+                return false;//不可解绑
+            }
+        }
+    }
+
+    public bool TuiDanDeciceIsCloseByApp(string GpsDeviceID, string UserName)
+    {
+        using (var db = new DBConnection())
+        {
+            string UserID = GetUserIdByName(UserName);
+
+            string sql = "select * from GpsDevice a where UserID = @UserID and GpsDeviceID = @GpsDeviceID";
+            SqlCommand cmd = db.CreateCommand(sql);
+            cmd.Parameters.AddWithValue("@UserID", UserID);
+            cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID);
+            DataTable dt = db.ExecuteDataTable(cmd);
+
+            sql = "select YunDanDenno,GpsDeviceID from YunDan where IsBangding = 1";
+            DataTable dt_yun = db.ExecuteDataTable(sql);
+
+            if (dt.Rows.Count > 0)
+            {
+                DataRow[] drs = dt_yun.Select("GpsDeviceID = '" + dt.Rows[0]["GpsDeviceID"].ToString() + "'");
+                if (drs.Length > 0)
+                    return false;//不可解绑
+                else
+                    return true;//可解绑
+            }
+            else
+            {
+                return false;//不可解绑
+            }
+        }
+    }
+
+    public string GetUserIdByName(string UserName)
+    {
+        using(var db = new DBConnection())
+        {
+            string sql = "select * from [dbo].[User] where UserName = @UserName";
+            SqlCommand cmd = db.CreateCommand(sql);
+            cmd.Parameters.AddWithValue("@UserName", UserName);
+            DataTable dt = db.ExecuteDataTable(cmd);
+            string UserID = "";
+            if (dt.Rows.Count>0)
+                UserID = dt.Rows[0]["UserID"].ToString();
+            return UserID;
+        }
+    }
+
+    [CSMethod("IsBangBind")]
+    public bool IsBangBind(string GpsDeviceID)
+    {
+        using (var db = new DBConnection())
+        {
+            string sql = "select * from GpsDevice a where UserID = @UserID and GpsDeviceID = @GpsDeviceID";
+            SqlCommand cmd = db.CreateCommand(sql);
+            cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+            cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID);
+            DataTable dt = db.ExecuteDataTable(cmd);
+
+            sql = "select YunDanDenno,GpsDeviceID from YunDan where IsBangding = 1";
+            DataTable dt_yun = db.ExecuteDataTable(sql);
+
+            if (dt.Rows.Count > 0)
+            {
+                DataRow[] drs = dt_yun.Select("GpsDeviceID = '" + dt.Rows[0]["GpsDeviceID"].ToString() + "'");
+                if (drs.Length > 0)
+                    return false;//不可解绑
+                else
+                    return true;//可解绑
+            }
+            else
+            {
+                return false;//不可解绑
+            }
+        }
+    }
+
     #region webservice请求方法
     private static readonly string DefaultUserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; SV1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)";
 

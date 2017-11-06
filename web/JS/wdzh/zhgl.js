@@ -74,6 +74,7 @@ Ext.onReady(function () {
                                         xtype: 'button',
                                         iconCls: 'enable',
                                         text: '微信支付',
+                                        style: 'padding:15px;',
                                         handler: function () {
                                             CS('CZCLZ.Handler.GetOrderDenno', function (ret) {
                                                 if (ret) {

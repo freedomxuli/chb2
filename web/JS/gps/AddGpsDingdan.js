@@ -81,6 +81,7 @@ Ext.onReady(function () {
                                                         margin: '50 0 20 130',
                                                         iconCls: 'enable',
                                                         text: '确认',
+                                                        style:'padding:15px;',
                                                         handler: function () {
                                                             if (Ext.getCmp("GpsDeviceID").getValue() != "" && Ext.getCmp("GpsDeviceID").getValue() != null) {
                                                                 var n = Ext.getCmp("GpsDeviceID").getValue().indexOf("1919");
@@ -116,6 +117,7 @@ Ext.onReady(function () {
                                                         margin: '50 0 20 130',
                                                         iconCls: 'close',
                                                         text: '重置设备号',
+                                                        style: 'padding:15px;',
                                                         handler: function () {
                                                             Ext.getCmp("GpsDeviceID").setValue("");
                                                             Ext.getCmp("HiddenID").setValue("");
@@ -172,7 +174,8 @@ Ext.onReady(function () {
                         buttons: [
                             {
                                 text: '支付订单',
-                                iconCls:'enable',
+                                iconCls: 'enable',
+                                style: 'padding:15px;',
                                 handler: function () {
                                     //var win = new zhifu();
                                     //win.show(null, function () {

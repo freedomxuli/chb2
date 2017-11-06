@@ -82,6 +82,7 @@ Ext.onReady(function () {
                                         margin: '50 0 20 130',
                                         iconCls: 'enable',
                                         text: '重置密码',
+                                        style: 'padding:15px;',
                                         handler: function () {
                                             if (Ext.getCmp("UserName").getValue() == "" || Ext.getCmp("UserName").getValue() == null)
                                             {

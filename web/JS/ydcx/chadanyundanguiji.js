@@ -27,13 +27,17 @@ Ext.onReady(function () {
                                 iconCls: 'close',
                                 id:'jcbd',
                                 handler: function () {
-                                    CS('CZCLZ.Handler.CloseBD', function (retVal) {
-                                        if (retVal) {
-                                            Ext.Msg.alert("提示", "解除绑定成功！", function () {
-                                                FrameStack.popFrame();
-                                            });
+                                    Ext.Msg.confirm("提示", "是否解绑该设备?", function (btn) {
+                                        if (btn == "yes") {
+                                            CS('CZCLZ.Handler.CloseBD', function (retVal) {
+                                                if (retVal) {
+                                                    Ext.Msg.alert("提示", "解除绑定成功！", function () {
+                                                        FrameStack.popFrame();
+                                                    });
+                                                }
+                                            }, CS.onError, UserID, YunDanDenno);
                                         }
-                                    }, CS.onError, UserID, YunDanDenno);
+                                    });
                                 }
                             },
                             {

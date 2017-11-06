@@ -85,6 +85,13 @@ Ext.onReady(function () {
                                 }
                             },
                             {
+                                xtype: 'textfield',
+                                columnWidth: 0.7,
+                                padding: '0 20 20 20',
+                                id: 'GpsDeviceIDByHand',
+                                fieldLabel: '输入码'
+                            },
+                            {
                                 xtype: 'combobox',
                                 columnWidth: 0.65,
                                 padding: 20,
@@ -211,20 +218,47 @@ Ext.onReady(function () {
                                         Ext.Msg.alert("提示", "单号为必填项！");
                                         return false;
                                     }
-                                    if (Ext.getCmp("GpsDeviceID").getValue() == "" || Ext.getCmp("GpsDeviceID").getValue() == null) {
-                                        Ext.Msg.alert("提示", "扫描码为必填项！");
+                                    if (Ext.getCmp("GpsDeviceIDByHand").getValue() != "" && Ext.getCmp("GpsDeviceIDByHand").getValue() != null && Ext.getCmp("GpsDeviceID").getValue() != "" && Ext.getCmp("GpsDeviceID").getValue() != null)
+                                    {
+                                        Ext.Msg.alert("提示", "扫描码和输入码不能同时存在！");
                                         return false;
                                     }
-                                    CS('CZCLZ.Handler.SaveYunDan', function (retVal) {
-                                        if (retVal) {
-                                            Ext.Msg.alert("提示", "制单成功！", function () {
-                                                FrameStack.popFrame();
-                                            });
-                                        } else {
-                                            Ext.Msg.alert("提示", "制单失败！");
-                                            return false;
-                                        }
-                                    }, CS.onError, Ext.getCmp("QiShiZhan_Province").getValue(), Ext.getCmp("QiShiZhan_City").getValue(), Ext.getCmp("DaoDaZhan_Province").getValue(), Ext.getCmp("DaoDaZhan_City").getValue(), Ext.getCmp("SuoShuGongSi").getValue(), Ext.getCmp("UserDenno").getValue(), Ext.getCmp("GpsDeviceID").getValue(), Ext.getCmp("YunDanRemark").getValue());
+                                    if ((Ext.getCmp("GpsDeviceID").getValue() == "" || Ext.getCmp("GpsDeviceID").getValue() == null) && (Ext.getCmp("GpsDeviceIDByHand").getValue() == "" || Ext.getCmp("GpsDeviceIDByHand").getValue() == null)) {
+                                        Ext.Msg.alert("提示", "扫描码或输入码必须填写一项！");
+                                        return false;
+                                    }
+                                    if (Ext.getCmp("GpsDeviceIDByHand").getValue() != "" && Ext.getCmp("GpsDeviceIDByHand").getValue() != null)
+                                    {
+                                        CS('CZCLZ.Handler.IsBangBind', function (ret) {
+                                            if (ret) {
+                                                CS('CZCLZ.Handler.SaveYunDan', function (retVal) {
+                                                    if (retVal) {
+                                                        Ext.Msg.alert("提示", "制单成功！", function () {
+                                                            FrameStack.popFrame();
+                                                        });
+                                                    } else {
+                                                        Ext.Msg.alert("提示", "制单失败！");
+                                                        return false;
+                                                    }
+                                                }, CS.onError, Ext.getCmp("QiShiZhan_Province").getValue(), Ext.getCmp("QiShiZhan_City").getValue(), Ext.getCmp("DaoDaZhan_Province").getValue(), Ext.getCmp("DaoDaZhan_City").getValue(), Ext.getCmp("SuoShuGongSi").getValue(), Ext.getCmp("UserDenno").getValue(), Ext.getCmp("GpsDeviceIDByHand").getValue(), Ext.getCmp("YunDanRemark").getValue());
+                                            } else {
+                                                Ext.Msg.alert("提示", "输入码必须先解除绑定再制单！");
+                                                return false;
+                                            }
+                                        }, CS.onError, Ext.getCmp("GpsDeviceIDByHand").getValue());
+                                    } else if (Ext.getCmp("GpsDeviceID").getValue() != "" && Ext.getCmp("GpsDeviceID").getValue() != null)
+                                    {
+                                        CS('CZCLZ.Handler.SaveYunDan', function (retVal) {
+                                            if (retVal) {
+                                                Ext.Msg.alert("提示", "制单成功！", function () {
+                                                    FrameStack.popFrame();
+                                                });
+                                            } else {
+                                                Ext.Msg.alert("提示", "制单失败！");
+                                                return false;
+                                            }
+                                        }, CS.onError, Ext.getCmp("QiShiZhan_Province").getValue(), Ext.getCmp("QiShiZhan_City").getValue(), Ext.getCmp("DaoDaZhan_Province").getValue(), Ext.getCmp("DaoDaZhan_City").getValue(), Ext.getCmp("SuoShuGongSi").getValue(), Ext.getCmp("UserDenno").getValue(), Ext.getCmp("GpsDeviceID").getValue(), Ext.getCmp("YunDanRemark").getValue());
+                                    }
                                 }
                             },
                             {
