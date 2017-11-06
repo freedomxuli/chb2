@@ -73,7 +73,7 @@ namespace WxPayAPI
                             DataTable dt_user = db.ExecuteDataTable(sql);
 
                             int num = Convert.ToInt32(dt_user.Rows[0]["UserRemainder"].ToString()) + Convert.ToInt32(dt_ChongZhi.Rows[0]["ChongZhiCiShu"].ToString());
-                            sql = "update [dbo].[User] set UserRemainder = '" + num + "'";
+                            sql = "update [dbo].[User] set UserRemainder = '" + num + "' where UserID = '" + dt_ChongZhi.Rows[0]["UserID"].ToString() + "'";
                             db.ExecuteNonQuery(sql);
 
                             DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");

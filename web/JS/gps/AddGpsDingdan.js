@@ -82,20 +82,33 @@ Ext.onReady(function () {
                                                         iconCls: 'enable',
                                                         text: '确认',
                                                         handler: function () {
-                                                            CS('CZCLZ.Handler.AddGPS', function (retVal) {
-                                                                if (retVal.sign == "true") {
-                                                                    OrderDenno = retVal.OrderDenno;
-                                                                    Ext.getCmp("GpsDeviceID").setValue("");
-                                                                    Ext.Msg.alert("提示", "添加成功！", function () {
-                                                                        dataBind();
-                                                                    });
-                                                                } else {
-                                                                    Ext.getCmp("GpsDeviceID").setValue("");
-                                                                    Ext.Msg.alert("提示", retVal.msg, function () {
-                                                                        dataBind();
-                                                                    });
+                                                            if (Ext.getCmp("GpsDeviceID").getValue() != "" && Ext.getCmp("GpsDeviceID").getValue() != null) {
+                                                                var n = Ext.getCmp("GpsDeviceID").getValue().indexOf("1919");
+                                                                if (n == 0) {
+                                                                    CS('CZCLZ.Handler.AddGPS', function (retVal) {
+                                                                        if (retVal.sign == "true") {
+                                                                            OrderDenno = retVal.OrderDenno;
+                                                                            Ext.getCmp("GpsDeviceID").setValue("");
+                                                                            Ext.Msg.alert("提示", "添加成功！", function () {
+                                                                                dataBind();
+                                                                            });
+                                                                        } else {
+                                                                            Ext.getCmp("GpsDeviceID").setValue("");
+                                                                            Ext.Msg.alert("提示", retVal.msg, function () {
+                                                                                dataBind();
+                                                                            });
+                                                                        }
+                                                                    }, CS.onError, Ext.getCmp("GpsDeviceID").getValue());
                                                                 }
-                                                            }, CS.onError, Ext.getCmp("GpsDeviceID").getValue());
+                                                                else {
+                                                                    Ext.Msg.alert("提示", "请扫描指定二维码！");
+                                                                    return false;
+                                                                }
+                                                            }
+                                                            else {
+                                                                Ext.Msg.alert("提示", "请先添加设备号！");
+                                                                return false;
+                                                            }
                                                         }
                                                     },
                                                     {
@@ -362,7 +375,7 @@ Ext.define('EWM', {
                         {
                             xtype: 'image',
                             id: 'ShowEWM',
-                            margin: 30
+                            margin: '80 140 80 140'
                         }
                     ],
                     buttonAlign: 'center',

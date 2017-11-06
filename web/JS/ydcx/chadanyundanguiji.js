@@ -65,8 +65,14 @@ function DataBind()
 
     Ext.getCmp('YDGJ').update("<iframe width=100% height=100% frameborder=0 scrolling=auto src='" + src + "'></iframe>");
 
-    if (type == "ziyouchadan")
-    {
+    if (type == "ziyouchadan") {
         Ext.getCmp("jcbd").hide();
+    } else {
+        CS('CZCLZ.Handler.SearchBD', function (retVal) {
+            if(!retVal)
+            {
+                Ext.getCmp("jcbd").hide();
+            }
+        }, CS.onError, UserID, YunDanDenno)
     }
 }

@@ -174,7 +174,7 @@ public class Handler
     }
 
     [CSMethod("SearchMyYunDan")]
-    public object SearchMyYunDan(int CurrentPage,int PageSize, string UserDenno)
+    public object SearchMyYunDan(int CurrentPage, int PageSize, string QiShiZhan_Province, string QiShiZhan_City, string DaoDaZhan_Province, string DaoDaZhan_City, string SuoShuGongSi, string UserDenno)
     {
         using(var db = new DBConnection())
         {
@@ -184,6 +184,39 @@ public class Handler
                 int ac = 0;
 
                 string conn = "";
+
+                string QiShiZhan = "";
+                string DaoDaZhan = "";
+
+                if (!string.IsNullOrEmpty(QiShiZhan_Province))
+                {
+                    QiShiZhan += QiShiZhan_Province;
+                }
+                if (!string.IsNullOrEmpty(QiShiZhan_City))
+                {
+                    QiShiZhan += " " + QiShiZhan_City;
+                }
+                if (!string.IsNullOrEmpty(QiShiZhan))
+                {
+                    conn += " and QiShiZhan like @QiShiZhan";
+                }
+                if (!string.IsNullOrEmpty(DaoDaZhan_Province))
+                {
+                    DaoDaZhan += QiShiZhan_Province;
+                }
+                if (!string.IsNullOrEmpty(DaoDaZhan_City))
+                {
+                    DaoDaZhan += " " + DaoDaZhan_City;
+                }
+                if (!string.IsNullOrEmpty(DaoDaZhan))
+                {
+                    conn += " and DaoDaZhan like @DaoDaZhan";
+                }
+                if (!string.IsNullOrEmpty(SuoShuGongSi))
+                {
+                    conn += " and SuoShuGongSi like @SuoShuGongSi";
+                }
+
                 if (!string.IsNullOrEmpty(UserDenno))
                     conn += " and UserDenno like @UserDenno";
                 string sql = "select * from YunDan where UserID = @UserID" + conn;
@@ -191,6 +224,12 @@ public class Handler
                 cmd.Parameters.AddWithValue("@UserID",SystemUser.CurrentUser.UserID);
                 if (!string.IsNullOrEmpty(conn))
                     cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno + "%");
+                if (!string.IsNullOrEmpty(QiShiZhan))
+                    cmd.Parameters.AddWithValue("@QiShiZhan", "%" + QiShiZhan + "%");
+                if (!string.IsNullOrEmpty(DaoDaZhan))
+                    cmd.Parameters.AddWithValue("@DaoDaZhan", "%" + DaoDaZhan + "%");
+                if (!string.IsNullOrEmpty(SuoShuGongSi))
+                    cmd.Parameters.AddWithValue("@SuoShuGongSi", "%" + SuoShuGongSi + "%");
                 DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
 
                 #region  插入操作表
@@ -321,6 +360,34 @@ public class Handler
         try
         {
             string url = "http://chb.yk56.net/WebService/APP_JieChuBangDing.ashx";
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("UserID", UserID);
+            parameters.Add("YunDanDenno", YunDanDenno);
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+            if (obj["sign"].ToString() == "1")
+                return true;
+            else
+                return false;
+
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    [CSMethod("SearchBD")]
+    public bool SearchBD(string UserID, string YunDanDenno)
+    {
+        try
+        {
+            string url = "http://chb.yk56.net/WebService/APP_JieChuBangDingLoad.ashx";
             Encoding encoding = Encoding.GetEncoding("utf-8");
             IDictionary<string, string> parameters = new Dictionary<string, string>();
             parameters.Add("UserID", UserID);

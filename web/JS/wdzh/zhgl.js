@@ -264,7 +264,7 @@ Ext.define('EWM', {
                         {
                             xtype: 'image',
                             id: 'ShowEWM',
-                            margin:30
+                            margin:'80 140 80 140'
                         }
                     ],
                     buttonAlign: 'center',

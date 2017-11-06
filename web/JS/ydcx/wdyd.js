@@ -14,6 +14,26 @@ var myStore = createSFW4Store({
     }
 });
 
+var newcity = {};
+
+var province = Ext.create('Ext.data.Store', {
+    fields: [
+        'ID', 'MC'
+    ]
+});
+
+var city = Ext.create('Ext.data.Store', {
+    fields: [
+        'ID', 'MC'
+    ]
+});
+
+var city2 = Ext.create('Ext.data.Store', {
+    fields: [
+        'ID', 'MC'
+    ]
+});
+
 Ext.onReady(function () {
 
     Ext.define('mainView', {
@@ -135,11 +155,68 @@ Ext.onReady(function () {
                                 dock: 'top',
                                 items: [
                                     {
+                                        xtype: 'combobox',
+                                        labelWidth: 50,
+                                        width: 140,
+                                        valueField: 'ID',
+                                        displayField: 'MC',
+                                        queryMode: 'local',
+                                        store: province,
+                                        id: 'QiShiZhan_Province',
+                                        fieldLabel: '起始站',
+                                        listeners: {
+                                            change: function (data, newValue, oldValue, eOpts) {
+                                                city.loadData(newcity[newValue]);
+                                            }
+                                        }
+                                    },
+                                    {
+                                        xtype: 'combobox',
+                                        width: 100,
+                                        valueField: 'ID',
+                                        displayField: 'MC',
+                                        queryMode: 'local',
+                                        store: city,
+                                        id: 'QiShiZhan_City'
+                                    },
+                                    {
+                                        xtype: 'combobox',
+                                        labelWidth: 50,
+                                        width: 140,
+                                        valueField: 'ID',
+                                        displayField: 'MC',
+                                        queryMode: 'local',
+                                        store: province,
+                                        id: 'DaoDaZhan_Province',
+                                        fieldLabel: '到达站',
+                                        listeners: {
+                                            change: function (data, newValue, oldValue, eOpts) {
+                                                city2.loadData(newcity[newValue]);
+                                            }
+                                        }
+                                    },
+                                    {
+                                        xtype: 'combobox',
+                                        width: 100,
+                                        valueField: 'ID',
+                                        displayField: 'MC',
+                                        queryMode: 'local',
+                                        store: city2,
+                                        id: 'DaoDaZhan_City'
+                                    },
+                                    {
                                         xtype: 'textfield',
-                                        width: 160,
-                                        labelWidth: 60,
+                                        width: 130,
+                                        labelWidth: 30,
+                                        id: 'SuoShuGongSi',
+                                        fieldLabel: '公司'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        width: 130,
+                                        labelWidth: 30,
                                         id: 'UserDenno',
-                                        fieldLabel: '单　　号'
+                                        fieldLabel: '单号'
                                     },
                                     {
                                         xtype: 'button',
@@ -171,7 +248,29 @@ Ext.onReady(function () {
     new mainView();
 
     DataBind(1);
+
+    cityBind();
 });
+
+function cityBind() {
+    var provincesData = [];
+    for (var i = 0; i < cityList.provinces.length; i++) {
+        var obj = {};
+        obj.ID = cityList.provinces[i].name;
+        obj.MC = cityList.provinces[i].name;
+        provincesData.push(obj);
+
+        var cityData = [];
+        for (var j = 0; j < cityList.provinces[i].citys.length; j++) {
+            var obj2 = {};
+            obj2.ID = cityList.provinces[i].citys[j];
+            obj2.MC = cityList.provinces[i].citys[j];
+            cityData.push(obj2);
+        }
+        newcity[cityList.provinces[i].name] = cityData;
+    }
+    province.loadData(provincesData);
+}
 
 function DataBind(cp) {
     CS('CZCLZ.Handler.SearchMyYunDan', function (retVal) {
@@ -183,7 +282,7 @@ function DataBind(cp) {
                 currentPage: retVal.cp
             });
         }
-    }, CS.onError, cp, pageSize, Ext.getCmp('UserDenno').getValue());
+    }, CS.onError, cp, pageSize, Ext.getCmp('QiShiZhan_Province').getValue(), Ext.getCmp('QiShiZhan_City').getValue(), Ext.getCmp('DaoDaZhan_Province').getValue(), Ext.getCmp('DaoDaZhan_City').getValue(), Ext.getCmp('SuoShuGongSi').getValue(), Ext.getCmp('UserDenno').getValue());
 }
 
 function ShowGJ(UserID, YunDanDenno) {
