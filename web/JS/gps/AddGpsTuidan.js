@@ -10,6 +10,8 @@ var bankStore = Ext.create('Ext.data.Store', {
     ]
 });
 
+var StartMessage;
+
 var OrderDenno = "";
 
 var GpsTuiDanJinE = "";
@@ -328,6 +330,7 @@ Ext.define('tuidan', {
                             columnWidth: 0.2,
                             margin: '0 10 50 0',
                             text: '发送',
+                            id: 'addMessages',
                             handler: function () {
                                 yanzhengma = "";
                                 CS('CZCLZ.Handler.SendMessage', function (retVal) {
@@ -336,6 +339,9 @@ Ext.define('tuidan', {
                                         if (retVal.sign = "true") {
                                             yanzhengma = retVal.yanzhengma;
                                             Ext.Msg.alert("提示", "已成功发送短信！");
+                                            StartSendMessage();
+                                            Ext.getCmp("addMessages").hide();
+                                            Ext.getCmp("sj").show();
                                             return;
                                         } else {
                                             Ext.Msg.alert("提示", retVal.msg);
@@ -344,6 +350,14 @@ Ext.define('tuidan', {
                                     }
                                 }, CS.onError, 'tuidanshenqing');
                             }
+                        },
+                        {
+                            xtype: 'label',
+                            id: 'sj',
+                            columnWidth: 0.2,
+                            margin: '0 10 50 0',
+                            hidden: true,
+                            html: '60s'
                         }
                     ],
                     buttonAlign: 'center',
@@ -461,6 +475,22 @@ Ext.define('PickBank', {
     }
 
 });
+
+var messageTime = 60;
+
+function StartSendMessage() {
+    StartMessage = setInterval(function () {
+        if (messageTime > 0) {
+            --messageTime;
+            Ext.getCmp("sj").update("<span>" + messageTime + "s</span>");
+        } else {
+            Ext.getCmp("addMessages").show();
+            Ext.getCmp("sj").hide();
+            messageTime = 60;
+            clearInterval(StartMessage);
+        }
+    }, 1000);
+}
 
 function Pick(zh) {
     dataBind();

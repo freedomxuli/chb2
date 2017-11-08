@@ -1,5 +1,7 @@
 ﻿var yanzhengma = "";
 
+var StartMessage;
+
 Ext.onReady(function () {
     Ext.define('MainView', {
         extend: 'Ext.container.Viewport',
@@ -57,6 +59,7 @@ Ext.onReady(function () {
                                 margin: '20 0 20 10',
                                 iconCls: 'add',
                                 text: '发送',
+                                id: 'addMessages',
                                 handler: function () {
                                     yanzhengma = "";
                                     CS('CZCLZ.Handler.SendMessage', function (retVal) {
@@ -64,6 +67,9 @@ Ext.onReady(function () {
                                             if (retVal.sign = "true") {
                                                 yanzhengma = retVal.yanzhengma;
                                                 Ext.Msg.alert("提示", "已成功发送短信！");
+                                                StartSendMessage();
+                                                Ext.getCmp("addMessages").hide();
+                                                Ext.getCmp("sj").show();
                                                 return;
                                             } else {
                                                 Ext.Msg.alert("提示", retVal.msg);
@@ -72,6 +78,13 @@ Ext.onReady(function () {
                                         }
                                     }, CS.onError, 'chongzhimima');
                                 }
+                            },
+                            {
+                                xtype: 'label',
+                                id: 'sj',
+                                margin: '20 0 20 10',
+                                hidden: true,
+                                html: '60s'
                             },
                             {
                                 xtype: 'container',
@@ -149,4 +162,20 @@ function dataBind()
             Ext.getCmp("UserName").setValue(retVal);
         }
     },CS.onError)
+}
+
+var messageTime = 60;
+
+function StartSendMessage() {
+    StartMessage = setInterval(function () {
+        if (messageTime > 0) {
+            --messageTime;
+            Ext.getCmp("sj").update("<span>" + messageTime + "s</span>");
+        } else {
+            Ext.getCmp("addMessages").show();
+            Ext.getCmp("sj").hide();
+            messageTime = 60;
+            clearInterval(StartMessage);
+        }
+    }, 1000);
 }
