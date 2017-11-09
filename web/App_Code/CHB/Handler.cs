@@ -219,7 +219,7 @@ public class Handler
 
                 if (!string.IsNullOrEmpty(UserDenno))
                     conn += " and UserDenno like @UserDenno";
-                string sql = "select * from YunDan where UserID = @UserID" + conn;
+                string sql = "select * from YunDan where UserID = @UserID" + conn + " order by BangDingTime desc";
                 SqlCommand cmd = db.CreateCommand(sql);
                 cmd.Parameters.AddWithValue("@UserID",SystemUser.CurrentUser.UserID);
                 if (!string.IsNullOrEmpty(conn))

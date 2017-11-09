@@ -39,24 +39,38 @@ body,td,th {
     </script>
 
 </head>
-<body onkeydown="Send()">
+<body onkeydown="Send()" style="background-color:#eeeeee;">
     <form id="form1" runat="server">
 <table width="100%" height="100%" border="0" align="center" cellpadding="0" cellspacing="0">
   <tr>
-    <td align="center" valign="middle"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+      <td align="center" valign="middle">
+        <table width="100%" height="150" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+                <td align="center">
+                    <img src="images/logo2.png" width="200" height="60" />
+                    <img style="margin-left:50px;" src="images/logo3.png" height="50"/>
+                </td>
+            </tr>
+        </table>
+      </td>
+  </tr>
+  <tr>
+    <td align="center" valign="middle">
+     <table width="100%" border="0" cellspacing="0" cellpadding="0">
       <tr>
-        <td height="608" align="center" background="images/dl_r1_c1.jpg"><table border="0" cellspacing="0" cellpadding="0">
+        <td height="250" align="center" background="images/dl_r1_c1.jpg"><table border="0" cellspacing="0" cellpadding="0">
           <tr>
-            <td width="1000" height="613" align="center" valign="top"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <td width="1000" height="250" align="center" valign="top">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
               <tr>
-                <td><img src="images/dl22_r1_c1.jpg" width="1000" height="86"></td>
+                <td><img src="images/dl22_r1_c1.jpg" width="1000" height="46"></td>
               </tr>
             </table>
-              <table width="100%" border="0" cellspacing="0" cellpadding="0">
+<%--              <table width="100%" border="0" cellspacing="0" cellpadding="0">
                 <tr>
                   <td><img src="images/dl22_r2_c1.jpg" width="1000" height="123"></td>
                 </tr>
-              </table>
+              </table>--%>
               <table width="100%" border="0" cellspacing="0" cellpadding="0">
                 <tr>
                   <td width="550" background="images/dl22_r3_c1.jpg"><img id="ewm" src="" style="margin-left:280px;margin-top:30px;" /><div style="color:#ffffff;font-size:13px;font-weight:bold;margin-left:265px;padding-top:10px;">打开查货APP“我的”页面扫码登录</div></td><%--二维码 --%>
@@ -94,13 +108,18 @@ body,td,th {
              </table>
               <table width="100%" border="0" cellspacing="0" cellpadding="0">
                 <tr>
-                  <td><img src="images/dl22_r4_c1.jpg" width="1000" height="116"></td>
+                  <td><img src="images/dl22_r4_c1.jpg" width="1000" height="80"></td>
                 </tr>
               </table></td>
           </tr>
         </table></td>
       </tr>
     </table></td>
+  </tr>
+  <tr>
+      <td align="center">
+          <div style="font-size:25px;font-weight:bold;margin-top:50px;">服务热线：400-688-7856</div>
+      </td>
   </tr>
 </table>
     <script type="text/javascript">
