@@ -47,6 +47,11 @@ public class MenuControl
                    <Tab p='' Name='GPS退单'>approot/r/page/gps/gpstd.html</Tab>
                 </Item>
             </Menu>
+            <Menu Name='我的发票'>            
+                <Item Name='发票管理'>
+                   <Tab p='' Name='发票管理'>approot/r/page/wdfp/fpgl.html</Tab>
+                </Item>
+            </Menu>
             <Menu Name='我的账户'>            
                 <Item Name='账户管理'>
                    <Tab p='' Name='账户管理'>approot/r/page/wdzh/zhgl.html</Tab>

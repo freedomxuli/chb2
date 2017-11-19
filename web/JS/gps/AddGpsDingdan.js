@@ -321,6 +321,16 @@ Ext.define('zhifu', {
                                 //    }
                                 //}, CS.onError, OrderDenno, "wxpay");
                             }
+                        },
+                        {
+                            text: '公对公支付',
+                            iconCls: 'enable',
+                            handler: function () {
+                                var win = new GDG();
+                                win.show(null, function () {
+                                    me.close();
+                                });
+                            }
                         }
                         //{
                         //    text: '支付宝支付',
@@ -389,6 +399,100 @@ Ext.define('EWM', {
                             handler: function () {
                                 dataBind();
                                 window.clearInterval(StartSearch);
+                                me.close();
+                            }
+                        }
+                    ]
+                }
+            ]
+        });
+
+        me.callParent(arguments);
+    }
+
+});
+
+Ext.define('GDG', {
+    extend: 'Ext.window.Window',
+
+    height: document.documentElement.clientHeight - 200,
+    width: document.documentElement.clientWidth / 3,
+    layout: {
+        type: 'fit'
+    },
+    title: '公对公支付',
+    id: 'GDGWin',
+    modal: true,
+    initComponent: function () {
+        var me = this;
+
+        Ext.applyIf(me, {
+            items: [
+                {
+                    xtype: 'panel',
+                    layout: {
+                        type: 'column'
+                    },
+                    items: [
+                        {
+                            xtype: 'textfield',
+                            fieldLabel: '对公转账公司名称',
+                            labelWidth: 70,
+                            columnWidth: 1,
+                            id: 'DGZZCompany',
+                            padding: '20 10 20 10'
+                        },
+                        {
+                            xtype: 'textfield',
+                            fieldLabel: '对公账户',
+                            labelWidth: 70,
+                            columnWidth: 1,
+                            id: 'DGZH',
+                            padding: '20 10 20 10'
+                        },
+                        {
+                            xtype: 'textfield',
+                            fieldLabel: '打款凭证号',
+                            labelWidth: 70,
+                            columnWidth: 1,
+                            id: 'DKPZH',
+                            padding: '20 10 20 10'
+                        }
+                    ],
+                    buttonAlign: 'center',
+                    buttons: [
+                        {
+                            text: '确认',
+                            iconCls: 'enable',
+                            handler: function () {
+                                if (Ext.getCmp("DGZZCompany").getValue() == "" || Ext.getCmp("DGZZCompany").getValue() == null)
+                                {
+                                    Ext.Msg.alert("提示", "对公转账公司名称不能为空！");
+                                    return;
+                                }
+                                if (Ext.getCmp("DGZH").getValue() == "" || Ext.getCmp("DGZH").getValue() == null) {
+                                    Ext.Msg.alert("提示", "对公账户不能为空！");
+                                    return;
+                                }
+                                if (Ext.getCmp("DKPZH").getValue() == "" || Ext.getCmp("DKPZH").getValue() == null) {
+                                    Ext.Msg.alert("提示", "打款凭证号不能为空！");
+                                    return;
+                                }
+                                CS('CZCLZ.Handler.GDGPay', function (retVal) {
+                                    if (retVal) {
+                                        Ext.Msg.alert("提示", "支付成功！", function () {
+                                            Ext.getCmp("GDGWin").close();
+                                            dataBind();
+                                        });
+                                    }
+                                }, CS.onError, OrderDenno, Ext.getCmp("DGZZCompany").getValue(), Ext.getCmp("DGZH").getValue(), Ext.getCmp("DKPZH").getValue());
+                            }
+                        },
+                        {
+                            text: '关闭',
+                            iconCls: 'close',
+                            handler: function () {
+                                dataBind();
                                 me.close();
                             }
                         }

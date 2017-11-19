@@ -116,7 +116,8 @@ namespace WxPayAPI
                     dr["Guid"] = Guid.NewGuid();
                     dr["OrderDenno"] = OrderDenno;
                     dr["Lx"] = 0;
-                    db.InsertTable(dr);
+                    dt.Rows.Add(dr);
+                    db.InsertTable(dt);
                 }
                 page.Response.Write(res.ToXml());
                 page.Response.End();

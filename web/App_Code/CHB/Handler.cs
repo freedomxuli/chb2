@@ -555,6 +555,132 @@ public class Handler
         }
     }
 
+    [CSMethod("GDGPay")]
+    public bool GDGPay(string OrderDenno, string DGZZCompany, string DGZH, string DKPZH)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                db.BeginTransaction();
+
+                string sql = "select * from GpsDingDan where OrderDenno = '" + OrderDenno + "'";
+                DataTable dt_dingdan = db.ExecuteDataTable(sql);
+
+                string sql_dingdan = "update GpsDingDan set GpsDingDanZhiFuZhuangTai = 1,GpsDingDanSH = 0,GpsDingDanZhiFuLeiXing = '公对公',GpsDingDanZhiFuShiJian = '" + DateTime.Now + "' where OrderDenno = '" + OrderDenno + "'";
+                db.ExecuteNonQuery(sql_dingdan);
+
+                if (dt_dingdan.Rows.Count > 0)
+                {
+                    string sql_mx = "select * from GpsDingDanMingXi where GpsDingDanDenno = '" + dt_dingdan.Rows[0]["GpsDingDanDenno"].ToString() + "'";
+                    DataTable dt_mx = db.ExecuteDataTable(sql_mx);
+
+                    //DataTable dt_device = db.GetEmptyDataTable("GpsDevice");
+                    //for (int i = 0; i < dt_mx.Rows.Count; i++)
+                    //{
+                    //    DataRow dr_device = dt_device.NewRow();
+                    //    dr_device["GpsDeviceID"] = dt_mx.Rows[i]["GpsDeviceID"].ToString();
+                    //    dr_device["UserID"] = dt_dingdan.Rows[0]["UserID"].ToString();
+                    //    dt_device.Rows.Add(dr_device);
+                    //}
+                    //db.InsertTable(dt_device);
+                }
+
+                DataTable dt = db.GetEmptyDataTable("ZhiFuOrder");
+                DataRow dr = dt.NewRow();
+                dr["Guid"] = Guid.NewGuid();
+                dr["OrderDenno"] = OrderDenno;
+                dr["Lx"] = 0;
+                dt.Rows.Add(dr);
+                db.InsertTable(dt);
+
+                DataTable dt_gdg = db.GetEmptyDataTable("GpsDingDanGDG");
+                DataRow dr_gdg = dt_gdg.NewRow();
+                dr_gdg["GDGZhiFu"] = Guid.NewGuid();
+                dr_gdg["OrderDenno"] = OrderDenno;
+                dr_gdg["DGZZCompany"] = DGZZCompany;
+                dr_gdg["DGZH"] = DGZH;
+                dr_gdg["DKPZH"] = DKPZH;
+                dr_gdg["AddTime"] = DateTime.Now;
+                dt_gdg.Rows.Add(dr_gdg);
+                db.InsertTable(dt_gdg);
+
+                db.CommitTransaction();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                db.RoolbackTransaction();
+                throw ex;
+            }
+        }
+    }
+
+    [CSMethod("GDGChongZhi")]
+    public bool GDGChongZhi(string OrderDenno, string DGZZCompany, string DGZH, string DKPZH)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                db.BeginTransaction();
+
+                string sql = "update ChongZhi set ZhiFuZhuangTai = 1,ChongZhiDescribe = '公对公',ChongZhiSH = 0,ZhiFuTime = '" + DateTime.Now + "' where OrderDenno = '" + OrderDenno + "'";
+                db.ExecuteNonQuery(sql);
+
+                sql = "select * from ChongZhi where OrderDenno = '" + OrderDenno + "'";
+                DataTable dt_ChongZhi = db.ExecuteDataTable(sql);
+
+                if (dt_ChongZhi.Rows.Count > 0)
+                {
+                    //sql = "select * from [dbo].[User] where UserID = '" + dt_ChongZhi.Rows[0]["UserID"].ToString() + "'";
+                    //DataTable dt_user = db.ExecuteDataTable(sql);
+
+                    //int num = Convert.ToInt32(dt_user.Rows[0]["UserRemainder"].ToString()) + Convert.ToInt32(dt_ChongZhi.Rows[0]["ChongZhiCiShu"].ToString());
+                    //sql = "update [dbo].[User] set UserRemainder = '" + num + "' where UserID = '" + dt_ChongZhi.Rows[0]["UserID"].ToString() + "'";
+                    //db.ExecuteNonQuery(sql);
+
+                    DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
+                    DataRow dr_caozuo = dt_caozuo.NewRow();
+                    dr_caozuo["UserID"] = dt_ChongZhi.Rows[0]["UserID"];
+                    dr_caozuo["CaoZuoLeiXing"] = "充值";
+                    dr_caozuo["CaoZuoNeiRong"] = "web内用户充值，充值方式：微信；充值单号：" + OrderDenno + "；充值金额：" + Convert.ToDecimal(dt_ChongZhi.Rows[0]["ChongZhiJinE"].ToString()) + "。";
+                    dr_caozuo["CaoZuoTime"] = DateTime.Now;
+                    dr_caozuo["CaoZuoRemark"] = "";
+                    dt_caozuo.Rows.Add(dr_caozuo);
+                    db.InsertTable(dt_caozuo);
+                }
+
+                DataTable dt = db.GetEmptyDataTable("ZhiFuOrder");
+                DataRow dr = dt.NewRow();
+                dr["Guid"] = Guid.NewGuid();
+                dr["OrderDenno"] = OrderDenno;
+                dr["Lx"] = 0;
+                dt.Rows.Add(dr);
+                db.InsertTable(dt);
+
+                DataTable dt_gdg = db.GetEmptyDataTable("ChongZhiGDG");
+                DataRow dr_gdg = dt_gdg.NewRow();
+                dr_gdg["GDGChongZhi"] = Guid.NewGuid();
+                dr_gdg["OrderDenno"] = OrderDenno;
+                dr_gdg["DGZZCompany"] = DGZZCompany;
+                dr_gdg["DGZH"] = DGZH;
+                dr_gdg["DKPZH"] = DKPZH;
+                dr_gdg["AddTime"] = DateTime.Now;
+                dt_gdg.Rows.Add(dr_gdg);
+                db.InsertTable(dt_gdg);
+
+                db.CommitTransaction();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                db.RoolbackTransaction();
+                throw ex;
+            }
+        }
+    }
+
     [CSMethod("TJDD")]
     public object TJDD(string OrderDenno)
     {
@@ -1172,6 +1298,34 @@ public class Handler
         }
     }
 
+    [CSMethod("GDGByCZ")]
+    public bool GDGByCZ(string OrderDenno, decimal ChongZhiJinE, int ChongZhiCiShu, string ChongZhiRemark)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                DataTable dt = db.GetEmptyDataTable("ChongZhi");
+                DataRow dr = dt.NewRow();
+                dr["UserID"] = SystemUser.CurrentUser.UserID;
+                dr["ChongZhiJinE"] = ChongZhiJinE;
+                dr["ChongZhiCiShu"] = ChongZhiCiShu;
+                dr["ChongZhiTime"] = DateTime.Now;
+                dr["ZhiFuZhuangTai"] = 0;
+                dr["ChongZhiRemark"] = ChongZhiRemark;
+                dr["OrderDenno"] = OrderDenno;
+                dt.Rows.Add(dr);
+                db.InsertTable(dt);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
     [CSMethod("ShowEWMByYJ")]
     public string ShowEWMByYJ(string OrderDenno, string GpsDingDanJinE, string memo)
     {
@@ -1319,6 +1473,118 @@ public class Handler
             {
                 return false;//不可解绑
             }
+        }
+    }
+
+    [CSMethod("GetInvoiceList")]
+    public object GetInvoiceList(int CurrentPage, int PageSize, string StartTime, string EndTime)
+    {
+        using (DBConnection db = new DBConnection())
+        {
+            try
+            {
+                int cp = CurrentPage;
+                int ac = 0;
+
+                string where = "";
+
+                if (!string.IsNullOrEmpty(StartTime)&&!string.IsNullOrEmpty(EndTime))
+                {
+                    where = " and AddTime >= '" + StartTime + "' and AddTime < '" + Convert.ToDateTime(EndTime).AddDays(1).ToString("yyyy-MM-dd") + "'";
+                }
+
+                string sql = "select * from InvoiceModel where UserID = @UserID" + where + " order by AddTime desc";
+                SqlCommand cmd = db.CreateCommand(sql);
+                cmd.Parameters.Add("@UserID", SystemUser.CurrentUser.UserID);
+                DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
+
+                #region  插入操作表
+                DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
+                DataRow dr = dt_caozuo.NewRow();
+                dr["UserID"] = SystemUser.CurrentUser.UserID;
+                dr["CaoZuoLeiXing"] = "我的发票--发票页面";
+                dr["CaoZuoNeiRong"] = "web网页内登陆";
+                dr["CaoZuoTime"] = DateTime.Now;
+                dr["CaoZuoRemark"] = "";
+                dt_caozuo.Rows.Add(dr);
+                db.InsertTable(dt_caozuo);
+                #endregion
+
+                return new { dt = dt, cp = cp, ac = ac };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
+    [CSMethod("GetChongZhiListByInvoice")]
+    public DataTable GetChongZhiListByInvoice()
+    {
+        using (var db = new DBConnection())
+        {
+            string sql = "select * from ChongZhi where UserID = @UserID and ZhiFuZhuangTai = 1 and ChongZhiID not in (select a.ChongZhiID from InvoiceMxModel a left join InvoiceModel b on a.InvoiceId = b.InvoiceId where b.UserId = @UserID)";
+            SqlCommand cmd = db.CreateCommand(sql);
+            cmd.Parameters.Add("@UserID", SystemUser.CurrentUser.UserID);
+            DataTable dt = db.ExecuteDataTable(cmd);
+            return dt;
+        }
+    }
+
+    [CSMethod("AddInvoice")]
+    public bool AddInvoice(string InvoiceTitle, string InvoiceZZJGDM, string InvoicePerson, string InvoiceMobile, string InvoiceAddress, string je, string ChongZhiIDs)
+    {
+        using (var db = new DBConnection())
+        {
+            DataTable dt = db.GetEmptyDataTable("InvoiceModel");
+            DataRow dr = dt.NewRow();
+            dr["InvoiceId"] = Guid.NewGuid();
+            dr["InvoiceTitle"] = InvoiceTitle;
+            dr["InvoiceZZJGDM"] = InvoiceZZJGDM;
+            dr["InvoicePerson"] = InvoicePerson;
+            dr["InvoiceMobile"] = InvoiceMobile;
+            dr["InvoiceAddress"] = InvoiceAddress;
+            dr["UserId"] = SystemUser.CurrentUser.UserID;
+            dr["AddTime"] = DateTime.Now;
+            dr["IsOut"] = 0;
+            dr["InvoiceJe"] = je;
+            dt.Rows.Add(dr);
+            db.InsertTable(dt);
+            DataTable dt_mx = db.GetEmptyDataTable("InvoiceMxModel");
+            string[] ids = ChongZhiIDs.Split(',');
+            for (int i = 0; i < ids.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(ids[i]))
+                {
+                    DataRow dr_mx = dt_mx.NewRow();
+                    dr_mx["InvoiceMxId"] = Guid.NewGuid();
+                    dr_mx["InvoiceId"] = dr["InvoiceId"];
+                    dr_mx["ChongZhiID"] = ids[i];
+                    dt_mx.Rows.Add(dr_mx);
+                }
+            }
+            db.InsertTable(dt_mx);
+            return true;
+        }
+    }
+
+    [CSMethod("OnDelInvoice")]
+    public bool OnDelInvoice(string InvoiceId)
+    {
+        using (var db = new DBConnection())
+        {
+            string sql = "delete from InvoiceModel where InvoiceId = @InvoiceId";
+            SqlCommand cmd = db.CreateCommand(sql);
+            cmd.Parameters.Add("@InvoiceId", InvoiceId);
+            db.ExecuteNonQuery(cmd);
+
+            sql = "delete from InvoiceMxModel where InvoiceId = @InvoiceId";
+            cmd = db.CreateCommand(sql);
+            cmd.Parameters.Add("@InvoiceId", InvoiceId);
+            db.ExecuteNonQuery(cmd);
+
+            return true;
         }
     }
 

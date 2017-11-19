@@ -4,7 +4,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head id="Head1" runat="server">
-   <title>查货宝后台管理系统</title>
+   <title>货物在途、物流管理解决方案</title>
     <style type="text/css">
 
 body {
