@@ -1326,6 +1326,43 @@ public class Handler
         }
     }
 
+    [CSMethod("GDGByCZ")]
+    public bool GDGByMobileCZ(string UserName,string OrderDenno, decimal ChongZhiJinE, int ChongZhiCiShu, string ChongZhiRemark)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                string sql = "select UserID from [dbo].[User] where UserName = '" + UserName + "'";
+                DataTable dt_user = db.ExecuteDataTable(sql);
+
+                if (dt_user.Rows.Count > 0)
+                {
+                    DataTable dt = db.GetEmptyDataTable("ChongZhi");
+                    DataRow dr = dt.NewRow();
+                    dr["UserID"] = dt_user.Rows[0]["UserID"].ToString();
+                    dr["ChongZhiJinE"] = ChongZhiJinE;
+                    dr["ChongZhiCiShu"] = ChongZhiCiShu;
+                    dr["ChongZhiTime"] = DateTime.Now;
+                    dr["ZhiFuZhuangTai"] = 0;
+                    dr["ChongZhiRemark"] = ChongZhiRemark;
+                    dr["OrderDenno"] = OrderDenno;
+                    dt.Rows.Add(dr);
+                    db.InsertTable(dt);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
     [CSMethod("ShowEWMByYJ")]
     public string ShowEWMByYJ(string OrderDenno, string GpsDingDanJinE, string memo)
     {
@@ -1519,6 +1556,42 @@ public class Handler
         }
     }
 
+    [CSMethod("GetInvoiceListByMobile")]
+    public DataTable GetInvoiceListByMobile(string UserName)
+    {
+        using (DBConnection db = new DBConnection())
+        {
+            try
+            {
+                string sql = "select UserID from [dbo].[User] where UserName = '" + UserName + "'";
+                DataTable dt_user = db.ExecuteDataTable(sql);
+
+                sql = "select * from InvoiceModel where UserID = @UserID order by AddTime desc";
+                SqlCommand cmd = db.CreateCommand(sql);
+                cmd.Parameters.Add("@UserID", dt_user.Rows[0]["UserID"].ToString());
+                DataTable dt = db.ExecuteDataTable(cmd);
+
+                #region  插入操作表
+                DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
+                DataRow dr = dt_caozuo.NewRow();
+                dr["UserID"] = dt_user.Rows[0]["UserID"].ToString();
+                dr["CaoZuoLeiXing"] = "我的发票--发票页面";
+                dr["CaoZuoNeiRong"] = "app内登陆";
+                dr["CaoZuoTime"] = DateTime.Now;
+                dr["CaoZuoRemark"] = "";
+                dt_caozuo.Rows.Add(dr);
+                db.InsertTable(dt_caozuo);
+                #endregion
+
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
     [CSMethod("GetChongZhiListByInvoice")]
     public DataTable GetChongZhiListByInvoice()
     {
@@ -1527,6 +1600,22 @@ public class Handler
             string sql = "select * from ChongZhi where UserID = @UserID and ZhiFuZhuangTai = 1 and ChongZhiID not in (select a.ChongZhiID from InvoiceMxModel a left join InvoiceModel b on a.InvoiceId = b.InvoiceId where b.UserId = @UserID)";
             SqlCommand cmd = db.CreateCommand(sql);
             cmd.Parameters.Add("@UserID", SystemUser.CurrentUser.UserID);
+            DataTable dt = db.ExecuteDataTable(cmd);
+            return dt;
+        }
+    }
+
+    [CSMethod("GetChongZhiListByInvoiceM")]
+    public DataTable GetChongZhiListByInvoiceM(string UserName)
+    {
+        using (var db = new DBConnection())
+        {
+            string sql = "select UserID from [dbo].[User] where UserName = '" + UserName + "'";
+            DataTable dt_user = db.ExecuteDataTable(sql);
+
+            sql = "select * from ChongZhi where UserID = @UserID and ZhiFuZhuangTai = 1 and ChongZhiID not in (select a.ChongZhiID from InvoiceMxModel a left join InvoiceModel b on a.InvoiceId = b.InvoiceId where b.UserId = @UserID)";
+            SqlCommand cmd = db.CreateCommand(sql);
+            cmd.Parameters.Add("@UserID", dt_user.Rows[0]["UserID"].ToString());
             DataTable dt = db.ExecuteDataTable(cmd);
             return dt;
         }
@@ -1569,6 +1658,46 @@ public class Handler
         }
     }
 
+    [CSMethod("AddInvoiceByMobile")]
+    public bool AddInvoiceByMobile(string UserName, string InvoiceTitle, string InvoiceZZJGDM, string InvoicePerson, string InvoiceMobile, string InvoiceAddress, string je, string ChongZhiIDs)
+    {
+        using (var db = new DBConnection())
+        {
+            string sql = "select UserID from [dbo].[User] where UserName = '" + UserName + "'";
+            DataTable dt_user = db.ExecuteDataTable(sql);
+
+            DataTable dt = db.GetEmptyDataTable("InvoiceModel");
+            DataRow dr = dt.NewRow();
+            dr["InvoiceId"] = Guid.NewGuid();
+            dr["InvoiceTitle"] = InvoiceTitle;
+            dr["InvoiceZZJGDM"] = InvoiceZZJGDM;
+            dr["InvoicePerson"] = InvoicePerson;
+            dr["InvoiceMobile"] = InvoiceMobile;
+            dr["InvoiceAddress"] = InvoiceAddress;
+            dr["UserId"] = dt_user.Rows[0]["UserID"].ToString();
+            dr["AddTime"] = DateTime.Now;
+            dr["IsOut"] = 0;
+            dr["InvoiceJe"] = je;
+            dt.Rows.Add(dr);
+            db.InsertTable(dt);
+            DataTable dt_mx = db.GetEmptyDataTable("InvoiceMxModel");
+            string[] ids = ChongZhiIDs.Split(',');
+            for (int i = 0; i < ids.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(ids[i]))
+                {
+                    DataRow dr_mx = dt_mx.NewRow();
+                    dr_mx["InvoiceMxId"] = Guid.NewGuid();
+                    dr_mx["InvoiceId"] = dr["InvoiceId"];
+                    dr_mx["ChongZhiID"] = ids[i];
+                    dt_mx.Rows.Add(dr_mx);
+                }
+            }
+            db.InsertTable(dt_mx);
+            return true;
+        }
+    }
+
     [CSMethod("OnDelInvoice")]
     public bool OnDelInvoice(string InvoiceId)
     {
@@ -1585,6 +1714,35 @@ public class Handler
             db.ExecuteNonQuery(cmd);
 
             return true;
+        }
+    }
+
+    [CSMethod("InsertClient")]
+    public bool InsertClient(string UserName, string clientId)
+    {
+        using (var db = new DBConnection())
+        {
+            string sql = "select UserID from [dbo].[User] where UserName = '" + UserName + "'";
+            DataTable dt_user = db.ExecuteDataTable(sql);
+
+            sql = "select * from User_Client where clientId = '" + clientId + "'";
+            DataTable dt_client = db.ExecuteDataTable(sql);
+
+            if (dt_client.Rows.Count == 0)
+            {
+                DataTable dt = db.GetEmptyDataTable("User_Client");
+                DataRow dr = dt.NewRow();
+                dr["ID"] = Guid.NewGuid();
+                dr["UserID"] = dt_user.Rows[0]["UserID"].ToString();
+                dr["clientId"] = clientId;
+                dt.Rows.Add(dr);
+                db.InsertTable(dt);
+                return true;
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 
