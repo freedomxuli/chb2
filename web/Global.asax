@@ -11,7 +11,7 @@
         RegexRouteModule.AddRouter(new FileRouteExecutor());
         RegexRouteModule.AddRouter(new CallServerModule());
 
-        
+        FluentScheduler.JobManager.Initialize(new PlanTime());
     }
     
     void Application_End(object sender, EventArgs e) 
