@@ -37,7 +37,10 @@ public class InterFaceHandler : IHttpHandler {
                 break;
             case "InsertClient":
                 str = InsertClient(context);
-                break;  
+                break;
+            case "GetOrderDenno":
+                str = GetOrderDenno(context);
+                break;
         }
         context.Response.Write(str);
         context.Response.End();
@@ -127,7 +130,7 @@ public class InterFaceHandler : IHttpHandler {
         try
         {
             Handler App_Handler = new Handler();
-            bool flag = App_Handler.GDGPay(context.Request["OrderDenno"], context.Request["DGZZCompany"], context.Request["DGZH"], context.Request["DKPZH"]);
+            bool flag = App_Handler.GDGChongZhi(context.Request["OrderDenno"], context.Request["DGZZCompany"], context.Request["DGZH"], context.Request["DKPZH"]);
 
             if (flag)
             {
@@ -264,6 +267,28 @@ public class InterFaceHandler : IHttpHandler {
         {
             hash["sign"] = "0";
             hash["msg"] = "插入失败，内部错误:" + ex.Message;
+        }
+        return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
+    }
+
+    public string GetOrderDenno(HttpContext context)
+    {
+        Newtonsoft.Json.Linq.JObject hash = new Newtonsoft.Json.Linq.JObject();
+        hash["sign"] = "0";
+        hash["msg"] = "获取失败！";
+        try
+        {
+            Handler App_Handler = new Handler();
+            string OrderDenno = App_Handler.GetOrderDenno("01");
+
+            hash["sign"] = "1";
+            hash["msg"] = "获取成功！";
+            hash["OrderDenno"] = OrderDenno;
+        }
+        catch (Exception ex)
+        {
+            hash["sign"] = "0";
+            hash["msg"] = "获取失败，内部错误:" + ex.Message;
         }
         return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
     }
