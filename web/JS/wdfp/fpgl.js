@@ -287,6 +287,7 @@ Ext.define('AddInvoice', {
                             store: CZStore,
                             selModel: { selType: 'checkboxmodel' },
                             id: 'CZStore',
+                            autoScroll:true,
                             columns: [
                                 {
                                     xtype: 'datecolumn',

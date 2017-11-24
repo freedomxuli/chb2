@@ -40,7 +40,7 @@ public class GetuiServer
         {
             for (int i = 0; i < drs.Length; i++)
             {
-                string message = "尊敬的" + drs[i]["UserID"].ToString() + "，您好！您的运单号为：" + YunDanDenno + "的运单已离开出发地" + address+"。";
+                string message = "尊敬的" + drs[i]["UserName"].ToString() + "，您的运单号为：" + YunDanDenno + "的运单已离开出发地" + address+"。";
                 NotificationTemplate templateNoti = NotificationTemplateDemo(lx, message);
                 // 单推消息模型
                 SingleMessage messageNoti = new SingleMessage();
@@ -60,7 +60,7 @@ public class GetuiServer
         {
             for (int i = 0; i < drs.Length; i++)
             {
-                string message = "尊敬的" + drs[i]["UserID"].ToString() + "，您好！您的运单号为：" + YunDanDenno + "的运单已到达目的地" + address + "。";
+                string message = "尊敬的" + drs[i]["UserName"].ToString() + "，您的运单号为：" + YunDanDenno + "的运单已到达目的地" + address + "。";
                 NotificationTemplate templateNoti = NotificationTemplateDemo(lx, message);
                 // 单推消息模型
                 SingleMessage messageNoti = new SingleMessage();

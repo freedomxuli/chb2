@@ -1664,38 +1664,48 @@ public class Handler
     {
         using (var db = new DBConnection())
         {
-            string sql = "select UserID from [dbo].[User] where UserName = '" + UserName + "'";
-            DataTable dt_user = db.ExecuteDataTable(sql);
-
-            DataTable dt = db.GetEmptyDataTable("InvoiceModel");
-            DataRow dr = dt.NewRow();
-            dr["InvoiceId"] = Guid.NewGuid();
-            dr["InvoiceTitle"] = InvoiceTitle;
-            dr["InvoiceZZJGDM"] = InvoiceZZJGDM;
-            dr["InvoicePerson"] = InvoicePerson;
-            dr["InvoiceMobile"] = InvoiceMobile;
-            dr["InvoiceAddress"] = InvoiceAddress;
-            dr["UserId"] = dt_user.Rows[0]["UserID"].ToString();
-            dr["AddTime"] = DateTime.Now;
-            dr["IsOut"] = 0;
-            dr["InvoiceJe"] = je;
-            dt.Rows.Add(dr);
-            db.InsertTable(dt);
-            DataTable dt_mx = db.GetEmptyDataTable("InvoiceMxModel");
-            string[] ids = ChongZhiIDs.Split(',');
-            for (int i = 0; i < ids.Length; i++)
+            try
             {
-                if (!string.IsNullOrEmpty(ids[i]))
+                db.BeginTransaction();
+                string sql = "select UserID from [dbo].[User] where UserName = '" + UserName + "'";
+                DataTable dt_user = db.ExecuteDataTable(sql);
+
+                DataTable dt = db.GetEmptyDataTable("InvoiceModel");
+                DataRow dr = dt.NewRow();
+                dr["InvoiceId"] = Guid.NewGuid();
+                dr["InvoiceTitle"] = InvoiceTitle;
+                dr["InvoiceZZJGDM"] = InvoiceZZJGDM;
+                dr["InvoicePerson"] = InvoicePerson;
+                dr["InvoiceMobile"] = InvoiceMobile;
+                dr["InvoiceAddress"] = InvoiceAddress;
+                dr["UserId"] = dt_user.Rows[0]["UserID"].ToString();
+                dr["AddTime"] = DateTime.Now;
+                dr["IsOut"] = 0;
+                dr["InvoiceJe"] = je;
+                dt.Rows.Add(dr);
+                db.InsertTable(dt);
+                DataTable dt_mx = db.GetEmptyDataTable("InvoiceMxModel");
+                string[] ids = ChongZhiIDs.Split(',');
+                for (int i = 0; i < ids.Length; i++)
                 {
-                    DataRow dr_mx = dt_mx.NewRow();
-                    dr_mx["InvoiceMxId"] = Guid.NewGuid();
-                    dr_mx["InvoiceId"] = dr["InvoiceId"];
-                    dr_mx["ChongZhiID"] = ids[i];
-                    dt_mx.Rows.Add(dr_mx);
+                    if (!string.IsNullOrEmpty(ids[i]))
+                    {
+                        DataRow dr_mx = dt_mx.NewRow();
+                        dr_mx["InvoiceMxId"] = Guid.NewGuid();
+                        dr_mx["InvoiceId"] = dr["InvoiceId"];
+                        dr_mx["ChongZhiID"] = ids[i];
+                        dt_mx.Rows.Add(dr_mx);
+                    }
                 }
+                db.InsertTable(dt_mx);
+                return true;
+                db.CommitTransaction();
             }
-            db.InsertTable(dt_mx);
-            return true;
+            catch (Exception ex)
+            {
+                db.RoolbackTransaction();
+                throw ex;
+            }
         }
     }
 
