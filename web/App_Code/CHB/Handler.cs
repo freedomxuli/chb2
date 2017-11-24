@@ -1723,22 +1723,29 @@ public class Handler
     {
         using (var db = new DBConnection())
         {
-            string sql = "select UserID from [dbo].[User] where UserName = '" + UserName + "'";
-            DataTable dt_user = db.ExecuteDataTable(sql);
-
-            sql = "select * from User_Client where clientId = '" + clientId + "'";
-            DataTable dt_client = db.ExecuteDataTable(sql);
-
-            if (dt_client.Rows.Count == 0)
+            if (!string.IsNullOrEmpty(clientId) && clientId != "undefined")
             {
-                DataTable dt = db.GetEmptyDataTable("User_Client");
-                DataRow dr = dt.NewRow();
-                dr["ID"] = Guid.NewGuid();
-                dr["UserID"] = dt_user.Rows[0]["UserID"].ToString();
-                dr["clientId"] = clientId;
-                dt.Rows.Add(dr);
-                db.InsertTable(dt);
-                return true;
+                string sql = "select UserID from [dbo].[User] where UserName = '" + UserName + "'";
+                DataTable dt_user = db.ExecuteDataTable(sql);
+
+                sql = "select * from User_Client where clientId = '" + clientId + "'";
+                DataTable dt_client = db.ExecuteDataTable(sql);
+
+                if (dt_client.Rows.Count == 0)
+                {
+                    DataTable dt = db.GetEmptyDataTable("User_Client");
+                    DataRow dr = dt.NewRow();
+                    dr["ID"] = Guid.NewGuid();
+                    dr["UserID"] = dt_user.Rows[0]["UserID"].ToString();
+                    dr["clientId"] = clientId;
+                    dt.Rows.Add(dr);
+                    db.InsertTable(dt);
+                    return true;
+                }
+                else
+                {
+                    return true;
+                }
             }
             else
             {
