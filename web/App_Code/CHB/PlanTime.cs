@@ -68,7 +68,7 @@ public class MyJob : IJob
                 string sql = "select * from YunDan where IsBangding = 1 and YunDanDenno not in (select YunDanDenno from GpsMessage)";
                 DataTable dt_start = db.ExecuteDataTable(sql);
 
-                string sql_user_client = "select UserID,clientId from User_Client";
+                string sql_user_client = "select a.UserID,a.clientId,b.UserName from User_Client a left join [dbo].[User] b on a.UserID = b.UserID";
                 DataTable dt_user_client = db.ExecuteDataTable(sql_user_client);
 
                 for (int i = 0; i < dt_start.Rows.Count; i++)

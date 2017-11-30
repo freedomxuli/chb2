@@ -41,6 +41,12 @@ public class InterFaceHandler : IHttpHandler {
             case "GetOrderDenno":
                 str = GetOrderDenno(context);
                 break;
+            case "AddWayBill":
+                str = AddWayBill(context);
+                break;
+            case "GetWayBillMemoByUserDenno":
+                str = GetWayBillMemoByUserDenno(context);
+                break;
         }
         context.Response.Write(str);
         context.Response.End();
@@ -289,6 +295,87 @@ public class InterFaceHandler : IHttpHandler {
         {
             hash["sign"] = "0";
             hash["msg"] = "获取失败，内部错误:" + ex.Message;
+        }
+        return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
+    }
+
+    public string AddWayBill(HttpContext context)
+    {
+        Newtonsoft.Json.Linq.JObject hash = new Newtonsoft.Json.Linq.JObject();
+        hash["sign"] = "0";
+        hash["msg"] = "制单失败！";
+        try
+        {
+            context.Response.ContentType = "text/plain";
+            //用户名
+            System.Text.Encoding utf8 = System.Text.Encoding.UTF8;
+            string UserID = context.Request["UserID"];
+            string QiShiZhan = context.Request["Departure"];
+            string DaoDaZhan = context.Request["Destination"];
+            string SuoShuGongSi = context.Request["Company"];
+            string UserDenno = context.Request["UserDenno"];
+            string GpsDeviceID = context.Request["GpsDeviceID"];
+            string YunDanRemark = context.Request["Memo"];
+            
+            Handler App_Handler = new Handler();
+            int sign = App_Handler.AddWayBill(UserID, QiShiZhan, DaoDaZhan, SuoShuGongSi, UserDenno, GpsDeviceID, YunDanRemark);
+            if (sign == 1)
+            {
+                hash["sign"] = "1";
+                hash["msg"] = "制单成功！";
+            }
+            else if (sign == 2)
+            {
+                hash["sign"] = "2";
+                hash["msg"] = "制单失败，用户标示或设备码错误！";
+            }
+            else if (sign == 3)
+            {
+                hash["sign"] = "3";
+                hash["msg"] = "制单失败，起始站或到达站错误！";
+            }
+            else if (sign == 100)
+            {
+                hash["sign"] = "100";
+                hash["msg"] = "制单失败，内部错误！";
+            }
+        }
+        catch (Exception ex)
+        {
+            hash["sign"] = "0";
+            hash["msg"] = "制单失败，错误:" + ex.Message;
+        }
+        return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
+    }
+
+    public string GetWayBillMemoByUserDenno(HttpContext context)
+    {
+        Newtonsoft.Json.Linq.JObject hash = new Newtonsoft.Json.Linq.JObject();
+        hash["sign"] = "0";
+        hash["msg"] = "查单失败！";
+        try
+        {
+            if (!string.IsNullOrEmpty(context.Request["UserDenno"]) && !string.IsNullOrEmpty(context.Request["UserID"]))
+            {
+                Handler App_Handler = new Handler();
+                System.Data.DataTable dt = App_Handler.GetWayBillMemoByUserDenno(context.Request["UserID"], context.Request["UserDenno"]);
+                Newtonsoft.Json.Linq.JArray jary = new Newtonsoft.Json.Linq.JArray();
+                jary = Newtonsoft.Json.JsonConvert.DeserializeObject(Newtonsoft.Json.JsonConvert.SerializeObject(dt)) as Newtonsoft.Json.Linq.JArray;
+
+                hash["sign"] = "1";
+                hash["msg"] = "查单成功！";
+                hash["info"] = jary;
+            }
+            else
+            {
+                hash["sign"] = "2";
+                hash["msg"] = "查单失败，用户标示或单号不能为空";
+            }
+        }
+        catch (Exception ex)
+        {
+            hash["sign"] = "0";
+            hash["msg"] = "查单失败，错误:" + ex.Message;
         }
         return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
     }
