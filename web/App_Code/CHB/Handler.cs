@@ -1698,8 +1698,8 @@ public class Handler
                     }
                 }
                 db.InsertTable(dt_mx);
-                return true;
                 db.CommitTransaction();
+                return true;
             }
             catch (Exception ex)
             {
