@@ -47,6 +47,9 @@ public class InterFaceHandler : IHttpHandler {
             case "GetWayBillMemoByUserDenno":
                 str = GetWayBillMemoByUserDenno(context);
                 break;
+            case "RelieveWayBill":
+                str = RelieveWayBill(context);
+                break;
         }
         context.Response.Write(str);
         context.Response.End();
@@ -377,6 +380,46 @@ public class InterFaceHandler : IHttpHandler {
             hash["sign"] = "0";
             hash["msg"] = "查单失败，错误:" + ex.Message;
         }
+        return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
+    }
+
+    public string RelieveWayBill(HttpContext context)
+    {
+        Newtonsoft.Json.Linq.JObject hash = new Newtonsoft.Json.Linq.JObject();
+        hash["sign"] = "0";
+        hash["msg"] = "解绑失败！";
+
+        try
+        {
+            Handler App_Handler = new Handler();
+            context.Response.ContentType = "text/plain";
+            //用户名
+            System.Text.Encoding utf8 = System.Text.Encoding.UTF8;
+            string UserID = context.Request["UserID"];
+            string UserDenno = context.Request["UserDenno"];
+            int sign = App_Handler.RelieveWayBill(UserID, UserDenno);
+            if (sign == 1)
+            {
+                hash["sign"] = "1";
+                hash["msg"] = "解绑成功！";
+            }
+            else if (sign == 2)
+            {
+                hash["sign"] = "2";
+                hash["msg"] = "解绑失败，该运单已解绑！";
+            }
+            else
+            {
+                hash["sign"] = "100";
+                hash["msg"] = "解绑失败，内部错误！";
+            }
+        }
+        catch (Exception ex)
+        {
+            hash["sign"] = "0";
+            hash["msg"] = "解绑失败，错误:" + ex.Message;
+        }
+        
         return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
     }
     

@@ -1734,7 +1734,7 @@ public class Handler
     {
         using (var db = new DBConnection())
         {
-            if (!string.IsNullOrEmpty(clientId) && clientId != "undefined")
+            if (!string.IsNullOrEmpty(clientId) && clientId != "undefined" && clientId != "null")
             {
                 string sql = "select UserID from [dbo].[User] where UserName = '" + UserName + "'";
                 DataTable dt_user = db.ExecuteDataTable(sql);
@@ -1755,12 +1755,12 @@ public class Handler
                 }
                 else
                 {
-                    return true;
+                    return false;
                 }
             }
             else
             {
-                return true;
+                return false;
             }
         }
     }
@@ -1917,6 +1917,44 @@ public class Handler
                 sign = 100;//内部错误
                 db.RoolbackTransaction();
             }
+            return sign;
+        }
+    }
+
+    public int RelieveWayBill(string UserID, string UserDenno)
+    {
+        using (var db = new DBConnection())
+        {
+            int sign = 0;
+            db.BeginTransaction();
+            try
+            {
+                string sql = "select * from YunDan where UserID = @UserID and UserDenno = @UserDenno and IsBangding = 0";
+                SqlCommand cmd = db.CreateCommand(sql);
+                cmd.Parameters.Add("@UserID", UserID);
+                cmd.Parameters.Add("@UserDenno", UserDenno);
+                DataTable dt = db.ExecuteDataTable(sql);
+                if (dt.Rows.Count > 0)
+                {
+                    sql = "update YunDan set IsBangding = 1 where UserID = @UserID and UserDenno = @UserDenno";
+                    cmd = db.CreateCommand(sql);
+                    cmd.Parameters.Add("@UserID", UserID);
+                    cmd.Parameters.Add("@UserDenno", UserDenno);
+                    db.ExecuteNonQuery(cmd);
+                    sign = 1;
+                }
+                else
+                {
+                    sign = 2;
+                }
+                db.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                sign = 100;
+                db.RoolbackTransaction();
+            }
+            
             return sign;
         }
     }
