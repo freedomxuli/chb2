@@ -1769,7 +1769,7 @@ public class Handler
     {
         using (var db = new DBConnection())
         {
-            db.RoolbackTransaction();
+            db.BeginTransaction();
             int sign = 0;//制单失败
             try
             {
@@ -1785,7 +1785,7 @@ public class Handler
                 else
                 {
                     #region  更新设备绑定状态
-                    string sql = "update GpsDevice set IsBangding = 0 where GpsDeviceID = @GpsDeviceID";
+                    string sql = "update YunDan set IsBangding = 0 where GpsDeviceID = @GpsDeviceID";
                     cmd = db.CreateCommand(sql);
                     cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID);
                     db.ExecuteNonQuery(cmd);
@@ -1933,7 +1933,7 @@ public class Handler
                 SqlCommand cmd = db.CreateCommand(sql);
                 cmd.Parameters.Add("@UserID", UserID);
                 cmd.Parameters.Add("@UserDenno", UserDenno);
-                DataTable dt = db.ExecuteDataTable(sql);
+                DataTable dt = db.ExecuteDataTable(cmd);
                 if (dt.Rows.Count > 0)
                 {
                     sql = "update YunDan set IsBangding = 1 where UserID = @UserID and UserDenno = @UserDenno";
@@ -1965,7 +1965,7 @@ public class Handler
         {
             try
             {
-                string sql = "select BangDingTime Time,UserDenno,QiShiZhan Departure,DaoDaZhan Destination,SuoShuGongSi Company,GpsDevicevid,YunDanRemark Memo,Gps_lastinfo from YunDan where UserID = @UserID and UserDenno = @UserDenno";
+                string sql = "select BangDingTime Time,UserDenno,QiShiZhan Departure,DaoDaZhan Destination,SuoShuGongSi Company,GpsDeviceID,YunDanRemark Memo,Gps_lastinfo from YunDan where UserID = @UserID and UserDenno = @UserDenno";
                 SqlCommand cmd = db.CreateCommand(sql);
                 cmd.Parameters.AddWithValue("@UserID", UserID);
                 cmd.Parameters.AddWithValue("@UserDenno", UserDenno);
