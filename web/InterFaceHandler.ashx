@@ -50,6 +50,9 @@ public class InterFaceHandler : IHttpHandler {
             case "RelieveWayBill":
                 str = RelieveWayBill(context);
                 break;
+            case "GetLocationList":
+                str = GetLocationList(context);
+                break;
         }
         context.Response.Write(str);
         context.Response.End();
@@ -420,6 +423,41 @@ public class InterFaceHandler : IHttpHandler {
             hash["msg"] = "解绑失败，错误:" + ex.Message;
         }
         
+        return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
+    }
+
+    public string GetLocationList(HttpContext context)
+    {
+        Newtonsoft.Json.Linq.JObject hash = new Newtonsoft.Json.Linq.JObject();
+        hash["sign"] = "0";
+        hash["msg"] = "获取定位数据失败！";
+        
+        try
+        {
+            if (!string.IsNullOrEmpty(context.Request["UserDenno"]) && !string.IsNullOrEmpty(context.Request["UserID"]))
+            {
+                Handler App_Handler = new Handler();
+                System.Data.DataTable dt = App_Handler.GetLocationList(context.Request["UserID"], context.Request["UserDenno"]);
+                Newtonsoft.Json.Linq.JArray jary = new Newtonsoft.Json.Linq.JArray();
+                jary = Newtonsoft.Json.JsonConvert.DeserializeObject(Newtonsoft.Json.JsonConvert.SerializeObject(dt)) as Newtonsoft.Json.Linq.JArray;
+
+                hash["sign"] = "1";
+                hash["msg"] = "获取定位数据成功！";
+                hash["info"] = jary;
+            }
+            else
+            {
+                hash["sign"] = "2";
+                hash["msg"] = "获取定位数据失败，用户标示或单号不能为空";
+            }
+        }
+        catch (Exception ex)
+        {
+            hash["sign"] = "0";
+            hash["msg"] = "获取定位数据失败，错误:" + ex.Message;
+        }
+        
+
         return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
     }
     
