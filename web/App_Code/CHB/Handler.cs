@@ -1929,14 +1929,14 @@ public class Handler
             db.BeginTransaction();
             try
             {
-                string sql = "select * from YunDan where UserID = @UserID and UserDenno = @UserDenno and IsBangding = 0";
+                string sql = "select * from YunDan where UserID = @UserID and UserDenno = @UserDenno and IsBangding = 1";
                 SqlCommand cmd = db.CreateCommand(sql);
                 cmd.Parameters.Add("@UserID", UserID);
                 cmd.Parameters.Add("@UserDenno", UserDenno);
                 DataTable dt = db.ExecuteDataTable(cmd);
                 if (dt.Rows.Count > 0)
                 {
-                    sql = "update YunDan set IsBangding = 1 where UserID = @UserID and UserDenno = @UserDenno";
+                    sql = "update YunDan set IsBangding = 0 where UserID = @UserID and UserDenno = @UserDenno";
                     cmd = db.CreateCommand(sql);
                     cmd.Parameters.Add("@UserID", UserID);
                     cmd.Parameters.Add("@UserDenno", UserDenno);
@@ -1965,7 +1965,7 @@ public class Handler
         {
             try
             {
-                string sql = "select BangDingTime Time,UserDenno,QiShiZhan Departure,DaoDaZhan Destination,SuoShuGongSi Company,GpsDeviceID,YunDanRemark Memo,Gps_lastinfo from YunDan where UserID = @UserID and UserDenno = @UserDenno";
+                string sql = "select BangDingTime Time,UserDenno,QiShiZhan Departure,DaoDaZhan Destination,SuoShuGongSi Company,GpsDeviceID,YunDanRemark Memo,Gps_lastinfo,Gps_lastlat,Gps_lastlng from YunDan where UserID = @UserID and UserDenno = @UserDenno";
                 SqlCommand cmd = db.CreateCommand(sql);
                 cmd.Parameters.AddWithValue("@UserID", UserID);
                 cmd.Parameters.AddWithValue("@UserDenno", UserDenno);
