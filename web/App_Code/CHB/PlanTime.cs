@@ -25,7 +25,7 @@ public class PlanTime : Registry
         // Schedule an IJob to run at an interval
         // 立即执行每两秒一次的计划任务。（指定一个时间间隔运行，根据自己需求，可以是秒、分、时、天、月、年等。）
         Schedule<MyJob>().ToRunNow().AndEvery(10).Minutes();
-        Schedule<MyGpsDistanceJob>().ToRunNow().AndEvery(10).Minutes();
+        Schedule<MyGpsDistanceJob>().ToRunNow().AndEvery(10).Minutes(); 
 
         // Schedule an IJob to run once, delayed by a specific time interval
         // 延迟一个指定时间间隔执行一次计划任务。（当然，这个间隔依然可以是秒、分、时、天、月、年等。）
@@ -171,10 +171,11 @@ public class MyGpsDistanceJob : IJob
                 db.BeginTransaction();
 
                 DataTable dt_new = db.GetEmptyDataTable("YunDanDistance");
-                DataTable dt_up = db.GetEmptyDataTable("YunDanDistance");
-                DataTableTracker dtt_up = new DataTableTracker(dt_up);
+                //DataTable dt_up = db.GetEmptyDataTable("YunDanDistance");
+                //dt_up.PrimaryKey = new DataColumn[] { dt_up.Columns["ID"] };
+                //DataTableTracker dtt_up = new DataTableTracker(dt_up);
 
-                string sql = "select * from YunDan where IsBangding = 1";
+                string sql = "select * from YunDan where IsBangding = 1"; 
                 DataTable dt_yundan = db.ExecuteDataTable(sql);
 
                 sql = "select * from YunDanDistance where YunDanDenno in (select YunDanDenno from YunDan where IsBangding = 1)";
@@ -188,20 +189,27 @@ public class MyGpsDistanceJob : IJob
                         if (drs[0]["Gps_lastlat"].ToString() != dt_yundan.Rows[i]["Gps_lastlat"].ToString() && drs[0]["Gps_lastlng"].ToString() != dt_yundan.Rows[i]["Gps_lastlng"].ToString())
                         {
                             Hashtable ht = Route.getMapRoute(dt_yundan.Rows[i]["Gps_lastlng"].ToString() + "," + dt_yundan.Rows[i]["Gps_lastlat"].ToString(), dt_yundan.Rows[i]["DaoDaZhan_lng"].ToString() + "," + dt_yundan.Rows[i]["DaoDaZhan_lat"].ToString());
-                            DataRow dr = dt_new.NewRow();
-                            dr["ID"] = drs[0]["ID"].ToString();
-                            dr["Gps_lastlat"] = dt_yundan.Rows[i]["Gps_lastlat"].ToString();
-                            dr["Gps_lastlng"] = dt_yundan.Rows[i]["Gps_lastlng"].ToString();
-                            dr["Gps_lasttime"] = dt_yundan.Rows[i]["Gps_lasttime"].ToString();
-                            if (ht["distance"] != null && !string.IsNullOrEmpty(ht["distance"].ToString()))
-                                dr["Gps_distance"] = (Convert.ToDecimal(ht["distance"]) / 1000).ToString("F2");
-                            else
-                                dr["Gps_distance"] = ht["distance"];
-                            if (ht["duration"] != null && !string.IsNullOrEmpty(ht["duration"].ToString()))
-                                dr["Gps_duration"] = (Convert.ToDecimal(ht["duration"]) / 60).ToString("F2");
-                            else
-                                dr["Gps_duration"] = ht["duration"];
-                            dt_up.Rows.Add(dr);
+                            if (ht["distance"] != null && !string.IsNullOrEmpty(ht["distance"].ToString()) && ht["duration"] != null && !string.IsNullOrEmpty(ht["duration"].ToString()))
+                            {
+                                sql = @"update YunDanDistance set Gps_lastlat = '" + dt_yundan.Rows[i]["Gps_lastlat"].ToString() + @"',Gps_lastlng = '" + dt_yundan.Rows[i]["Gps_lastlng"].ToString() + @"',
+                                    Gps_lasttime = '" + dt_yundan.Rows[i]["Gps_lasttime"].ToString() + @"',Gps_distance = '" + (Convert.ToDecimal(ht["distance"]) / 1000).ToString("F2") + @"',
+                                    Gps_duration = '" + (Convert.ToDecimal(ht["duration"]) / 60).ToString("F2") + @"' where ID = '" + drs[0]["ID"].ToString() + @"'";
+                                db.ExecuteNonQuery(sql);
+                            }
+                            //DataRow dr = dt_up.NewRow();
+                            //dr["ID"] = drs[0]["ID"].ToString();
+                            //dr["Gps_lastlat"] = dt_yundan.Rows[i]["Gps_lastlat"].ToString();
+                            //dr["Gps_lastlng"] = dt_yundan.Rows[i]["Gps_lastlng"].ToString();
+                            //dr["Gps_lasttime"] = dt_yundan.Rows[i]["Gps_lasttime"].ToString();
+                            //if (ht["distance"] != null && !string.IsNullOrEmpty(ht["distance"].ToString()))
+                            //    dr["Gps_distance"] = (Convert.ToDecimal(ht["distance"]) / 1000).ToString("F2");
+                            //else
+                            //    dr["Gps_distance"] = ht["distance"];
+                            //if (ht["duration"] != null && !string.IsNullOrEmpty(ht["duration"].ToString()))
+                            //    dr["Gps_duration"] = (Convert.ToDecimal(ht["duration"]) / 60).ToString("F2");
+                            //else
+                            //    dr["Gps_duration"] = ht["duration"];
+                            //dt_up.Rows.Add(dr);
                         }
                     }
                     else
@@ -233,8 +241,8 @@ public class MyGpsDistanceJob : IJob
                 if (dt_new.Rows.Count > 0)
                     db.InsertTable(dt_new);
 
-                if (dt_up.Rows.Count > 0)
-                    db.UpdateTable(dt_up, dtt_up);
+                //if (dt_up.Rows.Count > 0)
+                //    db.UpdateTable(dt_up, dtt_up);
 
                 db.CommitTransaction();
             }
