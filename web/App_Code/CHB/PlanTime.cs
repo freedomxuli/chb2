@@ -13,6 +13,7 @@ using System.Net;
 using System.Text;
 using System.Diagnostics;
 using SmartFramework4v2.Data;
+using System.Collections;
 
 /// <summary>
 /// PlanTime 的摘要说明
@@ -24,6 +25,7 @@ public class PlanTime : Registry
         // Schedule an IJob to run at an interval
         // 立即执行每两秒一次的计划任务。（指定一个时间间隔运行，根据自己需求，可以是秒、分、时、天、月、年等。）
         Schedule<MyJob>().ToRunNow().AndEvery(10).Minutes();
+        Schedule<MyGpsDistanceJob>().ToRunNow().AndEvery(10).Minutes();
 
         // Schedule an IJob to run once, delayed by a specific time interval
         // 延迟一个指定时间间隔执行一次计划任务。（当然，这个间隔依然可以是秒、分、时、天、月、年等。）
@@ -156,6 +158,97 @@ public class MyJob : IJob
 
     }
 }
+
+public class MyGpsDistanceJob : IJob
+{
+
+    void IJob.Execute()
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                db.BeginTransaction();
+
+                DataTable dt_new = db.GetEmptyDataTable("YunDanDistance");
+                DataTable dt_up = db.GetEmptyDataTable("YunDanDistance");
+                DataTableTracker dtt_up = new DataTableTracker(dt_up);
+
+                string sql = "select * from YunDan where IsBangding = 1";
+                DataTable dt_yundan = db.ExecuteDataTable(sql);
+
+                sql = "select * from YunDanDistance where YunDanDenno in (select YunDanDenno from YunDan where IsBangding = 1)";
+                DataTable dt_distance = db.ExecuteDataTable(sql);
+
+                for (int i = 0; i < dt_yundan.Rows.Count; i++)
+                {
+                    DataRow[] drs = dt_distance.Select("YunDanDenno = '" + dt_yundan.Rows[i]["YunDanDenno"].ToString() + "'");
+                    if (drs.Length > 0)
+                    {
+                        if (drs[0]["Gps_lastlat"].ToString() != dt_yundan.Rows[i]["Gps_lastlat"].ToString() && drs[0]["Gps_lastlng"].ToString() != dt_yundan.Rows[i]["Gps_lastlng"].ToString())
+                        {
+                            Hashtable ht = Route.getMapRoute(dt_yundan.Rows[i]["Gps_lastlng"].ToString() + "," + dt_yundan.Rows[i]["Gps_lastlat"].ToString(), dt_yundan.Rows[i]["DaoDaZhan_lng"].ToString() + "," + dt_yundan.Rows[i]["DaoDaZhan_lat"].ToString());
+                            DataRow dr = dt_new.NewRow();
+                            dr["ID"] = drs[0]["ID"].ToString();
+                            dr["Gps_lastlat"] = dt_yundan.Rows[i]["Gps_lastlat"].ToString();
+                            dr["Gps_lastlng"] = dt_yundan.Rows[i]["Gps_lastlng"].ToString();
+                            dr["Gps_lasttime"] = dt_yundan.Rows[i]["Gps_lasttime"].ToString();
+                            if (ht["distance"] != null && !string.IsNullOrEmpty(ht["distance"].ToString()))
+                                dr["Gps_distance"] = (Convert.ToDecimal(ht["distance"]) / 1000).ToString("F2");
+                            else
+                                dr["Gps_distance"] = ht["distance"];
+                            if (ht["duration"] != null && !string.IsNullOrEmpty(ht["duration"].ToString()))
+                                dr["Gps_duration"] = (Convert.ToDecimal(ht["duration"]) / 60).ToString("F2");
+                            else
+                                dr["Gps_duration"] = ht["duration"];
+                            dt_up.Rows.Add(dr);
+                        }
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(dt_yundan.Rows[i]["Gps_lastlat"].ToString()) && !string.IsNullOrEmpty(dt_yundan.Rows[i]["Gps_lastlng"].ToString()))
+                        {
+                            Hashtable ht = Route.getMapRoute(dt_yundan.Rows[i]["Gps_lastlng"].ToString() + "," + dt_yundan.Rows[i]["Gps_lastlat"].ToString(), dt_yundan.Rows[i]["DaoDaZhan_lng"].ToString() + "," + dt_yundan.Rows[i]["DaoDaZhan_lat"].ToString());
+                            DataRow dr = dt_new.NewRow();
+                            dr["YunDanDenno"] = dt_yundan.Rows[i]["YunDanDenno"];
+                            dr["UserDenno"] = dt_yundan.Rows[i]["UserDenno"];
+                            dr["UserID"] = dt_yundan.Rows[i]["UserID"];
+                            dr["GpsDeviceID"] = dt_yundan.Rows[i]["GpsDeviceID"];
+                            dr["Gps_lastlat"] = dt_yundan.Rows[i]["Gps_lastlat"];
+                            dr["Gps_lastlng"] = dt_yundan.Rows[i]["Gps_lastlng"];
+                            dr["Gps_lasttime"] = dt_yundan.Rows[i]["Gps_lasttime"];
+                            if (ht["distance"] != null && !string.IsNullOrEmpty(ht["distance"].ToString()))
+                                dr["Gps_distance"] = (Convert.ToDecimal(ht["distance"]) / 1000).ToString("F2");
+                            else
+                                dr["Gps_distance"] = ht["distance"];
+                            if (ht["duration"] != null && !string.IsNullOrEmpty(ht["duration"].ToString()))
+                                dr["Gps_duration"] = (Convert.ToDecimal(ht["duration"]) / 60).ToString("F2");
+                            else
+                                dr["Gps_duration"] = ht["duration"];
+                            dt_new.Rows.Add(dr);
+                        }
+                    }
+                }
+
+                if (dt_new.Rows.Count > 0)
+                    db.InsertTable(dt_new);
+
+                if (dt_up.Rows.Count > 0)
+                    db.UpdateTable(dt_up, dtt_up);
+
+                db.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                db.RoolbackTransaction();
+                throw ex;
+            }
+        }
+
+    }
+}
+
+
 
 public class MyOtherJob : IJob
 {

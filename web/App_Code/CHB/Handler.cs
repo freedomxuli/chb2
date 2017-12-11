@@ -1979,6 +1979,45 @@ public class Handler
         }
     }
 
+    public DataTable GetLocationList(string UserID, string UserDenno)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+
+                string sql = "select * from YunDan where UserID = @UserID and UserDenno = @UserDenno";
+                SqlCommand cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID", UserID);
+                cmd.Parameters.AddWithValue("@UserDenno", UserDenno);
+                DataTable dt = db.ExecuteDataTable(cmd);
+
+                if (dt.Rows.Count == 0)
+                {
+                    DataTable dt_gps = new DataTable();
+                    dt_gps.Columns.Add("Gps_lat");
+                    dt_gps.Columns.Add("Gps_lng");
+                    dt_gps.Columns.Add("Gps_time");
+                    dt_gps.Columns.Add("Gps_info");
+                    return dt_gps;
+                }
+                else
+                {
+                    string conn = "";
+                    if(dt.Rows[0]["JieBangTime"].ToString() == "0")
+                        conn = " and Gps_time < '" + Convert.ToDateTime(dt.Rows[0]["JieBangTime"].ToString()) + "'";
+                    sql = "select Gps_lat,Gps_lng,Gps_time,Gps_info from GpsLocation where GpsDeviceID = '" + dt.Rows[0]["GpsDeviceID"].ToString() + "' and Gps_time > '" + Convert.ToDateTime(dt.Rows[0]["BangDingTime"].ToString()).AddHours(-1) + "'" + conn;
+                    DataTable dt_gps = db.ExecuteDataTable(sql);
+                    return dt_gps;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            } 
+        }
+    }
+
     public System.Collections.Hashtable Gethttpresult(string url, string data)
     {
         WebRequest request = WebRequest.Create(url);
