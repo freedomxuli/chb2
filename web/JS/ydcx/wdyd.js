@@ -7,7 +7,7 @@ var myStore = createSFW4Store({
     total: 1,
     currentPage: 1,
     fields: [
-        'BangDingTime', 'UserDenno', 'QiShiZhan', 'DaoDaZhan', 'SuoShuGongSi', 'GpsDeviceID', 'YunDanRemark', 'Gps_lastinfo', 'YunDanDenno', 'UserID', 'Gps_lasttime'
+        'BangDingTime', 'UserDenno', 'QiShiZhan', 'DaoDaZhan', 'SuoShuGongSi', 'GpsDeviceID', 'YunDanRemark', 'Gps_lastinfo', 'YunDanDenno', 'UserID', 'Gps_lasttime', 'Gps_distance', 'Gps_duration'
     ],
     onPageChange: function (sto, nPage, sorters) {
         DataBind(nPage);
@@ -102,6 +102,22 @@ Ext.onReady(function () {
                                 sortable: false,
                                 menuDisabled: true,
                                 text: '设备ID'
+                            },
+                            {
+                                xtype: 'gridcolumn',
+                                dataIndex: 'Gps_distance',
+                                flex: 1,
+                                sortable: false,
+                                menuDisabled: true,
+                                text: '剩余路程'
+                            },
+                            {
+                                xtype: 'gridcolumn',
+                                dataIndex: 'Gps_duration',
+                                flex: 1,
+                                sortable: false,
+                                menuDisabled: true,
+                                text: '剩余时间'
                             },
                             {
                                 xtype: 'gridcolumn',

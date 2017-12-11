@@ -233,6 +233,17 @@ public class Handler
                     cmd.Parameters.AddWithValue("@SuoShuGongSi", "%" + SuoShuGongSi + "%");
                 DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
 
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    sql = "select * from YunDanDistance where YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'";
+                    DataTable dt_distance = db.ExecuteDataTable(sql);
+                    if (dt_distance.Rows.Count > 0)
+                    {
+                        dt.Rows[i]["Gps_distance"] = dt_distance.Rows[0]["Gps_distance"].ToString() + "公里";
+                        dt.Rows[i]["Gps_duration"] = dt_distance.Rows[0]["Gps_duration"].ToString() + "分钟";
+                    }
+                }
+
                 #region  插入操作表
                 DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
                 DataRow dr = dt_caozuo.NewRow();
@@ -275,6 +286,17 @@ public class Handler
                 cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno + "%");
                 cmd.Parameters.AddWithValue("@SuoShuGongSi", "%" + SuoShuGongSi + "%");
                 DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    sql = "select * from YunDanDistance where YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'";
+                    DataTable dt_distance = db.ExecuteDataTable(sql);
+                    if (dt_distance.Rows.Count > 0)
+                    {
+                        dt.Rows[i]["Gps_distance"] = dt_distance.Rows[0]["Gps_distance"].ToString() + "公里";
+                        dt.Rows[i]["Gps_duration"] = dt_distance.Rows[0]["Gps_duration"].ToString() + "分钟";
+                    }
+                }
 
                 #region  插入操作表
                 DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
