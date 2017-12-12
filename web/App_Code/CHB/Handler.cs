@@ -1958,10 +1958,11 @@ public class Handler
                 DataTable dt = db.ExecuteDataTable(cmd);
                 if (dt.Rows.Count > 0)
                 {
-                    sql = "update YunDan set IsBangding = 0 where UserID = @UserID and UserDenno = @UserDenno";
+                    sql = "update YunDan set IsBangding = 0,JieBangTime =@JieBangTime where UserID = @UserID and UserDenno = @UserDenno";
                     cmd = db.CreateCommand(sql);
                     cmd.Parameters.Add("@UserID", UserID);
                     cmd.Parameters.Add("@UserDenno", UserDenno);
+                    cmd.Parameters.Add("@JieBangTime", DateTime.Now);
                     db.ExecuteNonQuery(cmd);
                     sign = 1;
                 }
