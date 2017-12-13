@@ -340,6 +340,11 @@ public class InterFaceHandler : IHttpHandler {
                 hash["sign"] = "3";
                 hash["msg"] = "制单失败，起始站或到达站错误！";
             }
+            else if (sign == 4)
+            {
+                hash["sign"] = "4";
+                hash["msg"] = "制单失败，充值次数已用光，请充值后再制单！";
+            }
             else if (sign == 100)
             {
                 hash["sign"] = "100";
