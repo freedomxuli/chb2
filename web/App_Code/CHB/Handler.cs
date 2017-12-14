@@ -1347,6 +1347,7 @@ public class Handler
                 dr["ZhiFuZhuangTai"] = 0;
                 dr["ChongZhiRemark"] = ChongZhiRemark;
                 dr["OrderDenno"] = OrderDenno;
+                dr["ChongZhiSH"] = 0;
                 dt.Rows.Add(dr);
                 db.InsertTable(dt);
 
