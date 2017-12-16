@@ -7,7 +7,7 @@ var myStore = createSFW4Store({
     total: 1,
     currentPage: 1,
     fields: [
-        'BangDingTime', 'UserDenno', 'QiShiZhan', 'DaoDaZhan', 'SuoShuGongSi', 'GpsDeviceID', 'YunDanRemark', 'Gps_lastinfo', 'YunDanDenno', 'UserID', 'Gps_lasttime', 'Gps_distance', 'Gps_duration'
+        'BangDingTime', 'UserDenno', 'QiShiZhan', 'DaoDaZhan', 'SuoShuGongSi', 'GpsDeviceID', 'YunDanRemark', 'Gps_lastinfo', 'YunDanDenno', 'UserID', 'Gps_lasttime', 'Gps_distance', 'Gps_duration', 'QiShiZhan_QX', 'DaoDaZhan_QX'
     ],
     onPageChange: function (sto, nPage, sorters) {
         DataBind(nPage);
@@ -63,7 +63,13 @@ Ext.onReady(function () {
                                 flex: 1,
                                 sortable: false,
                                 menuDisabled: true,
-                                text: '起始站'
+                                text: '起始站',
+                                renderer: function (value, cellmeta, record, rowIndex, columnIndex, store) {
+                                    if (record.data.QiShiZhan_QX != "" && record.data.QiShiZhan_QX != null)
+                                        return value + " " + record.data.QiShiZhan_QX;
+                                    else
+                                        return value;
+                                }
                             },
                             {
                                 xtype: 'gridcolumn',
@@ -71,7 +77,13 @@ Ext.onReady(function () {
                                 flex: 1,
                                 sortable: false,
                                 menuDisabled: true,
-                                text: '到达站'
+                                text: '到达站',
+                                renderer: function (value, cellmeta, record, rowIndex, columnIndex, store) {
+                                    if (record.data.DaoDaZhan_QX != "" && record.data.DaoDaZhan_QX != null)
+                                        return value + " " + record.data.DaoDaZhan_QX;
+                                    else
+                                        return value;
+                                }
                             },
                             {
                                 xtype: 'gridcolumn',

@@ -26,7 +26,7 @@ using SmartFramework4v2.Web.Common.JSON;
 public class Handler
 {
     [CSMethod("GetZhiDanList")]
-    public object GetZhiDanList(int CurrentPage, int PageSize, string QiShiZhan_Province, string QiShiZhan_City, string DaoDaZhan_Province, string DaoDaZhan_City, string SuoShuGongSi, string UserDenno)
+    public object GetZhiDanList(int CurrentPage, int PageSize, string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string SuoShuGongSi, string UserDenno)
     {
         using (DBConnection db = new DBConnection())
         {
@@ -45,7 +45,12 @@ public class Handler
                 }
                 if (!string.IsNullOrEmpty(QiShiZhan_City))
                 {
-                    QiShiZhan += " " + QiShiZhan_City;
+                    if (QiShiZhan_Province != QiShiZhan_City)
+                        QiShiZhan += " " + QiShiZhan_City;
+                }
+                if (!string.IsNullOrEmpty(QiShiZhan_Qx))
+                {
+                    where += " and QiShiZhan_QX like @QiShiZhan_QX";
                 }
                 if (!string.IsNullOrEmpty(QiShiZhan))
                 {
@@ -57,7 +62,13 @@ public class Handler
                 }
                 if (!string.IsNullOrEmpty(DaoDaZhan_City))
                 {
-                    DaoDaZhan += " " + DaoDaZhan_City;
+                    if (DaoDaZhan_Province != DaoDaZhan_City)
+                        DaoDaZhan += " " + DaoDaZhan_City;
+                }
+                
+                if (!string.IsNullOrEmpty(DaoDaZhan_Qx))
+                {
+                    where += " and DaoDaZhan_QX like @DaoDaZhan_QX";
                 }
                 if (!string.IsNullOrEmpty(DaoDaZhan))
                 {
@@ -83,6 +94,10 @@ public class Handler
                     cmd.Parameters.AddWithValue("@SuoShuGongSi", "%" + SuoShuGongSi + "%");
                 if (!string.IsNullOrEmpty(UserDenno))
                     cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno + "%");
+                if (!string.IsNullOrEmpty(QiShiZhan_Qx))
+                    cmd.Parameters.AddWithValue("@QiShiZhan_QX", "%" + QiShiZhan_Qx + "%");
+                if (!string.IsNullOrEmpty(DaoDaZhan_Qx))
+                    cmd.Parameters.AddWithValue("@DaoDaZhan_QX", "%" + DaoDaZhan_Qx + "%");
                 DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
 
                 #region  插入操作表
@@ -143,7 +158,7 @@ public class Handler
     }
 
     [CSMethod("SaveYunDan")]
-    public bool SaveYunDan(string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string QiShiAddress, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string DaoDaAddress, string SuoShuGongSi, string UserDenno, string SalePerson, string Purchaser, string PurchaserPerson, string PurchaserTel, string CarrierCompany, string CarrierPerson, string CarrierTel, string IsChuFaMessage, string IsDaoDaMessage, string GpsDeviceID, string YunDanRemark, JSReader jsr)
+    public bool SaveYunDan(string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string QiShiAddress, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string DaoDaAddress, string SuoShuGongSi, string UserDenno, string SalePerson, string Purchaser, string PurchaserPerson, string PurchaserTel, string CarrierCompany, string CarrierPerson, string CarrierTel, string IsChuFaMessage, string IsDaoDaMessage, string GpsDeviceID, string YunDanRemark, JSReader[] jsr)
     {
         using (var dbc = new DBConnection())
         {
@@ -151,9 +166,39 @@ public class Handler
             {
                 dbc.BeginTransaction();
 
+                bool isReturn = true;
+
+                string UserID = SystemUser.CurrentUser.UserID;
+
+                string sql_user = "select * from [dbo].[User] where UserID = @UserID";
+                SqlCommand cmd = dbc.CreateCommand(sql_user);
+                cmd.Parameters.AddWithValue("@UserID", UserID);
+                DataTable dt_user = dbc.ExecuteDataTable(cmd);
+
+                if (Convert.ToInt32(dt_user.Rows[0]["UserRemainder"].ToString()) == 0)
+                {
+                    return false;
+                }
+
                 #region  更新设备绑定状态
                 string sql = "update YunDan set IsBangding = 0 where GpsDeviceID = @GpsDeviceID";
-                SqlCommand cmd = dbc.CreateCommand(sql);
+                cmd = dbc.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID);
+                dbc.ExecuteNonQuery(cmd);
+                #endregion
+
+                #region  更新用户剩余次数
+                int UserRemainder = Convert.ToInt32(dt_user.Rows[0]["UserRemainder"].ToString()) - 1;
+                sql = "update [dbo].[User] set UserRemainder = @UserRemainder where UserID = @UserID";
+                cmd = dbc.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID", UserID);
+                cmd.Parameters.AddWithValue("@UserRemainder", UserRemainder);
+                dbc.ExecuteNonQuery(cmd);
+                #endregion
+
+                #region  更新设备绑定状态
+                sql = "update YunDan set IsBangding = 0 where GpsDeviceID = @GpsDeviceID";
+                cmd = dbc.CreateCommand(sql);
                 cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID);
                 dbc.ExecuteNonQuery(cmd);
                 #endregion
@@ -283,7 +328,7 @@ public class Handler
                             DataRow dr_yundan = dt_yundan.NewRow();
                             dr_yundan["YunDanDenno"] = DateTime.Now.ToString("yyyyMMddHHmmssfff");
                             dr_yundan["UserDenno"] = UserDenno;
-                            dr_yundan["UserID"] = SystemUser.CurrentUser.UserID;
+                            dr_yundan["UserID"] = UserID;
                             dr_yundan["QiShiZhan"] = QiShiZhan_Text;
                             dr_yundan["DaoDaZhan"] = DaoDaZhan_Text;
                             dr_yundan["SuoShuGongSi"] = SuoShuGongSi;
@@ -303,8 +348,43 @@ public class Handler
                             dr_yundan["DaoDaZhan_lat"] = DaoDaZhan_lat;
                             dr_yundan["DaoDaZhan_lng"] = DaoDaZhan_lng;
 
+                            dr_yundan["SalePerson"] = SalePerson;
+                            dr_yundan["Purchaser"] = Purchaser;
+                            dr_yundan["PurchaserPerson"] = PurchaserPerson;
+                            dr_yundan["PurchaserTel"] = PurchaserTel;
+                            dr_yundan["CarrierCompany"] = CarrierCompany;
+                            dr_yundan["CarrierPerson"] = CarrierPerson;
+                            dr_yundan["CarrierTel"] = CarrierTel;
+                            dr_yundan["DaoDaAddress"] = DaoDaAddress;
+                            dr_yundan["QiShiAddress"] = QiShiAddress;
+                            if (IsChuFaMessage=="false")
+                                dr_yundan["IsChuFaMessage"] = 0;
+                            else
+                                dr_yundan["IsChuFaMessage"] = 1;
+                            if (IsDaoDaMessage == "false")
+                                dr_yundan["IsDaoDaMessage"] = 0;
+                            else
+                                dr_yundan["IsDaoDaMessage"] = 1;
+                            dr_yundan["QiShiZhan_QX"] = QiShiZhan_Qx;
+                            dr_yundan["DaoDaZhan_QX"] = DaoDaZhan_Qx;
                             dt_yundan.Rows.Add(dr_yundan);
                             dbc.InsertTable(dt_yundan);
+
+                            if (jsr.Length > 0)
+                            {
+                                DataTable dt_detail = dbc.GetEmptyDataTable("YunDanDetails");
+                                for (int i = 0; i < jsr.Length; i++) {
+                                    DataRow dr = dt_detail.NewRow();
+                                    dr["YunDanDenno"] = dr_yundan["YunDanDenno"];
+                                    foreach (var item in jsr[i])
+                                    {
+                                        dr[item] = jsr[i][item];
+                                    }
+                                    dt_detail.Rows.Add(dr);
+                                }
+                                dbc.InsertTable(dt_detail);
+                            }
+
                             dbc.CommitTransaction();
                         }
                     }
@@ -313,6 +393,8 @@ public class Handler
                 #endregion
 
                 dbc.CommitTransaction();
+
+                return isReturn;
             }
             catch (Exception ex)
             {
@@ -345,7 +427,7 @@ public class Handler
     }
 
     [CSMethod("SearchMyYunDan")]
-    public object SearchMyYunDan(int CurrentPage, int PageSize, string QiShiZhan_Province, string QiShiZhan_City, string DaoDaZhan_Province, string DaoDaZhan_City, string SuoShuGongSi, string UserDenno)
+    public object SearchMyYunDan(int CurrentPage, int PageSize, string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string SuoShuGongSi, string UserDenno)
     {
         using(var db = new DBConnection())
         {
@@ -365,7 +447,12 @@ public class Handler
                 }
                 if (!string.IsNullOrEmpty(QiShiZhan_City))
                 {
-                    QiShiZhan += " " + QiShiZhan_City;
+                    if (QiShiZhan_Province != QiShiZhan_City)
+                        QiShiZhan += " " + QiShiZhan_City;
+                }
+                if (!string.IsNullOrEmpty(QiShiZhan_Qx))
+                {
+                    conn += " and QiShiZhan_QX like @QiShiZhan_QX";
                 }
                 if (!string.IsNullOrEmpty(QiShiZhan))
                 {
@@ -377,7 +464,13 @@ public class Handler
                 }
                 if (!string.IsNullOrEmpty(DaoDaZhan_City))
                 {
-                    DaoDaZhan += " " + DaoDaZhan_City;
+                    if (DaoDaZhan_Province != DaoDaZhan_City)
+                        DaoDaZhan += " " + DaoDaZhan_City;
+                }
+
+                if (!string.IsNullOrEmpty(DaoDaZhan_Qx))
+                {
+                    conn += " and DaoDaZhan_QX like @DaoDaZhan_QX";
                 }
                 if (!string.IsNullOrEmpty(DaoDaZhan))
                 {
@@ -401,6 +494,10 @@ public class Handler
                     cmd.Parameters.AddWithValue("@DaoDaZhan", "%" + DaoDaZhan + "%");
                 if (!string.IsNullOrEmpty(SuoShuGongSi))
                     cmd.Parameters.AddWithValue("@SuoShuGongSi", "%" + SuoShuGongSi + "%");
+                if (!string.IsNullOrEmpty(QiShiZhan_Qx))
+                    cmd.Parameters.AddWithValue("@QiShiZhan_QX", "%" + QiShiZhan_Qx + "%");
+                if (!string.IsNullOrEmpty(DaoDaZhan_Qx))
+                    cmd.Parameters.AddWithValue("@DaoDaZhan_QX", "%" + DaoDaZhan_Qx + "%");
                 DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
 
                 for (int i = 0; i < dt.Rows.Count; i++)
