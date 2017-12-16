@@ -17,6 +17,7 @@ using System.Drawing;
 using Aspose.BarCode;
 using WxPayAPI;
 using System.Collections;
+using SmartFramework4v2.Web.Common.JSON;
 
 /// <summary>
 /// Handler 的摘要说明
@@ -142,36 +143,205 @@ public class Handler
     }
 
     [CSMethod("SaveYunDan")]
-    public bool SaveYunDan(string QiShiZhan_Province, string QiShiZhan_City, string DaoDaZhan_Province, string DaoDaZhan_City, string SuoShuGongSi, string UserDenno, string GpsDeviceID, string YunDanRemark)
+    public bool SaveYunDan(string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string QiShiAddress, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string DaoDaAddress, string SuoShuGongSi, string UserDenno, string SalePerson, string Purchaser, string PurchaserPerson, string PurchaserTel, string CarrierCompany, string CarrierPerson, string CarrierTel, string IsChuFaMessage, string IsDaoDaMessage, string GpsDeviceID, string YunDanRemark, JSReader jsr)
     {
-        try
+        using (var dbc = new DBConnection())
         {
-            string url = "http://chb.yk56.net/WebService/APP_ZhiDan.ashx";
-            Encoding encoding = Encoding.GetEncoding("utf-8");
-            IDictionary<string, string> parameters = new Dictionary<string, string>();
-            parameters.Add("UserName", SystemUser.CurrentUser.UserName);
-            parameters.Add("QiShiZhan", QiShiZhan_Province + " " + QiShiZhan_City);
-            parameters.Add("DaoDaZhan", DaoDaZhan_Province + " " + DaoDaZhan_City);
-            parameters.Add("SuoShuGongSi", SuoShuGongSi);
-            parameters.Add("UserDenno", UserDenno);
-            parameters.Add("GpsDeviceID", GpsDeviceID);
-            parameters.Add("YunDanRemark", YunDanRemark);
-            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
-            //打印返回值  
-            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
-            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
-            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
-            JObject obj = JsonConvert.DeserializeObject(html) as JObject;
-            if (obj["sign"].ToString() == "1")
-                return true;
-            else
-                return false;
+            try
+            {
+                dbc.BeginTransaction();
+
+                #region  更新设备绑定状态
+                string sql = "update YunDan set IsBangding = 0 where GpsDeviceID = @GpsDeviceID";
+                SqlCommand cmd = dbc.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID);
+                dbc.ExecuteNonQuery(cmd);
+                #endregion
+
+                #region  插入运单表
+                Hashtable gpsinfo = Gethttpresult("http://101.37.253.238:89/gpsonline/GPSAPI", "version=1&method=vLoginSystem&name=" + GpsDeviceID + "&pwd=123456");
+                if (gpsinfo["success"].ToString().ToUpper() == "True".ToUpper())
+                {
+                    gpsinfo["sign"] = "1";
+                }
+                else
+                {
+                    gpsinfo["sign"] = "0";
+                }
+                string gpsvid = "";
+                string gpsvkey = "";
+                if (gpsinfo["sign"].ToString() == "1")
+                {
+                    gpsvid = gpsinfo["vid"].ToString();
+                    gpsvkey = gpsinfo["vKey"].ToString();
+
+                    Hashtable gpslocation = Gethttpresult("http://101.37.253.238:89/gpsonline/GPSAPI", "version=1&method=loadLocation&vid=" + gpsvid + "&vKey=" + gpsvkey + "");
+
+                    string newlng = "";
+                    string newlat = "";
+                    string newinfo = "";
+                    DateTime gpstm = DateTime.Now;
+                    if (gpslocation["success"].ToString().ToUpper() == "True".ToUpper())
+                    {
+                        Newtonsoft.Json.Linq.JArray ja = (Newtonsoft.Json.Linq.JArray)Newtonsoft.Json.JsonConvert.DeserializeObject(gpslocation["locs"].ToString());
+                        string newgpstime = ja.First()["gpstime"].ToString();
+                        //newgpstime = newgpstime.Substring(0, newgpstime.Length - 2);
+                        newlng = ja.First()["lng"].ToString();
+                        //newlng = newlng.Substring(0, newlng.Length - 2);
+                        newlat = ja.First()["lat"].ToString();
+                        //newlat = newlat.Substring(0, newlat.Length - 2);
+                        newinfo = ja.First()["info"].ToString();
+                        //newinfo = newinfo.Substring(0, newinfo.Length - 2);
+                        //DateTime gpstm =  DateTime.Parse("1970-01-01 00:00:00");
+                        long time_JAVA_Long = long.Parse(newgpstime);// 1207969641193;//java长整型日期，毫秒为单位          
+                        DateTime dt_1970 = new DateTime(1970, 1, 1, 0, 0, 0);
+                        long tricks_1970 = dt_1970.Ticks;//1970年1月1日刻度      
+                        long time_tricks = tricks_1970 + time_JAVA_Long * 10000;//日志日期刻度  
+                        gpstm = new DateTime(time_tricks).AddHours(8);//转化为DateTime
+                        sql = "select * from GpsLocation where Gps_time = @Gps_time and GpsDeviceID = @GpsDeviceID";
+                        cmd = dbc.CreateCommand(sql);
+                        cmd.Parameters.Add("@Gps_time", gpstm);
+                        cmd.Parameters.Add("@GpsDeviceID", GpsDeviceID);
+                        DataTable dt_locations = dbc.ExecuteDataTable(cmd);
+                        if (dt_locations.Rows.Count > 0)
+                        {
+                            DataTable dt_location_new = dbc.GetEmptyDataTable("GpsLocation");
+                            DataRow dr_location = dt_location_new.NewRow();
+                            dr_location["GpsDeviceID"] = GpsDeviceID;
+                            dr_location["Gps_lat"] = newlat;
+                            dr_location["Gps_lng"] = newlng;
+                            dr_location["Gps_time"] = gpstm;
+                            dr_location["Gps_info"] = newinfo;
+                            dr_location["GpsRemark"] = "自动定位";
+                            dt_location_new.Rows.Add(dr_location);
+                            dbc.InsertTable(dt_location_new);
+                        }
+                        //获取起始站、到达站位置
+                        string QiShiZhan_lat = "";
+                        string QiShiZhan_lng = "";
+                        string DaoDaZhan_lat = "";
+                        string DaoDaZhan_lng = "";
+                        string QiShiZhan = "";
+                        string QiShiZhan_Text = "";
+                        string DaoDaZhan = "";
+                        string DaoDaZhan_Text = "";
+
+                        if (QiShiZhan_Province == QiShiZhan_City)
+                        {
+                            QiShiZhan = QiShiZhan_City + QiShiZhan_Qx;
+                            QiShiZhan_Text = QiShiZhan_City + " " + QiShiZhan_Qx;
+                        }
+                        else
+                        {
+                            if (QiShiZhan_City == QiShiZhan_Qx)
+                            {
+                                QiShiZhan = QiShiZhan_Province + QiShiZhan_City;
+                                QiShiZhan_Text = QiShiZhan_Province + " " + QiShiZhan_City;
+                            }
+                            else
+                            {
+                                QiShiZhan = QiShiZhan_Province + QiShiZhan_City + QiShiZhan_Qx;
+                                QiShiZhan_Text = QiShiZhan_Province + " " + QiShiZhan_City;
+                            }
+                        }
+
+                        if (DaoDaZhan_Province == DaoDaZhan_City)
+                        {
+                            DaoDaZhan = DaoDaZhan_City + DaoDaZhan_Qx;
+                            DaoDaZhan_Text = DaoDaZhan_City + " " + DaoDaZhan_Qx;
+                        }
+                        else
+                        {
+                            if (DaoDaZhan_City == DaoDaZhan_Qx)
+                            {
+                                DaoDaZhan = DaoDaZhan_Province + DaoDaZhan_City;
+                                DaoDaZhan_Text = DaoDaZhan_Province + " " + DaoDaZhan_City;
+                            }
+                            else
+                            {
+                                DaoDaZhan = DaoDaZhan_Province + DaoDaZhan_City + DaoDaZhan_Qx;
+                                DaoDaZhan_Text = DaoDaZhan_Province + " " + DaoDaZhan_City;
+                            }
+                        }
+
+                        Hashtable addresshash = getmapinfobyaddress(QiShiZhan, "");
+                        if (addresshash["sign"] == "1")
+                        {
+                            QiShiZhan_lng = addresshash["location"].ToString().Split(',')[0];
+                            QiShiZhan_lat = addresshash["location"].ToString().Split(',')[1];
+                        }
+                        Hashtable daozhanaddresshash = getmapinfobyaddress(DaoDaZhan, "");
+                        if (daozhanaddresshash["sign"] == "1")
+                        {
+                            DaoDaZhan_lng = daozhanaddresshash["location"].ToString().Split(',')[0];
+                            DaoDaZhan_lat = daozhanaddresshash["location"].ToString().Split(',')[1];
+                        }
+
+                        if (!string.IsNullOrEmpty(QiShiZhan_lat) && !string.IsNullOrEmpty(DaoDaZhan_lat))
+                        {
+                            DataTable dt_yundan = dbc.GetEmptyDataTable("YunDan");
+                            DataRow dr_yundan = dt_yundan.NewRow();
+                            dr_yundan["YunDanDenno"] = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+                            dr_yundan["UserDenno"] = UserDenno;
+                            dr_yundan["UserID"] = SystemUser.CurrentUser.UserID;
+                            dr_yundan["QiShiZhan"] = QiShiZhan_Text;
+                            dr_yundan["DaoDaZhan"] = DaoDaZhan_Text;
+                            dr_yundan["SuoShuGongSi"] = SuoShuGongSi;
+                            dr_yundan["BangDingTime"] = DateTime.Now;
+                            dr_yundan["GpsDeviceID"] = GpsDeviceID;
+                            dr_yundan["Gps_lastlat"] = newlat;
+                            dr_yundan["Gps_lastlng"] = newlng;
+                            if (newinfo != "")
+                            {
+                                dr_yundan["Gps_lasttime"] = gpstm;
+                            }
+                            dr_yundan["Gps_lastinfo"] = newinfo;
+                            dr_yundan["IsBangding"] = true;
+                            dr_yundan["YunDanRemark"] = YunDanRemark;
+                            dr_yundan["QiShiZhan_lat"] = QiShiZhan_lat;
+                            dr_yundan["QiShiZhan_lng"] = QiShiZhan_lng;
+                            dr_yundan["DaoDaZhan_lat"] = DaoDaZhan_lat;
+                            dr_yundan["DaoDaZhan_lng"] = DaoDaZhan_lng;
+
+                            dt_yundan.Rows.Add(dr_yundan);
+                            dbc.InsertTable(dt_yundan);
+                            dbc.CommitTransaction();
+                        }
+                    }
+                }
+
+                #endregion
+
+                dbc.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                dbc.RoolbackTransaction();
+                throw ex;
+            }
+        }
+
+            //string url = "http://chb.yk56.net/WebService/APP_ZhiDan.ashx";
+            //Encoding encoding = Encoding.GetEncoding("utf-8");
+            //IDictionary<string, string> parameters = new Dictionary<string, string>();
+            //parameters.Add("UserName", SystemUser.CurrentUser.UserName);
+            //parameters.Add("QiShiZhan", QiShiZhan_Province + " " + QiShiZhan_City);
+            //parameters.Add("DaoDaZhan", DaoDaZhan_Province + " " + DaoDaZhan_City);
+            //parameters.Add("SuoShuGongSi", SuoShuGongSi);
+            //parameters.Add("UserDenno", UserDenno);
+            //parameters.Add("GpsDeviceID", GpsDeviceID);
+            //parameters.Add("YunDanRemark", YunDanRemark);
+            //HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            ////打印返回值  
+            //Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            //StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            //string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            //JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+            //if (obj["sign"].ToString() == "1")
+            //    return true;
+            //else
+            //    return false;
             
-        }
-        catch (Exception ex)
-        {
-            throw ex;
-        }
     }
 
     [CSMethod("SearchMyYunDan")]
