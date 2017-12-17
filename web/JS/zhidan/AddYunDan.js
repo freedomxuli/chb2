@@ -82,243 +82,267 @@ Ext.onReady(function () {
                                 }
                             },
                             {
-                                xtype: 'label',
+                                xtype: 'fieldset',
+                                title: '必填区',
                                 columnWidth: 1,
-                                html: "<div style='color:red;'>打开页面先扫描枪扫码，如果获取不到数据，请点击重置设备号再次尝试！</div>",
-                            },
-                            {
-                                xtype: 'textfield',
-                                columnWidth: 0.8,
-                                padding: '0 20 10 20',
-                                id: 'GpsDeviceID',
-                                readOnly: true,
-                                fieldLabel: '扫描码'
-                            },
-                            {
-                                xtype: 'button',
-                                iconCls: 'close',
-                                text: '重置设备号',
-                                columnWidth: 0.2,
-                                margin: '0 10 0 0',
-                                handler: function () {
-                                    Ext.getCmp("GpsDeviceID").setValue("");
-                                    Ext.getCmp("HiddenID").setValue("");
-                                    Ext.getCmp('HiddenID').focus(true, true);
-                                }
-                            },
-                            {
-                                xtype: 'textfield',
-                                columnWidth: 0.8,
-                                padding: '0 20 10 20',
-                                id: 'GpsDeviceIDByHand',
-                                fieldLabel: '输入码'
-                            },
-                            {
-                                xtype: 'combobox',
-                                columnWidth: 0.5,
-                                padding: '0 10 10 20',
-                                valueField: 'ID',
-                                displayField: 'MC',
-                                queryMode: 'local',
-                                store: province,
-                                id: 'QiShiZhan_Province',
-                                fieldLabel: '出发地',
-                                listeners: {
-                                    change: function (data, newValue, oldValue, eOpts) {
-                                        city.loadData(newcity[newValue]);
-                                    }
-                                }
-                            },
-                            {
-                                xtype: 'combobox',
-                                columnWidth: 0.25,
-                                padding: '0 10 10 0',
-                                valueField: 'ID',
-                                displayField: 'MC',
-                                queryMode: 'local',
-                                store: city,
-                                id: 'QiShiZhan_City',
-                                listeners: {
-                                    change: function (data, newValue, oldValue, eOpts) {
-                                        qx.loadData(newqx[newValue]);
-                                    }
-                                }
-                            },
-                            {
-                                xtype: 'combobox',
-                                columnWidth: 0.25,
-                                padding: '0 10 10 0',
-                                valueField: 'ID',
-                                displayField: 'MC',
-                                queryMode: 'local',
-                                store: qx,
-                                id: 'QiShiZhan_Qx'
-                            },
-                            {
-                                xtype: 'textfield',
-                                columnWidth: 1,
-                                padding: '0 20 10 20',
-                                id: 'QiShiAddress',
-                                allowBlank: false,
-                                fieldLabel: '出发地详细地址'
-                            },
-                            {
-                                xtype: 'combobox',
-                                columnWidth: 0.5,
-                                padding: '0 10 10 20',
-                                valueField: 'ID',
-                                displayField: 'MC',
-                                queryMode: 'local',
-                                store: province,
-                                id: 'DaoDaZhan_Province',
-                                fieldLabel: '目的地',
-                                listeners: {
-                                    change: function (data, newValue, oldValue, eOpts) {
-                                        city2.loadData(newcity[newValue]);
-                                    }
-                                }
-                            },
-                            {
-                                xtype: 'combobox',
-                                columnWidth: 0.25,
-                                padding: '0 10 10 0',
-                                valueField: 'ID',
-                                displayField: 'MC',
-                                queryMode: 'local',
-                                store: city2,
-                                id: 'DaoDaZhan_City',
-                                listeners: {
-                                    change: function (data, newValue, oldValue, eOpts) {
-                                        qx2.loadData(newqx[newValue]);
-                                    }
-                                }
-
-                            },
-                            {
-                                xtype: 'combobox',
-                                columnWidth: 0.25,
-                                padding: '0 10 10 0',
-                                valueField: 'ID',
-                                displayField: 'MC',
-                                queryMode: 'local',
-                                store: qx2,
-                                id: 'DaoDaZhan_Qx'
-                            },
-                            {
-                                xtype: 'textfield',
-                                columnWidth: 1,
-                                padding: '0 20 10 20',
-                                id: 'DaoDaAddress',
-                                allowBlank: false,
-                                fieldLabel: '目的地详细地址'
-                            },
-                            {
-                                xtype: 'textfield',
-                                columnWidth: 0.8,
-                                padding: '0 20 10 20',
-                                id: 'SuoShuGongSi',
-                                allowBlank: false,
-                                fieldLabel: '建单公司'
-                            },
-                            {
-                                xtype: 'button',
-                                margin: '0 0 10 10',
-                                iconCls:'add',
-                                text: '选择',
-                                handler: function () {
-                                    var win = new PickCompany();
-                                    win.show(null, function () {
-                                        CS('CZCLZ.Handler.GetCompanyHis', function (retVal) {
-                                            if (retVal) {
-                                                gsStore.loadData(retVal);
+                                layout: {
+                                    type: 'column'
+                                },
+                                items: [
+                                    {
+                                        xtype: 'label',
+                                        columnWidth: 1,
+                                        html: "<div style='color:red;'>打开页面先扫描枪扫码，如果获取不到数据，请点击重置设备号再次尝试！</div>",
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        columnWidth: 0.8,
+                                        padding: '0 20 10 20',
+                                        id: 'GpsDeviceID',
+                                        readOnly: true,
+                                        fieldLabel: '扫描码'
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        iconCls: 'close',
+                                        text: '重置设备号',
+                                        columnWidth: 0.2,
+                                        margin: '0 10 0 0',
+                                        handler: function () {
+                                            Ext.getCmp("GpsDeviceID").setValue("");
+                                            Ext.getCmp("HiddenID").setValue("");
+                                            Ext.getCmp('HiddenID').focus(true, true);
+                                        }
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        columnWidth: 0.8,
+                                        padding: '0 20 10 20',
+                                        id: 'GpsDeviceIDByHand',
+                                        fieldLabel: '输入码'
+                                    },
+                                    {
+                                        xtype: 'combobox',
+                                        columnWidth: 0.5,
+                                        padding: '0 10 10 20',
+                                        valueField: 'ID',
+                                        displayField: 'MC',
+                                        queryMode: 'local',
+                                        store: province,
+                                        id: 'QiShiZhan_Province',
+                                        fieldLabel: '出发地',
+                                        anyMatch: true,
+                                        listeners: {
+                                            change: function (data, newValue, oldValue, eOpts) {
+                                                city.loadData(newcity[newValue]);
                                             }
-                                        }, CS.onError);
-                                    });
-                                }
+                                        }
+                                    },
+                                    {
+                                        xtype: 'combobox',
+                                        columnWidth: 0.25,
+                                        padding: '0 10 10 0',
+                                        valueField: 'ID',
+                                        displayField: 'MC',
+                                        queryMode: 'local',
+                                        store: city,
+                                        id: 'QiShiZhan_City',
+                                        editable: false,
+                                        listeners: {
+                                            change: function (data, newValue, oldValue, eOpts) {
+                                                qx.loadData(newqx[newValue]);
+                                            }
+                                        }
+                                    },
+                                    {
+                                        xtype: 'combobox',
+                                        columnWidth: 0.25,
+                                        padding: '0 10 10 0',
+                                        valueField: 'ID',
+                                        displayField: 'MC',
+                                        queryMode: 'local',
+                                        store: qx,
+                                        editable: false,
+                                        id: 'QiShiZhan_Qx'
+                                    },
+                                    {
+                                        xtype: 'combobox',
+                                        columnWidth: 0.5,
+                                        padding: '0 10 10 20',
+                                        valueField: 'ID',
+                                        displayField: 'MC',
+                                        queryMode: 'local',
+                                        store: province,
+                                        id: 'DaoDaZhan_Province',
+                                        fieldLabel: '目的地',
+                                        editable: false,
+                                        listeners: {
+                                            change: function (data, newValue, oldValue, eOpts) {
+                                                city2.loadData(newcity[newValue]);
+                                            }
+                                        }
+                                    },
+                                    {
+                                        xtype: 'combobox',
+                                        columnWidth: 0.25,
+                                        padding: '0 10 10 0',
+                                        valueField: 'ID',
+                                        displayField: 'MC',
+                                        queryMode: 'local',
+                                        store: city2,
+                                        id: 'DaoDaZhan_City',
+                                        editable: false,
+                                        listeners: {
+                                            change: function (data, newValue, oldValue, eOpts) {
+                                                qx2.loadData(newqx[newValue]);
+                                            }
+                                        }
+
+                                    },
+                                    {
+                                        xtype: 'combobox',
+                                        columnWidth: 0.25,
+                                        padding: '0 10 10 0',
+                                        valueField: 'ID',
+                                        displayField: 'MC',
+                                        queryMode: 'local',
+                                        store: qx2,
+                                        editable: false,
+                                        id: 'DaoDaZhan_Qx'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        columnWidth: 0.5,
+                                        padding: '0 10 10 20',
+                                        id: 'SuoShuGongSi',
+                                        allowBlank: false,
+                                        fieldLabel: '建单公司'
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        margin: '0 0 10 0',
+                                        iconCls: 'add',
+                                        text: '选择',
+                                        handler: function () {
+                                            var win = new PickCompany();
+                                            win.show(null, function () {
+                                                CS('CZCLZ.Handler.GetCompanyHis', function (retVal) {
+                                                    if (retVal) {
+                                                        gsStore.loadData(retVal);
+                                                    }
+                                                }, CS.onError);
+                                            });
+                                        }
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        columnWidth: 0.4,
+                                        padding: '0 0 10 10',
+                                        id: 'UserDenno',
+                                        allowBlank: false,
+                                        labelWidth:50,
+                                        fieldLabel: '建单号'
+                                    },
+                                    {
+                                        xtype: 'checkboxfield',
+                                        columnWidth: 0.5,
+                                        padding: '0 20 10 20',
+                                        id: 'IsChuFaMessage',
+                                        checked: true,
+                                        fieldLabel: '出发提醒'
+                                    },
+                                    {
+                                        xtype: 'checkboxfield',
+                                        columnWidth: 0.5,
+                                        padding: '0 20 10 10',
+                                        id: 'IsDaoDaMessage',
+                                        labelWidth: 60,
+                                        checked: true,
+                                        fieldLabel: '到达提醒'
+                                    }
+                                ]
                             },
                             {
-                                xtype: 'textfield',
-                                columnWidth: 0.6,
-                                padding: '0 0 10 20',
-                                id: 'UserDenno',
-                                allowBlank: false,
-                                fieldLabel: '建单号'
-                            },
-                            {
-                                xtype: 'textfield',
-                                columnWidth: 0.4,
-                                padding: '0 20 10 10',
-                                id: 'SalePerson',
-                                labelWidth:50,
-                                fieldLabel: '销售员'
-                            },
-                            {
-                                xtype: 'textfield',
+                                xtype: 'fieldset',
+                                title: '选填区',
+                                layout: {
+                                    type: 'column'
+                                },
                                 columnWidth: 1,
-                                padding: '0 20 10 20',
-                                id: 'Purchaser',
-                                fieldLabel: '收货单位'
-                            },
-                            {
-                                xtype: 'textfield',
-                                columnWidth: 0.5,
-                                padding: '0 0 10 20',
-                                id: 'PurchaserPerson',
-                                fieldLabel: '收货人'
-                            },
-                            {
-                                xtype: 'textfield',
-                                columnWidth: 0.5,
-                                padding: '0 20 10 10',
-                                id: 'PurchaserTel',
-                                labelWidth: 60,
-                                fieldLabel: '联系方式'
-                            },
-                            {
-                                xtype: 'textfield',
-                                columnWidth: 1,
-                                padding: '0 20 10 20',
-                                id: 'CarrierCompany',
-                                fieldLabel: '承运公司（专线）'
-                            },
-                            {
-                                xtype: 'textfield',
-                                columnWidth: 0.5,
-                                padding: '0 0 10 20',
-                                id: 'CarrierPerson',
-                                fieldLabel: '负责人'
-                            },
-                            {
-                                xtype: 'textfield',
-                                columnWidth: 0.5,
-                                padding: '0 20 10 10',
-                                id: 'CarrierTel',
-                                labelWidth: 60,
-                                fieldLabel: '联系方式'
-                            },
-                            {
-                                xtype: 'checkboxfield',
-                                columnWidth: 0.5,
-                                padding: '0 20 10 20',
-                                id: 'IsChuFaMessage',
-                                checked:true,
-                                fieldLabel: '出发提醒'
-                            },
-                            {
-                                xtype: 'checkboxfield',
-                                columnWidth: 0.5,
-                                padding: '0 20 10 10',
-                                id: 'IsDaoDaMessage',
-                                labelWidth: 60,
-                                checked: true,
-                                fieldLabel: '到达提醒'
-                            },
-                            {
-                                xtype: 'textarea',
-                                columnWidth: 1,
-                                padding: '0 20 10 20',
-                                id: 'YunDanRemark',
-                                fieldLabel: '备注'
+                                items: [
+                                    {
+                                        xtype: 'textfield',
+                                        columnWidth: 1,
+                                        padding: '0 20 10 20',
+                                        id: 'QiShiAddress',
+                                        fieldLabel: '出发地详细地址'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        columnWidth: 1,
+                                        padding: '0 20 10 20',
+                                        id: 'DaoDaAddress',
+                                        fieldLabel: '目的地详细地址'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        columnWidth: 0.5,
+                                        padding: '0 0 10 20',
+                                        id: 'SalePerson',
+                                        fieldLabel: '销售员'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        columnWidth: 1,
+                                        padding: '0 20 10 20',
+                                        id: 'Purchaser',
+                                        fieldLabel: '收货单位'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        columnWidth: 0.5,
+                                        padding: '0 0 10 20',
+                                        id: 'PurchaserPerson',
+                                        fieldLabel: '收货人'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        columnWidth: 0.5,
+                                        padding: '0 20 10 10',
+                                        id: 'PurchaserTel',
+                                        labelWidth: 60,
+                                        fieldLabel: '联系方式'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        columnWidth: 1,
+                                        padding: '0 20 10 20',
+                                        id: 'CarrierCompany',
+                                        fieldLabel: '承运公司（专线）'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        columnWidth: 0.5,
+                                        padding: '0 0 10 20',
+                                        id: 'CarrierPerson',
+                                        fieldLabel: '负责人'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        columnWidth: 0.5,
+                                        padding: '0 20 10 10',
+                                        id: 'CarrierTel',
+                                        labelWidth: 60,
+                                        fieldLabel: '联系方式'
+                                    },
+                                    {
+                                        xtype: 'textarea',
+                                        columnWidth: 1,
+                                        padding: '0 20 10 20',
+                                        id: 'YunDanRemark',
+                                        fieldLabel: '备注'
+                                    }
+                                ]
                             },
                             {
                                 xtype: 'label',

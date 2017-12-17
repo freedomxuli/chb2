@@ -48,7 +48,7 @@
         sb.AppendFormat("\r\n<script type='text/javascript' src='{0}'></script>", GetVPath("~/js/fun.js"));
         sb.AppendFormat("\r\n<script type='text/javascript' src='{0}'></script>", GetVPath("~/js/extjs/ext-lang-zh_CN.js"));
         sb.AppendFormat("\r\n<script type='text/javascript' src='{0}'></script>", GetVPath("~/js/FrameStack.js"));
-        sb.AppendFormat("\r\n<script type='text/javascript' src='{0}'></script>", GetVPath("~/js/city.js"));
+        sb.AppendFormat("\r\n<script type='text/javascript' src='{0}'></script>", GetVPath("~/js/citythree.js"));
         
         Hashtable ht = new Hashtable();
         foreach (var key in Request.QueryString.AllKeys)
