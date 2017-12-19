@@ -7,7 +7,7 @@ var myStore = createSFW4Store({
     total: 1,
     currentPage: 1,
     fields: [
-        'BangDingTime', 'UserDenno', 'QiShiZhan', 'DaoDaZhan', 'SuoShuGongSi', 'GpsDeviceID', 'YunDanRemark', 'Gps_lastinfo', 'YunDanDenno', 'UserID', 'Gps_lasttime', 'Gps_distance', 'Gps_duration', 'QiShiZhan_QX', 'DaoDaZhan_QX'
+        'BangDingTime', 'UserDenno', 'QiShiZhan', 'DaoDaZhan', 'SuoShuGongSi', 'GpsDeviceID', 'YunDanRemark', 'Gps_lastinfo', 'YunDanDenno', 'UserID', 'Gps_lasttime', 'Gps_distance', 'Gps_duration', 'QiShiZhan_QX', 'DaoDaZhan_QX', 'SalePerson', 'Purchaser', 'PurchaserPerson', 'PurchaserTel', 'CarrierCompany', 'CarrierPerson', 'CarrierTel', 'DaoDaAddress', 'QiShiAddress'
     ],
     onPageChange: function (sto, nPage, sorters) {
         DataBind(nPage);
@@ -39,11 +39,23 @@ Ext.onReady(function () {
                         columnLines: 1,
                         border: 1,
                         store: myStore,
+                        autoScroll: true,
                         columns: [
+                            {
+                                xtype: 'gridcolumn',
+                                dataIndex: 'UserID',
+                                width: 100,
+                                sortable: false,
+                                menuDisabled: true,
+                                text: '查看轨迹',
+                                renderer: function (value, cellmeta, record, rowIndex, columnIndex, store) {
+                                    return "<a href='javascript:void(0);' onClick='ShowGJ(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看轨迹</a>";
+                                }
+                            },
                             {
                                 xtype: 'datecolumn',
                                 dataIndex: 'BangDingTime',
-                                flex: 1,
+                                width: 100,
                                 sortable: false,
                                 menuDisabled: true,
                                 format: 'Y-m-d',
@@ -52,7 +64,7 @@ Ext.onReady(function () {
                             {
                                 xtype: 'gridcolumn',
                                 dataIndex: 'UserDenno',
-                                flex: 1,
+                                width: 100,
                                 sortable: false,
                                 menuDisabled: true,
                                 text: '运单号'
@@ -60,7 +72,7 @@ Ext.onReady(function () {
                             {
                                 xtype: 'gridcolumn',
                                 dataIndex: 'QiShiZhan',
-                                flex: 1,
+                                width: 200,
                                 sortable: false,
                                 menuDisabled: true,
                                 text: '起始站',
@@ -73,8 +85,16 @@ Ext.onReady(function () {
                             },
                             {
                                 xtype: 'gridcolumn',
+                                dataIndex: 'QiShiAddress',
+                                width: 200,
+                                sortable: false,
+                                menuDisabled: true,
+                                text: '出发详细地址'
+                            },
+                            {
+                                xtype: 'gridcolumn',
                                 dataIndex: 'DaoDaZhan',
-                                flex: 1,
+                                width: 200,
                                 sortable: false,
                                 menuDisabled: true,
                                 text: '到达站',
@@ -87,8 +107,16 @@ Ext.onReady(function () {
                             },
                             {
                                 xtype: 'gridcolumn',
+                                dataIndex: 'DaoDaAddress',
+                                width: 200,
+                                sortable: false,
+                                menuDisabled: true,
+                                text: '到达详细地址'
+                            },
+                            {
+                                xtype: 'gridcolumn',
                                 dataIndex: 'SuoShuGongSi',
-                                flex: 1,
+                                width: 200,
                                 sortable: false,
                                 menuDisabled: true,
                                 text: '公司名称'
@@ -96,7 +124,7 @@ Ext.onReady(function () {
                             {
                                 xtype: 'gridcolumn',
                                 dataIndex: 'GpsDeviceID',
-                                flex: 1,
+                                width: 100,
                                 sortable: false,
                                 menuDisabled: true,
                                 text: '设备ID'
@@ -104,7 +132,7 @@ Ext.onReady(function () {
                             {
                                 xtype: 'gridcolumn',
                                 dataIndex: 'Gps_distance',
-                                flex: 1,
+                                width: 100,
                                 sortable: false,
                                 menuDisabled: true,
                                 text: '剩余路程'
@@ -112,7 +140,7 @@ Ext.onReady(function () {
                             {
                                 xtype: 'gridcolumn',
                                 dataIndex: 'Gps_duration',
-                                flex: 1,
+                                width: 100,
                                 sortable: false,
                                 menuDisabled: true,
                                 text: '剩余时间'
@@ -120,7 +148,7 @@ Ext.onReady(function () {
                             {
                                 xtype: 'gridcolumn',
                                 dataIndex: 'YunDanRemark',
-                                flex: 1,
+                                width: 100,
                                 sortable: false,
                                 menuDisabled: true,
                                 text: '运单备注'
@@ -128,7 +156,7 @@ Ext.onReady(function () {
                             {
                                 xtype: 'gridcolumn',
                                 dataIndex: 'Gps_lastinfo',
-                                flex: 3,
+                                width: 700,
                                 sortable: false,
                                 menuDisabled: true,
                                 text: '当前位置',
@@ -144,23 +172,59 @@ Ext.onReady(function () {
                             },
                             {
                                 xtype: 'gridcolumn',
-                                dataIndex: 'YunDanDenno',
-                                flex: 1,
+                                dataIndex: 'SalePerson',
+                                width: 100,
                                 sortable: false,
                                 menuDisabled: true,
-                                hidden: true,
-                                text: '随机运单号'
+                                text: '销售员'
                             },
                             {
                                 xtype: 'gridcolumn',
-                                dataIndex: 'UserID',
-                                flex: 1,
+                                dataIndex: 'Purchaser',
+                                width: 200,
                                 sortable: false,
                                 menuDisabled: true,
-                                text: '查看轨迹',
-                                renderer: function (value, cellmeta, record, rowIndex, columnIndex, store) {
-                                    return "<a href='javascript:void(0);' onClick='ShowGJ(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看轨迹</a>";
-                                }
+                                text: '收货单位'
+                            },
+                            {
+                                xtype: 'gridcolumn',
+                                dataIndex: 'PurchaserPerson',
+                                width: 100,
+                                sortable: false,
+                                menuDisabled: true,
+                                text: '收货人'
+                            },
+                            {
+                                xtype: 'gridcolumn',
+                                dataIndex: 'PurchaserTel',
+                                width: 100,
+                                sortable: false,
+                                menuDisabled: true,
+                                text: '联系电话'
+                            },
+                            {
+                                xtype: 'gridcolumn',
+                                dataIndex: 'CarrierCompany',
+                                width: 200,
+                                sortable: false,
+                                menuDisabled: true,
+                                text: '承运公司'
+                            },
+                            {
+                                xtype: 'gridcolumn',
+                                dataIndex: 'CarrierPerson',
+                                width: 100,
+                                sortable: false,
+                                menuDisabled: true,
+                                text: '负责人'
+                            },
+                            {
+                                xtype: 'gridcolumn',
+                                dataIndex: 'CarrierTel',
+                                width: 100,
+                                sortable: false,
+                                menuDisabled: true,
+                                text: '联系电话'
                             }
                         ],
                         dockedItems: [
