@@ -158,7 +158,7 @@ public class Handler
     }
 
     [CSMethod("SaveYunDan")]
-    public bool SaveYunDan(string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string QiShiAddress, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string DaoDaAddress, string SuoShuGongSi, string UserDenno, string SalePerson, string Purchaser, string PurchaserPerson, string PurchaserTel, string CarrierCompany, string CarrierPerson, string CarrierTel, string IsChuFaMessage, string IsDaoDaMessage, string GpsDeviceID, string YunDanRemark, JSReader[] jsr)
+    public bool SaveYunDan(string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string QiShiAddress, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string DaoDaAddress, string SuoShuGongSi, string UserDenno, double Expect_Hour, string SalePerson, string Purchaser, string PurchaserPerson, string PurchaserTel, string CarrierCompany, string CarrierPerson, string CarrierTel, string IsChuFaMessage, string IsDaoDaMessage, string GpsDeviceID, string YunDanRemark, JSReader[] jsr)
     {
         using (var dbc = new DBConnection())
         {
@@ -367,6 +367,7 @@ public class Handler
                                 dr_yundan["IsDaoDaMessage"] = 1;
                             dr_yundan["QiShiZhan_QX"] = QiShiZhan_Qx;
                             dr_yundan["DaoDaZhan_QX"] = DaoDaZhan_Qx;
+                            dr_yundan["Expect_Hour"] = Expect_Hour;
                             dt_yundan.Rows.Add(dr_yundan);
                             dbc.InsertTable(dt_yundan);
 
@@ -427,7 +428,7 @@ public class Handler
     }
 
     [CSMethod("SearchMyYunDan")]
-    public object SearchMyYunDan(int CurrentPage, int PageSize, string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string SuoShuGongSi, string UserDenno)
+    public object SearchMyYunDan(int CurrentPage, int PageSize, string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string SuoShuGongSi, string UserDenno, string IsBangding, int isyj)
     {
         using(var db = new DBConnection())
         {
@@ -480,10 +481,31 @@ public class Handler
                 {
                     conn += " and SuoShuGongSi like @SuoShuGongSi";
                 }
-
+                if (isyj == 1)
+                {
+                    conn += " and IsBangding = 1";
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(IsBangding))
+                    {
+                        conn += " and IsBangding = " + IsBangding;
+                    }
+                }
                 if (!string.IsNullOrEmpty(UserDenno))
                     conn += " and UserDenno like @UserDenno";
+
                 string sql = "select * from YunDan where UserID = @UserID" + conn + " order by BangDingTime desc";
+                if (isyj == 1)
+                {
+                    sql = @"select a.* from YunDan a 
+                          inner join (
+	                          select DATEDIFF(mi,dateadd(SS,duration,b.Gps_lasttime),dateadd(HH,a.Expect_Hour,a.BangDingTime)) TimeCZ,a.YunDanDenno from YunDan a
+	                          inner join (select *,cast(Gps_duration as decimal) duration from YunDanDistance where Gps_duration is not null) b on a.YunDanDenno = b.YunDanDenno
+	                          where a.Expect_Hour is not null and a.UserID = @UserID
+                          ) b on a.YunDanDenno = b.YunDanDenno
+                          where a.UserID = @UserID and TimeCZ < 0" + conn + " order by BangDingTime desc";
+                }
                 SqlCommand cmd = db.CreateCommand(sql);
                 cmd.Parameters.AddWithValue("@UserID",SystemUser.CurrentUser.UserID);
                 if (!string.IsNullOrEmpty(conn))

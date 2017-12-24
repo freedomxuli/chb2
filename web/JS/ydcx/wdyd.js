@@ -1,5 +1,7 @@
 ﻿Ext.QuickTips.init();
 
+var isyj = 0;
+
 var pageSize = 15;
 
 var myStore = createSFW4Store({
@@ -7,11 +9,22 @@ var myStore = createSFW4Store({
     total: 1,
     currentPage: 1,
     fields: [
-        'BangDingTime', 'UserDenno', 'QiShiZhan', 'DaoDaZhan', 'SuoShuGongSi', 'GpsDeviceID', 'YunDanRemark', 'Gps_lastinfo', 'YunDanDenno', 'UserID', 'Gps_lasttime', 'Gps_distance', 'Gps_duration', 'QiShiZhan_QX', 'DaoDaZhan_QX', 'SalePerson', 'Purchaser', 'PurchaserPerson', 'PurchaserTel', 'CarrierCompany', 'CarrierPerson', 'CarrierTel', 'DaoDaAddress', 'QiShiAddress'
+        'BangDingTime', 'UserDenno', 'QiShiZhan', 'DaoDaZhan', 'SuoShuGongSi', 'GpsDeviceID', 'YunDanRemark', 'Gps_lastinfo', 'YunDanDenno', 'UserID', 'Gps_lasttime', 'Gps_distance', 'Gps_duration', 'QiShiZhan_QX', 'DaoDaZhan_QX', 'SalePerson', 'Purchaser', 'PurchaserPerson', 'PurchaserTel', 'CarrierCompany', 'CarrierPerson', 'CarrierTel', 'DaoDaAddress', 'QiShiAddress', 'Expect_Hour'
     ],
     onPageChange: function (sto, nPage, sorters) {
         DataBind(nPage);
     }
+});
+
+var bangStore = Ext.create('Ext.data.Store', {
+    fields: [
+        'ID', 'MC'
+    ],
+    data: [
+        { 'ID': '', 'MC': '全部' },
+        { 'ID': '0', 'MC': '历史运单' },
+        { 'ID': '1', 'MC': '跟踪运单' }
+    ]
 });
 
 var newcity = {};
@@ -156,6 +169,14 @@ Ext.onReady(function () {
                                 sortable: false,
                                 menuDisabled: true,
                                 text: '设备ID'
+                            },
+                            {
+                                xtype: 'gridcolumn',
+                                dataIndex: 'Expect_Hour',
+                                width: 100,
+                                sortable: false,
+                                menuDisabled: true,
+                                text: '预计小时数'
                             },
                             {
                                 xtype: 'gridcolumn',
@@ -358,10 +379,34 @@ Ext.onReady(function () {
                                         fieldLabel: '单号'
                                     },
                                     {
+                                        xtype: 'combobox',
+                                        width: 150,
+                                        padding: '0 10 10 0',
+                                        valueField: 'ID',
+                                        displayField: 'MC',
+                                        queryMode: 'local',
+                                        store: bangStore,
+                                        labelWidth: 60,
+                                        id: 'IsBangding',
+                                        fieldLabel: '查看类型',
+                                        editable: false,
+                                        value:''
+                                    },
+                                    {
                                         xtype: 'button',
                                         iconCls: 'search',
                                         text: '查询',
                                         handler: function () {
+                                            isyj = 0;
+                                            DataBind(1);
+                                        }
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        iconCls: 'search',
+                                        text: '预警查看',
+                                        handler: function () {
+                                            isyj = 1;
                                             DataBind(1);
                                         }
                                     }
@@ -430,7 +475,7 @@ function DataBind(cp) {
                 currentPage: retVal.cp
             });
         }
-    }, CS.onError, cp, pageSize, Ext.getCmp('QiShiZhan_Province').getValue(), Ext.getCmp('QiShiZhan_City').getValue(), Ext.getCmp('QiShiZhan_Qx').getValue(), Ext.getCmp('DaoDaZhan_Province').getValue(), Ext.getCmp('DaoDaZhan_City').getValue(), Ext.getCmp('DaoDaZhan_Qx').getValue(), Ext.getCmp('SuoShuGongSi').getValue(), Ext.getCmp('UserDenno').getValue());
+    }, CS.onError, cp, pageSize, Ext.getCmp('QiShiZhan_Province').getValue(), Ext.getCmp('QiShiZhan_City').getValue(), Ext.getCmp('QiShiZhan_Qx').getValue(), Ext.getCmp('DaoDaZhan_Province').getValue(), Ext.getCmp('DaoDaZhan_City').getValue(), Ext.getCmp('DaoDaZhan_Qx').getValue(), Ext.getCmp('SuoShuGongSi').getValue(), Ext.getCmp('UserDenno').getValue(), Ext.getCmp("IsBangding").getValue(), isyj);
 }
 
 function ShowGJ(UserID, YunDanDenno) {

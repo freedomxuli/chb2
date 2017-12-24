@@ -9,6 +9,12 @@ var province = Ext.create('Ext.data.Store', {
     ]
 });
 
+var province2 = Ext.create('Ext.data.Store', {
+    fields: [
+        'ID', 'MC'
+    ]
+});
+
 var city = Ext.create('Ext.data.Store', {
     fields: [
         'ID', 'MC'
@@ -132,6 +138,8 @@ Ext.onReady(function () {
                                         id: 'QiShiZhan_Province',
                                         fieldLabel: '出发地',
                                         anyMatch: true,
+                                        typeAhead: true,
+                                        forceSelection:true,
                                         listeners: {
                                             change: function (data, newValue, oldValue, eOpts) {
                                                 city.loadData(newcity[newValue]);
@@ -147,7 +155,8 @@ Ext.onReady(function () {
                                         queryMode: 'local',
                                         store: city,
                                         id: 'QiShiZhan_City',
-                                        editable: false,
+                                        typeAhead: true,
+                                        forceSelection: true,
                                         listeners: {
                                             change: function (data, newValue, oldValue, eOpts) {
                                                 qx.loadData(newqx[newValue]);
@@ -162,8 +171,9 @@ Ext.onReady(function () {
                                         displayField: 'MC',
                                         queryMode: 'local',
                                         store: qx,
-                                        editable: false,
-                                        id: 'QiShiZhan_Qx'
+                                        id: 'QiShiZhan_Qx',
+                                        typeAhead: true,
+                                        forceSelection: true
                                     },
                                     {
                                         xtype: 'combobox',
@@ -172,10 +182,11 @@ Ext.onReady(function () {
                                         valueField: 'ID',
                                         displayField: 'MC',
                                         queryMode: 'local',
-                                        store: province,
+                                        store: province2,
                                         id: 'DaoDaZhan_Province',
                                         fieldLabel: '目的地',
-                                        editable: false,
+                                        typeAhead: true,
+                                        forceSelection: true,
                                         listeners: {
                                             change: function (data, newValue, oldValue, eOpts) {
                                                 city2.loadData(newcity[newValue]);
@@ -191,7 +202,8 @@ Ext.onReady(function () {
                                         queryMode: 'local',
                                         store: city2,
                                         id: 'DaoDaZhan_City',
-                                        editable: false,
+                                        typeAhead: true,
+                                        forceSelection: true,
                                         listeners: {
                                             change: function (data, newValue, oldValue, eOpts) {
                                                 qx2.loadData(newqx[newValue]);
@@ -207,8 +219,9 @@ Ext.onReady(function () {
                                         displayField: 'MC',
                                         queryMode: 'local',
                                         store: qx2,
-                                        editable: false,
-                                        id: 'DaoDaZhan_Qx'
+                                        id: 'DaoDaZhan_Qx',
+                                        typeAhead: true,
+                                        forceSelection: true
                                     },
                                     {
                                         xtype: 'textfield',
@@ -242,6 +255,16 @@ Ext.onReady(function () {
                                         allowBlank: false,
                                         labelWidth:50,
                                         fieldLabel: '建单号'
+                                    },
+                                    {
+                                        xtype: 'numberfield',
+                                        columnWidth: 0.6,
+                                        padding: '0 10 10 20',
+                                        id: 'Expect_Hour',
+                                        allowBlank: false,
+                                        allowDecimals: false,
+                                        minValue: 1,
+                                        fieldLabel: '预计小时数'
                                     },
                                     {
                                         xtype: 'checkboxfield',
@@ -410,6 +433,10 @@ Ext.onReady(function () {
                                         Ext.Msg.alert("提示", "扫描码或输入码必须填写一项！");
                                         return false;
                                     }
+                                    if (Ext.getCmp("Expect_Hour").getValue() == "" || Ext.getCmp("Expect_Hour").getValue() == null) {
+                                        Ext.Msg.alert("提示", "预计小时数为必填项！");
+                                        return false;
+                                    }
                                     if (Ext.getCmp("GpsDeviceIDByHand").getValue() != "" && Ext.getCmp("GpsDeviceIDByHand").getValue() != null)
                                     {
                                         CS('CZCLZ.Handler.IsBangBind', function (ret) {
@@ -423,7 +450,7 @@ Ext.onReady(function () {
                                                         Ext.Msg.alert("提示", "制单失败！");
                                                         return false;
                                                     }
-                                                }, CS.onError, Ext.getCmp("QiShiZhan_Province").getValue(), Ext.getCmp("QiShiZhan_City").getValue(), Ext.getCmp("QiShiZhan_Qx").getValue(), Ext.getCmp("QiShiAddress").getValue(), Ext.getCmp("DaoDaZhan_Province").getValue(), Ext.getCmp("DaoDaZhan_City").getValue(), Ext.getCmp("DaoDaZhan_Qx").getValue(), Ext.getCmp("DaoDaAddress").getValue(), Ext.getCmp("SuoShuGongSi").getValue(), Ext.getCmp("UserDenno").getValue(), Ext.getCmp("SalePerson").getValue(), Ext.getCmp("Purchaser").getValue(), Ext.getCmp("PurchaserPerson").getValue(), Ext.getCmp("PurchaserTel").getValue(), Ext.getCmp("CarrierCompany").getValue(), Ext.getCmp("CarrierPerson").getValue(), Ext.getCmp("CarrierTel").getValue(), Ext.getCmp("IsChuFaMessage").getValue(), Ext.getCmp("IsDaoDaMessage").getValue(), Ext.getCmp("GpsDeviceIDByHand").getValue(), Ext.getCmp("YunDanRemark").getValue(), details_array);
+                                                }, CS.onError, Ext.getCmp("QiShiZhan_Province").getValue(), Ext.getCmp("QiShiZhan_City").getValue(), Ext.getCmp("QiShiZhan_Qx").getValue(), Ext.getCmp("QiShiAddress").getValue(), Ext.getCmp("DaoDaZhan_Province").getValue(), Ext.getCmp("DaoDaZhan_City").getValue(), Ext.getCmp("DaoDaZhan_Qx").getValue(), Ext.getCmp("DaoDaAddress").getValue(), Ext.getCmp("SuoShuGongSi").getValue(), Ext.getCmp("UserDenno").getValue(), Ext.getCmp("Expect_Hour").getValue(), Ext.getCmp("SalePerson").getValue(), Ext.getCmp("Purchaser").getValue(), Ext.getCmp("PurchaserPerson").getValue(), Ext.getCmp("PurchaserTel").getValue(), Ext.getCmp("CarrierCompany").getValue(), Ext.getCmp("CarrierPerson").getValue(), Ext.getCmp("CarrierTel").getValue(), Ext.getCmp("IsChuFaMessage").getValue(), Ext.getCmp("IsDaoDaMessage").getValue(), Ext.getCmp("GpsDeviceIDByHand").getValue(), Ext.getCmp("YunDanRemark").getValue(), details_array);
                                             } else {
                                                 Ext.Msg.alert("提示", "输入码必须先解除绑定再制单！");
                                                 return false;
@@ -440,7 +467,7 @@ Ext.onReady(function () {
                                                 Ext.Msg.alert("提示", "制单失败！");
                                                 return false;
                                             }
-                                        }, CS.onError, Ext.getCmp("QiShiZhan_Province").getValue(), Ext.getCmp("QiShiZhan_City").getValue(), Ext.getCmp("QiShiZhan_Qx").getValue(), Ext.getCmp("QiShiAddress").getValue(), Ext.getCmp("DaoDaZhan_Province").getValue(), Ext.getCmp("DaoDaZhan_City").getValue(), Ext.getCmp("DaoDaZhan_Qx").getValue(), Ext.getCmp("DaoDaAddress").getValue(), Ext.getCmp("SuoShuGongSi").getValue(), Ext.getCmp("UserDenno").getValue(), Ext.getCmp("SalePerson").getValue(), Ext.getCmp("Purchaser").getValue(), Ext.getCmp("PurchaserPerson").getValue(), Ext.getCmp("PurchaserTel").getValue(), Ext.getCmp("CarrierCompany").getValue(), Ext.getCmp("CarrierPerson").getValue(), Ext.getCmp("CarrierTel").getValue(), Ext.getCmp("IsChuFaMessage").getValue(), Ext.getCmp("IsDaoDaMessage").getValue(), Ext.getCmp("GpsDeviceIDByHand").getValue(), Ext.getCmp("YunDanRemark").getValue(), details_array);
+                                        }, CS.onError, Ext.getCmp("QiShiZhan_Province").getValue(), Ext.getCmp("QiShiZhan_City").getValue(), Ext.getCmp("QiShiZhan_Qx").getValue(), Ext.getCmp("QiShiAddress").getValue(), Ext.getCmp("DaoDaZhan_Province").getValue(), Ext.getCmp("DaoDaZhan_City").getValue(), Ext.getCmp("DaoDaZhan_Qx").getValue(), Ext.getCmp("DaoDaAddress").getValue(), Ext.getCmp("SuoShuGongSi").getValue(), Ext.getCmp("UserDenno").getValue(),Ext.getCmp("Expect_Hour").getValue(), Ext.getCmp("SalePerson").getValue(), Ext.getCmp("Purchaser").getValue(), Ext.getCmp("PurchaserPerson").getValue(), Ext.getCmp("PurchaserTel").getValue(), Ext.getCmp("CarrierCompany").getValue(), Ext.getCmp("CarrierPerson").getValue(), Ext.getCmp("CarrierTel").getValue(), Ext.getCmp("IsChuFaMessage").getValue(), Ext.getCmp("IsDaoDaMessage").getValue(), Ext.getCmp("GpsDeviceIDByHand").getValue(), Ext.getCmp("YunDanRemark").getValue(), details_array);
                                     }
                                 }
                             },
@@ -584,6 +611,7 @@ function cityBind() {
         newcity[cityData3[i].text] = cityData;
     }
     province.loadData(provincesData);
+    province2.loadData(provincesData);
 }
 
 Ext.define('PickCompany', {
