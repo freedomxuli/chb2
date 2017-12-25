@@ -53,6 +53,18 @@ public class InterFaceHandler : IHttpHandler {
             case "GetLocationList":
                 str = GetLocationList(context);
                 break;
+            case "WoDeYunDanByAll":
+                str = WoDeYunDanByAll(context);
+                break;
+            case "WoDeYunDanByGZ":
+                str = WoDeYunDanByGZ(context);
+                break;
+            case "WoDeYunDanByHis":
+                str = WoDeYunDanByHis(context);
+                break;
+            case "WoDeYunDanByYJ":
+                str = WoDeYunDanByYJ(context);
+                break;
         }
         context.Response.Write(str);
         context.Response.End();
@@ -462,6 +474,162 @@ public class InterFaceHandler : IHttpHandler {
             hash["msg"] = "获取定位数据失败，错误:" + ex.Message;
         }
         
+
+        return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
+    }
+
+    public string WoDeYunDanByAll(HttpContext context)
+    {
+        Newtonsoft.Json.Linq.JObject hash = new Newtonsoft.Json.Linq.JObject();
+        hash["sign"] = "0";
+        hash["msg"] = "搜索我的运单失败！";
+
+        try
+        {
+            System.Text.Encoding utf8 = System.Text.Encoding.UTF8;
+            string UserName = context.Request["UserName"];
+            UserName = HttpUtility.UrlDecode(UserName.ToUpper(), utf8);
+            
+            Handler App_Handler = new Handler();
+            System.Data.DataTable dt = App_Handler.WoDeYunDanByAll(UserName, context.Request["UserDenno"]);
+            if (dt.Rows.Count > 0)
+            {
+                Newtonsoft.Json.Linq.JArray jary = new Newtonsoft.Json.Linq.JArray();
+                jary = Newtonsoft.Json.JsonConvert.DeserializeObject(Newtonsoft.Json.JsonConvert.SerializeObject(dt)) as Newtonsoft.Json.Linq.JArray;
+
+                hash["sign"] = "1";
+                hash["msg"] = "搜索我的运单成功！";
+                hash["yundanlist"] = jary;
+            }
+            else
+            {
+                hash["sign"] = "2";
+                hash["msg"] = "我的运单为空";
+            }
+        }
+        catch (Exception ex)
+        {
+            hash["sign"] = "0";
+            hash["msg"] = "搜索我的运单失败，错误:" + ex.Message;
+        }
+
+
+        return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
+    }
+
+    public string WoDeYunDanByGZ(HttpContext context)
+    {
+        Newtonsoft.Json.Linq.JObject hash = new Newtonsoft.Json.Linq.JObject();
+        hash["sign"] = "0";
+        hash["msg"] = "搜索我的运单失败！";
+
+        try
+        {
+            System.Text.Encoding utf8 = System.Text.Encoding.UTF8;
+            string UserName = context.Request["UserName"];
+            UserName = HttpUtility.UrlDecode(UserName.ToUpper(), utf8);
+
+            Handler App_Handler = new Handler();
+            System.Data.DataTable dt = App_Handler.WoDeYunDanByGZ(UserName, context.Request["UserDenno"]);
+            if (dt.Rows.Count > 0)
+            {
+                Newtonsoft.Json.Linq.JArray jary = new Newtonsoft.Json.Linq.JArray();
+                jary = Newtonsoft.Json.JsonConvert.DeserializeObject(Newtonsoft.Json.JsonConvert.SerializeObject(dt)) as Newtonsoft.Json.Linq.JArray;
+
+                hash["sign"] = "1";
+                hash["msg"] = "搜索我的运单成功！";
+                hash["yundanlist"] = jary;
+            }
+            else
+            {
+                hash["sign"] = "2";
+                hash["msg"] = "我的运单为空";
+            }
+        }
+        catch (Exception ex)
+        {
+            hash["sign"] = "0";
+            hash["msg"] = "搜索我的运单失败，错误:" + ex.Message;
+        }
+
+
+        return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
+    }
+
+    public string WoDeYunDanByHis(HttpContext context)
+    {
+        Newtonsoft.Json.Linq.JObject hash = new Newtonsoft.Json.Linq.JObject();
+        hash["sign"] = "0";
+        hash["msg"] = "搜索我的运单失败！";
+
+        try
+        {
+            System.Text.Encoding utf8 = System.Text.Encoding.UTF8;
+            string UserName = context.Request["UserName"];
+            UserName = HttpUtility.UrlDecode(UserName.ToUpper(), utf8);
+
+            Handler App_Handler = new Handler();
+            System.Data.DataTable dt = App_Handler.WoDeYunDanByHis(UserName, context.Request["UserDenno"]);
+            if (dt.Rows.Count > 0)
+            {
+                Newtonsoft.Json.Linq.JArray jary = new Newtonsoft.Json.Linq.JArray();
+                jary = Newtonsoft.Json.JsonConvert.DeserializeObject(Newtonsoft.Json.JsonConvert.SerializeObject(dt)) as Newtonsoft.Json.Linq.JArray;
+
+                hash["sign"] = "1";
+                hash["msg"] = "搜索我的运单成功！";
+                hash["yundanlist"] = jary;
+            }
+            else
+            {
+                hash["sign"] = "2";
+                hash["msg"] = "我的运单为空";
+            }
+        }
+        catch (Exception ex)
+        {
+            hash["sign"] = "0";
+            hash["msg"] = "搜索我的运单失败，错误:" + ex.Message;
+        }
+
+
+        return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
+    }
+
+    public string WoDeYunDanByYJ(HttpContext context)
+    {
+        Newtonsoft.Json.Linq.JObject hash = new Newtonsoft.Json.Linq.JObject();
+        hash["sign"] = "0";
+        hash["msg"] = "搜索我的运单失败！";
+
+        try
+        {
+            System.Text.Encoding utf8 = System.Text.Encoding.UTF8;
+            string UserName = context.Request["UserName"];
+            UserName = HttpUtility.UrlDecode(UserName.ToUpper(), utf8);
+
+            Handler App_Handler = new Handler();
+            System.Data.DataTable dt = App_Handler.WoDeYunDanByYJ(UserName, context.Request["UserDenno"]);
+            if (dt.Rows.Count > 0)
+            {
+                Newtonsoft.Json.Linq.JArray jary = new Newtonsoft.Json.Linq.JArray();
+                jary = Newtonsoft.Json.JsonConvert.DeserializeObject(Newtonsoft.Json.JsonConvert.SerializeObject(dt)) as Newtonsoft.Json.Linq.JArray;
+
+                hash["sign"] = "1";
+                hash["msg"] = "搜索我的运单成功！";
+                hash["yundanlist"] = jary;
+            }
+            else
+            {
+                hash["sign"] = "2";
+                hash["msg"] = "我的运单为空";
+            }
+        }
+        catch (Exception ex)
+        {
+            hash["sign"] = "0";
+            hash["msg"] = "搜索我的运单失败，错误:" + ex.Message;
+        }
+
 
         return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
     }
