@@ -292,6 +292,7 @@ Ext.onReady(function () {
 
     new mainView();
 
+    DataBind(1);
 });
 
 function DataBind(cp) {

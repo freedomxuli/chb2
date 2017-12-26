@@ -574,62 +574,191 @@ public class Handler
                 int cp = CurrentPage;
                 int ac = 0;
 
-                string conn = "";
-                if (!string.IsNullOrEmpty(UserDenno))
-                    conn += " and UserDenno like @UserDenno";
-                if (!string.IsNullOrEmpty(SuoShuGongSi))
-                    conn += " and SuoShuGongSi like @SuoShuGongSi";
-                string sql = "select * from YunDan where 1=1 " + conn;
-                SqlCommand cmd = db.CreateCommand(sql);
-                //cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
-                cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno + "%");
-                cmd.Parameters.AddWithValue("@SuoShuGongSi", "%" + SuoShuGongSi + "%");
-                DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
-
-                for (int i = 0; i < dt.Rows.Count; i++)
+                DataTable dt = new DataTable();
+                if (!string.IsNullOrEmpty(UserDenno) && !string.IsNullOrEmpty(SuoShuGongSi))
                 {
-                    sql = "select * from YunDanDistance where YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'";
-                    DataTable dt_distance = db.ExecuteDataTable(sql);
-                    if (dt_distance.Rows.Count > 0)
+                    string conn = "";
+                    if (!string.IsNullOrEmpty(UserDenno))
+                        conn += " and UserDenno = @UserDenno";
+                    if (!string.IsNullOrEmpty(SuoShuGongSi))
+                        conn += " and SuoShuGongSi = @SuoShuGongSi";
+                    string sql = "select * from YunDan where 1=1 " + conn;
+                    SqlCommand cmd = db.CreateCommand(sql);
+                    //cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                    cmd.Parameters.AddWithValue("@UserDenno", UserDenno);
+                    cmd.Parameters.AddWithValue("@SuoShuGongSi", SuoShuGongSi);
+                    dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
+
+                    if (dt.Rows.Count > 0)
                     {
-                        dt.Rows[i]["Gps_distance"] = dt_distance.Rows[0]["Gps_distance"].ToString() + "公里";
-                        dt.Rows[i]["Gps_duration"] = dt_distance.Rows[0]["Gps_duration"].ToString() + "分钟";
+                        sql = "select * from YunDanIsArrive where YunDanDenno in (select YunDanDenno from YunDan where UserID = @UserID " + conn + ")";
+                        cmd = db.CreateCommand(sql);
+                        cmd.Parameters.AddWithValue("@UserDenno", UserDenno);
+                        cmd.Parameters.AddWithValue("@SuoShuGongSi", SuoShuGongSi);
+                        cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                        DataTable dt_arrive = db.ExecuteDataTable(cmd);
+
+                        sql = "select * from YunDanDistance where YunDanDenno in (select YunDanDenno from YunDan where UserID = @UserID " + conn + ")";
+                        cmd = db.CreateCommand(sql);
+                        cmd.Parameters.AddWithValue("@UserDenno", UserDenno);
+                        cmd.Parameters.AddWithValue("@SuoShuGongSi", SuoShuGongSi);
+                        cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                        DataTable dt_distance = db.ExecuteDataTable(cmd);
+
+                        DataTable dt_ziyou = db.GetEmptyDataTable("ZiYouSearch");
+                        DataRow dr_ziyou = dt_ziyou.NewRow();
+                        dr_ziyou["UserID"] = SystemUser.CurrentUser.UserID;
+                        dr_ziyou["SuoShuGongSi"] = SuoShuGongSi;
+                        dr_ziyou["UserDenno"] = UserDenno;
+                        dt_ziyou.Rows.Add(dr_ziyou);
+                        db.InsertOrUpdateTable(dt_ziyou);
+
+                        for (int i = 0; i < dt.Rows.Count; i++)
+                        {
+                            DataRow[] drs = dt_arrive.Select("YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'");
+                            if (drs.Length == 0)
+                            {
+                                DataRow[] drs_distance = dt_distance.Select("YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'");
+                                if (drs_distance.Length > 0)
+                                {
+                                    dt.Rows[i]["Gps_distance"] = drs_distance[0]["Gps_distance"];
+                                    dt.Rows[i]["Gps_duration"] = drs_distance[0]["Gps_duration"];
+                                }
+                            }
+                        }
+
+                        #region  插入操作表
+                        DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
+                        DataRow dr = dt_caozuo.NewRow();
+                        dr["UserID"] = SystemUser.CurrentUser.UserID;
+                        dr["CaoZuoLeiXing"] = "自由查单";
+                        dr["CaoZuoNeiRong"] = "web登录自由查单查询，搜索单号：" + UserDenno + "；搜索公司：" + SuoShuGongSi + "。";
+                        dr["CaoZuoTime"] = DateTime.Now;
+                        dr["CaoZuoRemark"] = "";
+                        dt_caozuo.Rows.Add(dr);
+                        db.InsertTable(dt_caozuo);
+                        #endregion
+
+                        #region 插入历史查询表
+                        string conn2 = "";
+                        if (!string.IsNullOrEmpty(SuoShuGongSi))
+                            conn2 += " and Value = @Value";
+                        sql = "select * from SearchHistory where UserID = @UserID and Type = '自由查单_公司'" + conn2;
+                        SqlCommand cmd2 = db.CreateCommand(sql);
+                        cmd2.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                        cmd2.Parameters.AddWithValue("@Value", SuoShuGongSi);
+                        DataTable dt_search = db.ExecuteDataTable(cmd2);
+
+                        if (dt_search.Rows.Count == 0)
+                        {
+                            DataTable dt_his = db.GetEmptyDataTable("SearchHistory");
+                            DataRow dr_his = dt_his.NewRow();
+                            dr_his["UserID"] = SystemUser.CurrentUser.UserID;
+                            dr_his["Type"] = "自由查单_公司";
+                            dr_his["Value"] = SuoShuGongSi;
+                            dt_his.Rows.Add(dr_his);
+                            db.InsertTable(dt_his);
+                        }
+                        #endregion
                     }
                 }
-
-                #region  插入操作表
-                DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
-                DataRow dr = dt_caozuo.NewRow();
-                dr["UserID"] = SystemUser.CurrentUser.UserID;
-                dr["CaoZuoLeiXing"] = "自由查单";
-                dr["CaoZuoNeiRong"] = "web登录自由查单查询，搜索单号：" + UserDenno + "；搜索公司：" + SuoShuGongSi + "。";
-                dr["CaoZuoTime"] = DateTime.Now;
-                dr["CaoZuoRemark"] = "";
-                dt_caozuo.Rows.Add(dr);
-                db.InsertTable(dt_caozuo);
-                #endregion
-
-                #region 插入历史查询表
-                string conn2 = "";
-                if (!string.IsNullOrEmpty(SuoShuGongSi))
-                    conn2 += " and Value = @Value";
-                sql = "select * from SearchHistory where UserID = @UserID and Type = '自由查单_公司'" + conn2;
-                SqlCommand cmd2 = db.CreateCommand(sql);
-                cmd2.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
-                cmd2.Parameters.AddWithValue("@Value", SuoShuGongSi);
-                DataTable dt_search = db.ExecuteDataTable(cmd2);
-
-                if (dt_search.Rows.Count == 0)
+                else
                 {
-                    DataTable dt_his = db.GetEmptyDataTable("SearchHistory");
-                    DataRow dr_his = dt_his.NewRow();
-                    dr_his["UserID"] = SystemUser.CurrentUser.UserID;
-                    dr_his["Type"] = "自由查单_公司";
-                    dr_his["Value"] = SuoShuGongSi;
-                    dt_his.Rows.Add(dr_his);
-                    db.InsertTable(dt_his);
+                    string sql = "select * from ZiYouSearch where UserID = @UserID";
+                    SqlCommand cmd = db.CreateCommand(sql);
+                    cmd.Parameters.AddWithValue("@UserID",SystemUser.CurrentUser.UserID);
+                    DataTable dt_user = db.ExecuteDataTable(cmd);
+
+                    if (dt_user.Rows.Count > 0)
+                    {
+                        UserDenno = dt_user.Rows[0]["UserDenno"].ToString();
+                        SuoShuGongSi = dt_user.Rows[0]["SuoShuGongSi"].ToString();
+                        string conn = "";
+                        if (!string.IsNullOrEmpty(UserDenno))
+                            conn += " and UserDenno = @UserDenno";
+                        if (!string.IsNullOrEmpty(SuoShuGongSi))
+                            conn += " and SuoShuGongSi = @SuoShuGongSi";
+                        sql = "select * from YunDan where 1=1 " + conn;
+                        cmd = db.CreateCommand(sql);
+                        //cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                        cmd.Parameters.AddWithValue("@UserDenno", UserDenno);
+                        cmd.Parameters.AddWithValue("@SuoShuGongSi", SuoShuGongSi);
+                        dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
+
+                        if (dt.Rows.Count > 0)
+                        {
+                            sql = "select * from YunDanIsArrive where YunDanDenno in (select YunDanDenno from YunDan where UserID = @UserID " + conn + ")";
+                            cmd = db.CreateCommand(sql);
+                            cmd.Parameters.AddWithValue("@UserDenno", UserDenno);
+                            cmd.Parameters.AddWithValue("@SuoShuGongSi", SuoShuGongSi);
+                            cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                            DataTable dt_arrive = db.ExecuteDataTable(cmd);
+
+                            sql = "select * from YunDanDistance where YunDanDenno in (select YunDanDenno from YunDan where UserID = @UserID " + conn + ")";
+                            cmd = db.CreateCommand(sql);
+                            cmd.Parameters.AddWithValue("@UserDenno", UserDenno);
+                            cmd.Parameters.AddWithValue("@SuoShuGongSi", SuoShuGongSi);
+                            cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                            DataTable dt_distance = db.ExecuteDataTable(cmd);
+
+                            DataTable dt_ziyou = db.GetEmptyDataTable("ZiYouSearch");
+                            DataRow dr_ziyou = dt_ziyou.NewRow();
+                            dr_ziyou["UserID"] = SystemUser.CurrentUser.UserID;
+                            dr_ziyou["SuoShuGongSi"] = SuoShuGongSi;
+                            dr_ziyou["UserDenno"] = UserDenno;
+                            dt_ziyou.Rows.Add(dr_ziyou);
+                            db.InsertOrUpdateTable(dt_ziyou);
+
+                            for (int i = 0; i < dt.Rows.Count; i++)
+                            {
+                                DataRow[] drs = dt_arrive.Select("YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'");
+                                if (drs.Length == 0)
+                                {
+                                    DataRow[] drs_distance = dt_distance.Select("YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'");
+                                    if (drs_distance.Length > 0)
+                                    {
+                                        dt.Rows[i]["Gps_distance"] = drs_distance[0]["Gps_distance"];
+                                        dt.Rows[i]["Gps_duration"] = drs_distance[0]["Gps_duration"];
+                                    }
+                                }
+                            }
+
+                            #region  插入操作表
+                            DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
+                            DataRow dr = dt_caozuo.NewRow();
+                            dr["UserID"] = SystemUser.CurrentUser.UserID;
+                            dr["CaoZuoLeiXing"] = "自由查单";
+                            dr["CaoZuoNeiRong"] = "web登录自由查单查询，搜索单号：" + UserDenno + "；搜索公司：" + SuoShuGongSi + "。";
+                            dr["CaoZuoTime"] = DateTime.Now;
+                            dr["CaoZuoRemark"] = "";
+                            dt_caozuo.Rows.Add(dr);
+                            db.InsertTable(dt_caozuo);
+                            #endregion
+
+                            #region 插入历史查询表
+                            string conn2 = "";
+                            if (!string.IsNullOrEmpty(SuoShuGongSi))
+                                conn2 += " and Value = @Value";
+                            sql = "select * from SearchHistory where UserID = @UserID and Type = '自由查单_公司'" + conn2;
+                            SqlCommand cmd2 = db.CreateCommand(sql);
+                            cmd2.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                            cmd2.Parameters.AddWithValue("@Value", SuoShuGongSi);
+                            DataTable dt_search = db.ExecuteDataTable(cmd2);
+
+                            if (dt_search.Rows.Count == 0)
+                            {
+                                DataTable dt_his = db.GetEmptyDataTable("SearchHistory");
+                                DataRow dr_his = dt_his.NewRow();
+                                dr_his["UserID"] = SystemUser.CurrentUser.UserID;
+                                dr_his["Type"] = "自由查单_公司";
+                                dr_his["Value"] = SuoShuGongSi;
+                                dt_his.Rows.Add(dr_his);
+                                db.InsertTable(dt_his);
+                            }
+                            #endregion
+                        }
+                    }
                 }
-                #endregion
 
                 return new { dt = dt, cp = cp, ac = ac };
             }
@@ -2131,13 +2260,24 @@ public class Handler
                         cmd.Parameters.AddWithValue("@UserID", dt_user.Rows[0]["UserID"].ToString());
                         DataTable dt_arrive = db.ExecuteDataTable(cmd);
 
+                        sql = "select * from YunDanDistance where YunDanDenno in (select YunDanDenno from YunDan where UserID = @UserID " + conn + ")";
+                        cmd = db.CreateCommand(sql);
+                        if (!string.IsNullOrEmpty(UserDenno))
+                            cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno + "%");
+                        cmd.Parameters.AddWithValue("@UserID", dt_user.Rows[0]["UserID"].ToString());
+                        DataTable dt_distance = db.ExecuteDataTable(cmd);
+
                         for (int i = 0; i < dt.Rows.Count; i++)
                         {
                             DataRow[] drs = dt_arrive.Select("YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'");
-                            if (drs.Length > 0)
-                            { 
-                                dt.Rows[i]["Gps_distance"] = drs[0]["Gps_distance"];
-                                dt.Rows[i]["Gps_duration"] = drs[0]["Gps_duration"];
+                            if (drs.Length == 0)
+                            {
+                                DataRow[] drs_distance = dt_distance.Select("YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'");
+                                if (drs_distance.Length > 0)
+                                {
+                                    dt.Rows[i]["Gps_distance"] = drs_distance[0]["Gps_distance"];
+                                    dt.Rows[i]["Gps_duration"] = drs_distance[0]["Gps_duration"];
+                                }
                             }
                         }
                     }
@@ -2199,13 +2339,24 @@ public class Handler
                         cmd.Parameters.AddWithValue("@UserID", dt_user.Rows[0]["UserID"].ToString());
                         DataTable dt_arrive = db.ExecuteDataTable(cmd);
 
+                        sql = "select * from YunDanDistance where YunDanDenno in (select YunDanDenno from YunDan where UserID = @UserID and IsBangding = 1 " + conn + ")";
+                        cmd = db.CreateCommand(sql);
+                        if (!string.IsNullOrEmpty(UserDenno))
+                            cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno + "%");
+                        cmd.Parameters.AddWithValue("@UserID", dt_user.Rows[0]["UserID"].ToString());
+                        DataTable dt_distance = db.ExecuteDataTable(cmd);
+
                         for (int i = 0; i < dt.Rows.Count; i++)
                         {
                             DataRow[] drs = dt_arrive.Select("YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'");
-                            if (drs.Length > 0)
+                            if (drs.Length == 0)
                             {
-                                dt.Rows[i]["Gps_distance"] = drs[0]["Gps_distance"];
-                                dt.Rows[i]["Gps_duration"] = drs[0]["Gps_duration"];
+                                DataRow[] drs_distance = dt_distance.Select("YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'");
+                                if (drs_distance.Length > 0)
+                                {
+                                    dt.Rows[i]["Gps_distance"] = drs_distance[0]["Gps_distance"];
+                                    dt.Rows[i]["Gps_duration"] = drs_distance[0]["Gps_duration"];
+                                }
                             }
                         }
                     }
@@ -2267,13 +2418,24 @@ public class Handler
                         cmd.Parameters.AddWithValue("@UserID", dt_user.Rows[0]["UserID"].ToString());
                         DataTable dt_arrive = db.ExecuteDataTable(cmd);
 
+                        sql = "select * from YunDanDistance where YunDanDenno in (select YunDanDenno from YunDan where UserID = @UserID and IsBangding = 0 " + conn + ")";
+                        cmd = db.CreateCommand(sql);
+                        if (!string.IsNullOrEmpty(UserDenno))
+                            cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno + "%");
+                        cmd.Parameters.AddWithValue("@UserID", dt_user.Rows[0]["UserID"].ToString());
+                        DataTable dt_distance = db.ExecuteDataTable(cmd);
+
                         for (int i = 0; i < dt.Rows.Count; i++)
                         {
                             DataRow[] drs = dt_arrive.Select("YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'");
-                            if (drs.Length > 0)
+                            if (drs.Length == 0)
                             {
-                                dt.Rows[i]["Gps_distance"] = drs[0]["Gps_distance"];
-                                dt.Rows[i]["Gps_duration"] = drs[0]["Gps_duration"];
+                                DataRow[] drs_distance = dt_distance.Select("YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'");
+                                if (drs_distance.Length > 0)
+                                {
+                                    dt.Rows[i]["Gps_distance"] = drs_distance[0]["Gps_distance"];
+                                    dt.Rows[i]["Gps_duration"] = drs_distance[0]["Gps_duration"];
+                                }
                             }
                         }
                     }
@@ -2334,20 +2496,169 @@ public class Handler
                         dt_caozuo.Rows.Add(dr);
                         db.InsertTable(dt_caozuo);
 
-                        sql = "select * from YunDanIsArrive where YunDanDenno in (select YunDanDenno from YunDan where UserID = @UserID and IsBangding = 0 " + conn + ")";
+                        sql = "select * from YunDanIsArrive where YunDanDenno in (select YunDanDenno from YunDan where UserID = @UserID and IsBangding = 1 " + conn + ")";
                         cmd = db.CreateCommand(sql);
                         if (!string.IsNullOrEmpty(UserDenno))
                             cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno + "%");
                         cmd.Parameters.AddWithValue("@UserID", dt_user.Rows[0]["UserID"].ToString());
                         DataTable dt_arrive = db.ExecuteDataTable(cmd);
 
+                        sql = "select * from YunDanDistance where YunDanDenno in (select YunDanDenno from YunDan where UserID = @UserID and IsBangding = 1 " + conn + ")";
+                        cmd = db.CreateCommand(sql);
+                        if (!string.IsNullOrEmpty(UserDenno))
+                            cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno + "%");
+                        cmd.Parameters.AddWithValue("@UserID", dt_user.Rows[0]["UserID"].ToString());
+                        DataTable dt_distance = db.ExecuteDataTable(cmd);
+
                         for (int i = 0; i < dt.Rows.Count; i++)
                         {
                             DataRow[] drs = dt_arrive.Select("YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'");
-                            if (drs.Length > 0)
+                            if (drs.Length == 0)
                             {
-                                dt.Rows[i]["Gps_distance"] = drs[0]["Gps_distance"];
-                                dt.Rows[i]["Gps_duration"] = drs[0]["Gps_duration"];
+                                DataRow[] drs_distance = dt_distance.Select("YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'");
+                                if (drs_distance.Length > 0)
+                                {
+                                    dt.Rows[i]["Gps_distance"] = drs_distance[0]["Gps_distance"];
+                                    dt.Rows[i]["Gps_duration"] = drs_distance[0]["Gps_duration"];
+                                }
+                            }
+                        }
+                    }
+                }
+
+                db.CommitTransaction();
+
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                db.RoolbackTransaction();
+                throw ex;
+            }
+        }
+    }
+
+    public DataTable ZiYouSearch(string UserName)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                db.BeginTransaction();
+
+                string sql = "select * from [dbo].[User] where UserName = @UserName and UserLeiXing = 'APP'";
+                SqlCommand cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserName", UserName);
+                DataTable dt_user = db.ExecuteDataTable(cmd);
+
+                DataTable dt = new DataTable();
+                if (dt_user.Rows.Count > 0)
+                {
+                    sql = "select * from ZiYouSearch where UserID = @UserID";
+                    cmd = db.CreateCommand(sql);
+                    cmd.Parameters.AddWithValue("@UserID", dt_user.Rows[0]["UserID"].ToString());
+                    dt = db.ExecuteDataTable(cmd);
+                }
+
+                db.CommitTransaction();
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                db.RoolbackTransaction();
+                throw ex;
+            }
+        }
+    }
+
+    public DataTable ZiYouChaDan(string UserName, string UserDenno, string SuoShuGongSi)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                db.BeginTransaction();
+
+                string sql = "select * from [dbo].[User] where UserName = @UserName and UserLeiXing = 'APP'";
+                SqlCommand cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserName", UserName);
+                DataTable dt_user = db.ExecuteDataTable(cmd);
+
+                DataTable dt = new DataTable();
+                if (dt_user.Rows.Count > 0)
+                {
+                    string conn = "";
+                    if (!string.IsNullOrEmpty(UserDenno))
+                        conn = " and UserDenno = @UserDenno";
+                    sql = "select * from YunDan where UserID = @UserID and SuoShuGongSi = @SuoShuGongSi and IsBangding = 0 " + conn + " order by BangDingTime desc";
+                    cmd = db.CreateCommand(sql);
+                    if (!string.IsNullOrEmpty(UserDenno))
+                        cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno + "%");
+                    cmd.Parameters.AddWithValue("@SuoShuGongSi", SuoShuGongSi);
+                    cmd.Parameters.AddWithValue("@UserID", dt_user.Rows[0]["UserID"].ToString());
+                    dt = db.ExecuteDataTable(cmd);
+                    if (dt.Rows.Count > 0)
+                    {
+                        DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
+                        DataRow dr = dt_caozuo.NewRow();
+                        dr["UserID"] = dt_user.Rows[0]["UserID"];
+                        dr["CaoZuoLeiXing"] = "自由查单";
+                        dr["CaoZuoNeiRong"] = "APP内用户自由查单查询，搜索单号：" + UserDenno + "；搜索公司：" + SuoShuGongSi + "。";
+                        dr["CaoZuoTime"] = DateTime.Now;
+                        dr["CaoZuoRemark"] = "";
+                        dt_caozuo.Rows.Add(dr);
+                        db.InsertTable(dt_caozuo);
+
+                        sql = "select * from SearchHistory where UserID = @UserID and Value = @SuoShuGongSi and Type = '自由查单_公司'";
+                        cmd = db.CreateCommand(sql);
+                        cmd.Parameters.AddWithValue("@SuoShuGongSi", SuoShuGongSi);
+                        cmd.Parameters.AddWithValue("@UserID", dt_user.Rows[0]["UserID"].ToString());
+                        DataTable dt_search = db.ExecuteDataTable(cmd);
+
+                        if (dt_search.Rows.Count == 0)
+                        {
+                            DataTable dt_search_new = db.GetEmptyDataTable("SearchHistory");
+                            DataRow dr_search_new = dt_search_new.NewRow();
+                            dr_search_new["UserID"] = dt_user.Rows[0]["UserID"].ToString();
+                            dr_search_new["Type"] = "自由查单_公司";
+                            dr_search_new["Value"] = SuoShuGongSi;
+                            dt_search_new.Rows.Add(dr_search_new);
+                            db.InsertTable(dt_search_new);
+                        }
+
+                        sql = "select * from YunDanIsArrive where YunDanDenno in (select YunDanDenno from YunDan where UserID = @UserID " + conn + ")";
+                        cmd = db.CreateCommand(sql);
+                        if (!string.IsNullOrEmpty(UserDenno))
+                            cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno + "%");
+                        cmd.Parameters.AddWithValue("@UserID", dt_user.Rows[0]["UserID"].ToString());
+                        DataTable dt_arrive = db.ExecuteDataTable(cmd);
+
+                        sql = "select * from YunDanDistance where YunDanDenno in (select YunDanDenno from YunDan where UserID = @UserID " + conn + ")";
+                        cmd = db.CreateCommand(sql);
+                        if (!string.IsNullOrEmpty(UserDenno))
+                            cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno + "%");
+                        cmd.Parameters.AddWithValue("@UserID", dt_user.Rows[0]["UserID"].ToString());
+                        DataTable dt_distance = db.ExecuteDataTable(cmd);
+
+                        DataTable dt_ziyou = db.GetEmptyDataTable("ZiYouSearch");
+                        DataRow dr_ziyou = dt_ziyou.NewRow();
+                        dr_ziyou["UserID"] = dt_user.Rows[0]["UserID"].ToString();
+                        dr_ziyou["SuoShuGongSi"] = SuoShuGongSi;
+                        dr_ziyou["UserDenno"] = UserDenno;
+                        dt_ziyou.Rows.Add(dr_ziyou);
+                        db.InsertOrUpdateTable(dt_ziyou);
+
+                        for (int i = 0; i < dt.Rows.Count; i++)
+                        {
+                            DataRow[] drs = dt_arrive.Select("YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'");
+                            if (drs.Length == 0)
+                            {
+                                DataRow[] drs_distance = dt_distance.Select("YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'");
+                                if (drs_distance.Length > 0)
+                                {
+                                    dt.Rows[i]["Gps_distance"] = drs_distance[0]["Gps_distance"];
+                                    dt.Rows[i]["Gps_duration"] = drs_distance[0]["Gps_duration"];
+                                }
                             }
                         }
                     }

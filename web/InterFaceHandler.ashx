@@ -65,6 +65,9 @@ public class InterFaceHandler : IHttpHandler {
             case "WoDeYunDanByYJ":
                 str = WoDeYunDanByYJ(context);
                 break;
+            case "ZiYouChaDan":
+                str = ZiYouChaDan(context);
+                break;
         }
         context.Response.Write(str);
         context.Response.End();
@@ -628,6 +631,87 @@ public class InterFaceHandler : IHttpHandler {
         {
             hash["sign"] = "0";
             hash["msg"] = "搜索我的运单失败，错误:" + ex.Message;
+        }
+
+
+        return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
+    }
+
+    public string ZiYouChaDan(HttpContext context)
+    {
+        Newtonsoft.Json.Linq.JObject hash = new Newtonsoft.Json.Linq.JObject();
+        hash["sign"] = "0";
+        hash["msg"] = "自由查单失败！";
+
+        try
+        {
+            System.Text.Encoding utf8 = System.Text.Encoding.UTF8;
+            string UserName = context.Request["UserName"];
+            UserName = HttpUtility.UrlDecode(UserName.ToUpper(), utf8);
+            string UserDenno = context.Request["UserDenno"];
+            string SuoShuGongSi = context.Request["SuoShuGongSi"];
+
+            if (!string.IsNullOrEmpty(UserDenno) && !string.IsNullOrEmpty(SuoShuGongSi))
+            {
+                Handler App_Handler = new Handler();
+                System.Data.DataTable dt = App_Handler.ZiYouChaDan(UserName, UserDenno, SuoShuGongSi);
+                if (dt.Rows.Count > 0)
+                {
+                    Newtonsoft.Json.Linq.JArray jary = new Newtonsoft.Json.Linq.JArray();
+                    jary = Newtonsoft.Json.JsonConvert.DeserializeObject(Newtonsoft.Json.JsonConvert.SerializeObject(dt)) as Newtonsoft.Json.Linq.JArray;
+
+                    hash["sign"] = "1";
+                    hash["msg"] = "搜索成功！";
+                    hash["yundanlist"] = jary;
+                }
+                else
+                {
+                    hash["sign"] = "2";
+                    hash["msg"] = "自由为空";
+                }
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(UserDenno) && string.IsNullOrEmpty(SuoShuGongSi))
+                {
+                    Handler App_Handler = new Handler();
+                    System.Data.DataTable dt_search = App_Handler.ZiYouSearch(UserName);
+                    if (dt_search.Rows.Count > 0)
+                    {
+                        System.Data.DataTable dt = App_Handler.ZiYouChaDan(UserName, dt_search.Rows[0]["UserDenno"].ToString(), dt_search.Rows[0]["SuoShuGongSi"].ToString());
+                        if (dt.Rows.Count > 0)
+                        {
+                            Newtonsoft.Json.Linq.JArray jary = new Newtonsoft.Json.Linq.JArray();
+                            jary = Newtonsoft.Json.JsonConvert.DeserializeObject(Newtonsoft.Json.JsonConvert.SerializeObject(dt)) as Newtonsoft.Json.Linq.JArray;
+
+                            hash["sign"] = "1";
+                            hash["msg"] = "搜索成功！";
+                            hash["yundanlist"] = jary;
+                        }
+                        else
+                        {
+                            hash["sign"] = "2";
+                            hash["msg"] = "自由为空";
+                        }
+                    }
+                    else
+                    {
+                        hash["sign"] = "2";
+                        hash["msg"] = "自由为空";
+                    }
+                }
+                else
+                {
+                    hash["sign"] = "2";
+                    hash["msg"] = "自由为空";
+                }
+            }
+
+        }
+        catch (Exception ex)
+        {
+            hash["sign"] = "0";
+            hash["msg"] = "自由查单失败，错误:" + ex.Message;
         }
 
 
