@@ -500,11 +500,11 @@ public class Handler
                 {
                     sql = @"select a.* from YunDan a 
                           inner join (
-	                          select DATEDIFF(mi,dateadd(SS,duration,b.Gps_lasttime),dateadd(HH,a.Expect_Hour,a.BangDingTime)) TimeCZ,a.YunDanDenno from YunDan a
+	                          select DATEDIFF(mi,dateadd(SS,duration,getdate()),dateadd(HH,a.Expect_Hour,a.BangDingTime)) TimeCZ,a.YunDanDenno from YunDan a
 	                          inner join (select *,cast(Gps_duration as decimal) duration from YunDanDistance where Gps_duration is not null) b on a.YunDanDenno = b.YunDanDenno
-	                          where a.Expect_Hour is not null and a.UserID = @UserID
+	                          where a.Expect_Hour is not null and a.UserID = @UserID and a.IsBangding = 1 
                           ) b on a.YunDanDenno = b.YunDanDenno
-                          where a.UserID = @UserID and TimeCZ < 0" + conn + " order by BangDingTime desc";
+                          where a.UserID = @UserID and a.IsBangding = 1 and TimeCZ < 0" + conn + " order by BangDingTime desc";
                 }
                 SqlCommand cmd = db.CreateCommand(sql);
                 cmd.Parameters.AddWithValue("@UserID",SystemUser.CurrentUser.UserID);
@@ -2312,11 +2312,11 @@ public class Handler
                         conn = " and UserDenno like @UserDenno";
                     sql = @"select a.* from YunDan a 
                           inner join (
-	                          select DATEDIFF(mi,dateadd(SS,duration,b.Gps_lasttime),dateadd(HH,a.Expect_Hour,a.BangDingTime)) TimeCZ,a.YunDanDenno from YunDan a
+	                          select DATEDIFF(mi,dateadd(SS,duration,getdate()),dateadd(HH,a.Expect_Hour,a.BangDingTime)) TimeCZ,a.YunDanDenno from YunDan a
 	                          inner join (select *,cast(Gps_duration as decimal) duration from YunDanDistance where Gps_duration is not null) b on a.YunDanDenno = b.YunDanDenno
-	                          where a.Expect_Hour is not null and a.UserID = @UserID
+	                          where a.Expect_Hour is not null and a.UserID = @UserID and a.IsBangding = 1 
                           ) b on a.YunDanDenno = b.YunDanDenno
-                          where a.UserID = @UserID and TimeCZ < 0" + conn + " order by BangDingTime desc";
+                          where a.UserID = @UserID and a.IsBangding = 1 and TimeCZ < 0" + conn + " order by BangDingTime desc";
                     cmd = db.CreateCommand(sql);
                     if (!string.IsNullOrEmpty(UserDenno))
                         cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno + "%");
