@@ -9,7 +9,7 @@ var myStore = createSFW4Store({
     total: 1,
     currentPage: 1,
     fields: [
-        'BangDingTime', 'UserDenno', 'QiShiZhan', 'DaoDaZhan', 'SuoShuGongSi', 'GpsDeviceID', 'YunDanRemark', 'Gps_lastinfo', 'YunDanDenno', 'UserID', 'Gps_lasttime', 'Gps_distance', 'Gps_duration', 'QiShiZhan_QX', 'DaoDaZhan_QX', 'SalePerson', 'Purchaser', 'PurchaserPerson', 'PurchaserTel', 'CarrierCompany', 'CarrierPerson', 'CarrierTel', 'DaoDaAddress', 'QiShiAddress', 'Expect_Hour'
+       'IsBangding', 'BangDingTime', 'UserDenno', 'QiShiZhan', 'DaoDaZhan', 'SuoShuGongSi', 'GpsDeviceID', 'YunDanRemark', 'Gps_lastinfo', 'YunDanDenno', 'UserID', 'Gps_lasttime', 'Gps_distance', 'Gps_duration', 'QiShiZhan_QX', 'DaoDaZhan_QX', 'SalePerson', 'Purchaser', 'PurchaserPerson', 'PurchaserTel', 'CarrierCompany', 'CarrierPerson', 'CarrierTel', 'DaoDaAddress', 'QiShiAddress', 'Expect_Hour'
     ],
     onPageChange: function (sto, nPage, sorters) {
         DataBind(nPage);
@@ -85,12 +85,15 @@ Ext.onReady(function () {
                             {
                                 xtype: 'gridcolumn',
                                 dataIndex: 'UserID',
-                                width: 100,
+                                width: 150,
                                 sortable: false,
                                 menuDisabled: true,
                                 text: '查看轨迹',
-                                renderer: function (value,cellmeta,record,rowIndex,columnIndex,store) {
-                                    return "<a href='javascript:void(0);' onClick='ShowGJ(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看轨迹</a>";
+                                renderer: function (value, cellmeta, record, rowIndex, columnIndex, store) {
+                                    if (record.data.IsBangding == true)
+                                        return "<a href='javascript:void(0);' onClick='ShowGJ(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看轨迹</a>　<a href='javascript:void(0);' onClick='JCBD(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>解除绑定</a>";
+                                    else
+                                        return "<a href='javascript:void(0);' onClick='ShowGJ(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看轨迹</a>";
                                 }
                             },
                             {
@@ -379,6 +382,13 @@ Ext.onReady(function () {
                                         fieldLabel: '单号'
                                     },
                                     {
+                                        xtype: 'textfield',
+                                        width: 130,
+                                        labelWidth: 50,
+                                        id: 'GpsDeviceID',
+                                        fieldLabel: '设备号'
+                                    },
+                                    {
                                         xtype: 'combobox',
                                         width: 150,
                                         padding: '0 10 10 0',
@@ -475,7 +485,7 @@ function DataBind(cp) {
                 currentPage: retVal.cp
             });
         }
-    }, CS.onError, cp, pageSize, Ext.getCmp('QiShiZhan_Province').getValue(), Ext.getCmp('QiShiZhan_City').getValue(), Ext.getCmp('QiShiZhan_Qx').getValue(), Ext.getCmp('DaoDaZhan_Province').getValue(), Ext.getCmp('DaoDaZhan_City').getValue(), Ext.getCmp('DaoDaZhan_Qx').getValue(), Ext.getCmp('SuoShuGongSi').getValue(), Ext.getCmp('UserDenno').getValue(), Ext.getCmp("IsBangding").getValue(), isyj);
+    }, CS.onError, cp, pageSize, Ext.getCmp('QiShiZhan_Province').getValue(), Ext.getCmp('QiShiZhan_City').getValue(), Ext.getCmp('QiShiZhan_Qx').getValue(), Ext.getCmp('DaoDaZhan_Province').getValue(), Ext.getCmp('DaoDaZhan_City').getValue(), Ext.getCmp('DaoDaZhan_Qx').getValue(), Ext.getCmp('SuoShuGongSi').getValue(), Ext.getCmp('GpsDeviceID').getValue(), Ext.getCmp('UserDenno').getValue(), Ext.getCmp("IsBangding").getValue(), isyj);
 }
 
 function ShowGJ(UserID, YunDanDenno) {
@@ -483,6 +493,21 @@ function ShowGJ(UserID, YunDanDenno) {
         url: "chadanyundanguiji.html?UserID=" + UserID + "&YunDanDenno=" + YunDanDenno + "&type=wodeyundan",
         onClose: function (ret) {
             
+        }
+    });
+}
+
+function JCBD(UserID, YunDanDenno)
+{
+    Ext.Msg.confirm("提示", "是否解绑该设备?", function (btn) {
+        if (btn == "yes") {
+            CS('CZCLZ.Handler.CloseBD', function (retVal) {
+                if (retVal) {
+                    Ext.Msg.alert("提示", "解除绑定成功！", function () {
+                        DataBind(1);
+                    });
+                }
+            }, CS.onError, UserID, YunDanDenno);
         }
     });
 }

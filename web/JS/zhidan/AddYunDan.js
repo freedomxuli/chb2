@@ -318,28 +318,6 @@ Ext.onReady(function () {
                                         xtype: 'textfield',
                                         columnWidth: 1,
                                         padding: '0 20 10 20',
-                                        id: 'Purchaser',
-                                        fieldLabel: '收货单位'
-                                    },
-                                    {
-                                        xtype: 'textfield',
-                                        columnWidth: 0.5,
-                                        padding: '0 0 10 20',
-                                        id: 'PurchaserPerson',
-                                        fieldLabel: '收货人'
-                                    },
-                                    {
-                                        xtype: 'textfield',
-                                        columnWidth: 0.5,
-                                        padding: '0 20 10 10',
-                                        id: 'PurchaserTel',
-                                        labelWidth: 60,
-                                        fieldLabel: '联系方式'
-                                    },
-                                    {
-                                        xtype: 'textfield',
-                                        columnWidth: 1,
-                                        padding: '0 20 10 20',
                                         id: 'CarrierCompany',
                                         fieldLabel: '承运公司（专线）'
                                     },
@@ -364,6 +342,35 @@ Ext.onReady(function () {
                                         padding: '0 20 10 20',
                                         id: 'YunDanRemark',
                                         fieldLabel: '备注'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        columnWidth: 1,
+                                        padding: '0 20 10 20',
+                                        id: 'Purchaser',
+                                        fieldLabel: '收货单位'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        columnWidth: 0.5,
+                                        padding: '0 0 10 20',
+                                        id: 'PurchaserPerson',
+                                        fieldLabel: '收货人'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        columnWidth: 0.5,
+                                        padding: '0 20 10 10',
+                                        id: 'PurchaserTel',
+                                        labelWidth: 60,
+                                        fieldLabel: '联系方式'
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        columnWidth: 1,
+                                        padding: '0 20 10 20',
+                                        fieldLabel: '特别说明',
+                                        value: '<span style="color:red;">收货单位、收货人等信息只有在各平台“我的运单”中才能查看。</span>'
                                     }
                                 ]
                             },

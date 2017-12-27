@@ -428,7 +428,7 @@ public class Handler
     }
 
     [CSMethod("SearchMyYunDan")]
-    public object SearchMyYunDan(int CurrentPage, int PageSize, string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string SuoShuGongSi, string UserDenno, string IsBangding, int isyj)
+    public object SearchMyYunDan(int CurrentPage, int PageSize, string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string SuoShuGongSi,string GpsDeviceID, string UserDenno, string IsBangding, int isyj)
     {
         using(var db = new DBConnection())
         {
@@ -495,6 +495,9 @@ public class Handler
                 if (!string.IsNullOrEmpty(UserDenno))
                     conn += " and UserDenno like @UserDenno";
 
+                if (!string.IsNullOrEmpty(GpsDeviceID))
+                    conn += " and GpsDeviceID = @GpsDeviceID";
+
                 string sql = "select * from YunDan where UserID = @UserID" + conn + " order by BangDingTime desc";
                 if (isyj == 1)
                 {
@@ -508,8 +511,10 @@ public class Handler
                 }
                 SqlCommand cmd = db.CreateCommand(sql);
                 cmd.Parameters.AddWithValue("@UserID",SystemUser.CurrentUser.UserID);
-                if (!string.IsNullOrEmpty(conn))
+                if (!string.IsNullOrEmpty(UserDenno))
                     cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno + "%");
+                if (!string.IsNullOrEmpty(GpsDeviceID))
+                    cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID);
                 if (!string.IsNullOrEmpty(QiShiZhan))
                     cmd.Parameters.AddWithValue("@QiShiZhan", "%" + QiShiZhan + "%");
                 if (!string.IsNullOrEmpty(DaoDaZhan))

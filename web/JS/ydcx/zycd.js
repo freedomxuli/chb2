@@ -184,6 +184,7 @@ Ext.onReady(function () {
                                 width: 200,
                                 sortable: false,
                                 menuDisabled: true,
+                                hidden:true,
                                 text: '收货单位'
                             },
                             {
@@ -192,6 +193,7 @@ Ext.onReady(function () {
                                 width: 100,
                                 sortable: false,
                                 menuDisabled: true,
+                                hidden: true,
                                 text: '收货人'
                             },
                             {
@@ -200,6 +202,7 @@ Ext.onReady(function () {
                                 width: 100,
                                 sortable: false,
                                 menuDisabled: true,
+                                hidden: true,
                                 text: '联系电话'
                             },
                             {
