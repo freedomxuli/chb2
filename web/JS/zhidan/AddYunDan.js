@@ -315,6 +315,13 @@ Ext.onReady(function () {
                                         fieldLabel: '销售员'
                                     },
                                     {
+                                        xtype: 'textarea',
+                                        columnWidth: 1,
+                                        padding: '0 20 10 20',
+                                        id: 'YunDanRemark',
+                                        fieldLabel: '货物信息备注'
+                                    },
+                                    {
                                         xtype: 'textfield',
                                         columnWidth: 1,
                                         padding: '0 20 10 20',
@@ -335,13 +342,6 @@ Ext.onReady(function () {
                                         id: 'CarrierTel',
                                         labelWidth: 60,
                                         fieldLabel: '联系方式'
-                                    },
-                                    {
-                                        xtype: 'textarea',
-                                        columnWidth: 1,
-                                        padding: '0 20 10 20',
-                                        id: 'YunDanRemark',
-                                        fieldLabel: '备注'
                                     },
                                     {
                                         xtype: 'textfield',
@@ -370,7 +370,7 @@ Ext.onReady(function () {
                                         columnWidth: 1,
                                         padding: '0 20 10 20',
                                         fieldLabel: '特别说明',
-                                        value: '<span style="color:red;">收货单位、收货人等信息只有在各平台“我的运单”中才能查看。</span>'
+                                        value: '<span style="color:red;">为保证客户隐私，目的地详细地址、收货人等信息只有在各平台“我的运单”中才能查看。</span>'
                                     }
                                 ]
                             },

@@ -533,17 +533,20 @@ public class Handler
                     DataTable dt_distance = db.ExecuteDataTable(sql);
                     if (dt_distance.Rows.Count > 0)
                     {
-                        dt.Rows[i]["Gps_distance"] = dt_distance.Rows[0]["Gps_distance"].ToString() + "公里";
-
-                        int hour = 0;
-                        int minute = 0;
-                        if (Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) / 60) == 0)
-                            dt.Rows[i]["Gps_duration"] = Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()).ToString("F0") + "分钟";
-                        else
+                        if (!string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_distance"].ToString()) && !string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_duration"].ToString()))
                         {
-                            hour = Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) / 60);
-                            minute = Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) % 60);
-                            dt.Rows[i]["Gps_duration"] = hour + "小时" + minute + "分钟";
+                            dt.Rows[i]["Gps_distance"] = dt_distance.Rows[0]["Gps_distance"].ToString() + "公里";
+
+                            int hour = 0;
+                            int minute = 0;
+                            if (Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) / 60) == 0)
+                                dt.Rows[i]["Gps_duration"] = Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()).ToString("F0") + "分钟";
+                            else
+                            {
+                                hour = Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) / 60);
+                                minute = Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) % 60);
+                                dt.Rows[i]["Gps_duration"] = hour + "小时" + minute + "分钟";
+                            }
                         }
                     }
                 }
