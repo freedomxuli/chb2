@@ -18,6 +18,7 @@ using Aspose.BarCode;
 using WxPayAPI;
 using System.Collections;
 using SmartFramework4v2.Web.Common.JSON;
+using Aspose.Cells;
 
 /// <summary>
 /// Handler 的摘要说明
@@ -507,7 +508,7 @@ public class Handler
 	                          inner join (select *,cast(Gps_duration as decimal) duration from YunDanDistance where Gps_duration is not null) b on a.YunDanDenno = b.YunDanDenno
 	                          where a.Expect_Hour is not null and a.UserID = @UserID and a.IsBangding = 1 
                           ) b on a.YunDanDenno = b.YunDanDenno
-                          where a.UserID = @UserID and a.IsBangding = 1 and TimeCZ < 0" + conn + " order by BangDingTime desc";
+                          where a.UserID = @UserID and a.IsBangding = 1 and TimeCZ < 0" + conn + " and a.YunDanDenno not in (select YunDanDenno from YunDanIsArrive) order by BangDingTime desc";
                 }
                 SqlCommand cmd = db.CreateCommand(sql);
                 cmd.Parameters.AddWithValue("@UserID",SystemUser.CurrentUser.UserID);
@@ -2224,6 +2225,27 @@ public class Handler
         }
     }
 
+    [CSMethod("DownLoadMb", 2)]
+    public byte[] DownLoadMb(string id)
+    {
+        try
+        {
+            Workbook book = new Workbook();
+
+            book.Open(HttpContext.Current.Server.MapPath("~/Mb/制单模板.xlsx"));
+
+            System.IO.MemoryStream ms = new MemoryStream();
+
+            book.Save(ms, FileFormatType.Excel2007Xlsx);
+
+            return ms.ToArray();
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
     public DataTable WoDeYunDanByAll(string UserName,string UserDenno)
     {
         using (var db = new DBConnection())
@@ -2486,7 +2508,7 @@ public class Handler
 	                          inner join (select *,cast(Gps_duration as decimal) duration from YunDanDistance where Gps_duration is not null) b on a.YunDanDenno = b.YunDanDenno
 	                          where a.Expect_Hour is not null and a.UserID = @UserID and a.IsBangding = 1 
                           ) b on a.YunDanDenno = b.YunDanDenno
-                          where a.UserID = @UserID and a.IsBangding = 1 and TimeCZ < 0" + conn + " order by BangDingTime desc";
+                          where a.UserID = @UserID and a.IsBangding = 1 and TimeCZ < 0" + conn + " and a.YunDanDenno not in (select YunDanDenno from YunDanIsArrive) order by BangDingTime desc";
                     cmd = db.CreateCommand(sql);
                     if (!string.IsNullOrEmpty(UserDenno))
                         cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno + "%");

@@ -484,6 +484,21 @@ Ext.onReady(function () {
                                 handler: function () {
                                     FrameStack.popFrame();
                                 }
+                            },
+                            {
+                                text: '导出模板',
+                                iconCls: 'download',
+                                handler: function () {
+                                    //FrameStack.popFrame();
+                                    DownloadFile("CZCLZ.Handler.DownLoadMb", "制单模板.xlsx", "");
+                                }
+                            },
+                            {
+                                text: '导入模板',
+                                iconCls: 'upload',
+                                handler: function () {
+                                    //FrameStack.popFrame();
+                                }
                             }
                         ]
                     },
