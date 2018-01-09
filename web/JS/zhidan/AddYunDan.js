@@ -498,6 +498,8 @@ Ext.onReady(function () {
                                 iconCls: 'upload',
                                 handler: function () {
                                     //FrameStack.popFrame();
+                                    var win = new sjWin();
+                                    win.show();
                                 }
                             }
                         ]
@@ -635,6 +637,206 @@ function cityBind() {
     province.loadData(provincesData);
     province2.loadData(provincesData);
 }
+
+Ext.define('sjWin', {
+    extend: 'Ext.window.Window',
+
+    height: 149,
+    width: 350,
+    layout: {
+        type: 'fit'
+    },
+    closeAction: 'destroy',
+    title: '数据导入',
+    modal: true,
+
+    initComponent: function () {
+        var me = this;
+        var dr_sbid = me.sbid;
+        me.items = [
+            {
+                xtype: 'UploaderPanel',
+                id: 'uploadproductpic',
+                frame: true,
+                bodyPadding: 10,
+                title: '',
+                items: [
+                    {
+                        xtype: 'filefield',
+                        fieldLabel: '上传文件',
+                        labelWidth: 70,
+                        buttonText: '浏览',
+                        allowBlank: false,
+                        anchor: '100%'
+                    }
+                ]
+                ,
+                buttonAlign: 'center',
+                buttons: [
+                    {
+                        text: '确定',
+                        handler: function () {
+                            var form = Ext.getCmp('uploadproductpic');
+                            if (form.form.isValid()) {
+                                //取得表单中的内容
+                                var values = form.form.getValues(false);
+                                var me = this;
+
+                                //判断是否已经审核
+                                Ext.getCmp('uploadproductpic').upload('CZCLZ.Handler.UploadSJ', function (retVal) {
+                                    if (retVal) {
+                                        if (retVal.dt[0]["GpsDeviceIDByHand"] != "" && retVal.dt[0]["GpsDeviceIDByHand"] != null)
+                                            Ext.getCmp("GpsDeviceIDByHand").setValue(retVal.dt[0]["GpsDeviceIDByHand"]);
+                                        else {
+                                            Ext.Msg.alert("提示", "输入码不能为空！");
+                                            return;
+                                        }
+                                        if (retVal.dt[0]["QiShiZhan_Province"] != "" && retVal.dt[0]["QiShiZhan_Province"] != null) {
+                                            var provinceIndex = province.find("ID", retVal.dt[0]["QiShiZhan_Province"]);
+                                            if (provinceIndex >= 0)
+                                                Ext.getCmp("QiShiZhan_Province").setValue(retVal.dt[0]["QiShiZhan_Province"]);
+                                            else {
+                                                Ext.Msg.alert("提示", "出发地省份不规范，请重新填写或选择！");
+                                                return;
+                                            }
+                                        } else {
+                                            Ext.Msg.alert("提示", "出发地省份不能为空！");
+                                            return;
+                                        }
+                                        if (retVal.dt[0]["QiShiZhan_City"] != "" && retVal.dt[0]["QiShiZhan_City"] != null) {
+                                            var cityIndex = city.find("ID", retVal.dt[0]["QiShiZhan_City"]);
+                                            if (cityIndex >= 0)
+                                                Ext.getCmp("QiShiZhan_City").setValue(retVal.dt[0]["QiShiZhan_City"]);
+                                            else {
+                                                Ext.Msg.alert("提示", "出发地城市不规范，请重新填写或选择！");
+                                                return;
+                                            }
+                                        } else {
+                                            Ext.Msg.alert("提示", "出发地城市不能为空！");
+                                            return;
+                                        }
+                                        if (retVal.dt[0]["QiShiZhan_Qx"] != "" && retVal.dt[0]["QiShiZhan_Qx"] != null) {
+                                            var qxIndex = qx.find("ID", retVal.dt[0]["QiShiZhan_Qx"]);
+                                            if (qxIndex >= 0)
+                                                Ext.getCmp("QiShiZhan_Qx").setValue(retVal.dt[0]["QiShiZhan_Qx"]);
+                                            else {
+                                                Ext.Msg.alert("提示", "出发地区县不规范，请重新填写或选择！");
+                                                return;
+                                            }
+                                        } else {
+                                            Ext.Msg.alert("提示", "出发地区县不能为空！");
+                                            return;
+                                        }
+                                        if (retVal.dt[0]["DaoDaZhan_Province"] != "" && retVal.dt[0]["DaoDaZhan_Province"] != null) {
+                                            var provinceIndex2 = province2.find("ID", retVal.dt[0]["DaoDaZhan_Province"]);
+                                            if (provinceIndex2 >= 0)
+                                                Ext.getCmp("DaoDaZhan_Province").setValue(retVal.dt[0]["DaoDaZhan_Province"]);
+                                            else {
+                                                Ext.Msg.alert("提示", "目的地省份不规范，请重新填写或选择！");
+                                                return;
+                                            }
+                                        } else {
+                                            Ext.Msg.alert("提示", "目的地省份不能为空！");
+                                            return;
+                                        }
+                                        if (retVal.dt[0]["DaoDaZhan_City"] != "" && retVal.dt[0]["DaoDaZhan_City"] != null) {
+                                            var cityIndex2 = city2.find("ID", retVal.dt[0]["DaoDaZhan_City"]);
+                                            if (cityIndex2 >= 0)
+                                                Ext.getCmp("DaoDaZhan_City").setValue(retVal.dt[0]["DaoDaZhan_City"]);
+                                            else {
+                                                Ext.Msg.alert("提示", "目的地城市不规范，请重新填写或选择！");
+                                                return;
+                                            }
+                                        } else {
+                                            Ext.Msg.alert("提示", "目的地城市不能为空！");
+                                            return;
+                                        }
+                                        if (retVal.dt[0]["DaoDaZhan_Qx"] != "" && retVal.dt[0]["DaoDaZhan_Qx"] != null) {
+                                            var qxIndex2 = qx2.find("ID", retVal.dt[0]["DaoDaZhan_Qx"]);
+                                            if (qxIndex2 >= 0)
+                                                Ext.getCmp("DaoDaZhan_Qx").setValue(retVal.dt[0]["DaoDaZhan_Qx"]);
+                                            else {
+                                                Ext.Msg.alert("提示", "目的地区县不规范，请重新填写或选择！");
+                                                return;
+                                            }
+                                        } else {
+                                            Ext.Msg.alert("提示", "目的地区县不能为空！");
+                                            return;
+                                        }
+                                        if (retVal.dt[0]["SuoShuGongSi"] != "" && retVal.dt[0]["SuoShuGongSi"] != null)
+                                            Ext.getCmp("SuoShuGongSi").setValue(retVal.dt[0]["SuoShuGongSi"]);
+                                        else {
+                                            Ext.Msg.alert("提示", "建单公司不能为空！");
+                                            return;
+                                        }
+                                        if (retVal.dt[0]["UserDenno"] != "" && retVal.dt[0]["UserDenno"] != null)
+                                            Ext.getCmp("UserDenno").setValue(retVal.dt[0]["UserDenno"]);
+                                        else {
+                                            Ext.Msg.alert("提示", "建单号不能为空！");
+                                            return;
+                                        }
+                                        if (retVal.dt[0]["Expect_Hour"] != "" && retVal.dt[0]["Expect_Hour"] != null)
+                                            Ext.getCmp("Expect_Hour").setValue(retVal.dt[0]["Expect_Hour"]);
+                                        else {
+                                            Ext.Msg.alert("提示", "预计小时数不能为空！");
+                                            return;
+                                        }
+                                        Ext.getCmp("QiShiAddress").setValue(retVal.dt[0]["QiShiAddress"]);
+                                        Ext.getCmp("DaoDaAddress").setValue(retVal.dt[0]["DaoDaAddress"]);
+                                        Ext.getCmp("SalePerson").setValue(retVal.dt[0]["SalePerson"]);
+                                        Ext.getCmp("YunDanRemark").setValue(retVal.dt[0]["YunDanRemark"]);
+                                        Ext.getCmp("CarrierCompany").setValue(retVal.dt[0]["CarrierCompany"]);
+                                        Ext.getCmp("CarrierPerson").setValue(retVal.dt[0]["CarrierPerson"]);
+                                        Ext.getCmp("CarrierTel").setValue(retVal.dt[0]["CarrierTel"]);
+                                        Ext.getCmp("Purchaser").setValue(retVal.dt[0]["Purchaser"]);
+                                        Ext.getCmp("PurchaserPerson").setValue(retVal.dt[0]["PurchaserPerson"]);
+                                        Ext.getCmp("PurchaserTel").setValue(retVal.dt[0]["PurchaserTel"]);
+
+                                        if (retVal.dt_mx.length > 0)
+                                        {
+                                            for (var i = 0; i < retVal.dt_mx.length; i++)
+                                            {
+                                                xuhao++;
+                                                var add_record = [{
+                                                    'ID': xuhao,
+                                                    'GoodsName': retVal.dt_mx[i]["GoodsName"],
+                                                    'GoodsPack': retVal.dt_mx[i]["GoodsPack"],
+                                                    'GoodsNum': retVal.dt_mx[i]["GoodsNum"],
+                                                    'GoodsWeight': retVal.dt_mx[i]["GoodsWeight"],
+                                                    'GoodsVolume': retVal.dt_mx[i]["GoodsVolume"]
+                                                }];
+
+                                                detailStore.add(add_record);
+                                            }
+                                        }
+                                        me.up('window').close();
+                                    }
+                                }, function (err) {
+                                    Ext.Msg.show({
+                                        title: '错误',
+                                        msg: err,
+                                        buttons: Ext.MessageBox.OK,
+                                        icon: Ext.MessageBox.ERROR,
+                                        fn: function () {
+                                            me.up('window').close();
+                                        }
+                                    });
+                                }, 1);
+                            }
+                        }
+                    },
+                    {
+                        text: '关闭',
+                        handler: function () {
+                            this.up('window').close();
+                        }
+                    }
+                ]
+            }
+        ];
+        me.callParent(arguments);
+    }
+});
 
 Ext.define('PickCompany', {
     extend: 'Ext.window.Window',
