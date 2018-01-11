@@ -360,6 +360,11 @@ public class InterFaceHandler : IHttpHandler {
                 hash["sign"] = "4";
                 hash["msg"] = "制单失败，充值次数已用光，请充值后再制单！";
             }
+            else if (sign == 5)
+            {
+                hash["sign"] = "5";
+                hash["msg"] = "制单失败，已有运单绑定设备，请先解绑已绑定的设备的运单！";
+            }
             else if (sign == 100)
             {
                 hash["sign"] = "100";
