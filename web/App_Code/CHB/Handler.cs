@@ -2865,6 +2865,11 @@ public class Handler
                     }
                     else
                     {
+                        string sql_up = "update YunDan set IsBangding = 0,JieBangTime =@JieBangTime,GpsDevicevid='',GpsDevicevKey='' where GpsDeviceID = @GpsDeviceID and IsBangding = 1";
+                        cmd = db.CreateCommand(sql_up);
+                        cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID);
+                        cmd.Parameters.AddWithValue("@JieBangTime", DateTime.Now);
+                        db.ExecuteNonQuery(cmd);
 
                         string sql_yun = "select * from YunDan where GpsDeviceID = @GpsDeviceID and IsBangding = 1";
                         cmd = db.CreateCommand(sql_yun);
@@ -3039,7 +3044,7 @@ public class Handler
                 DataTable dt = db.ExecuteDataTable(cmd);
                 if (dt.Rows.Count > 0)
                 {
-                    sql = "update YunDan set IsBangding = 0,JieBangTime =@JieBangTime where UserID = @UserID and UserDenno = @UserDenno";
+                    sql = "update YunDan set IsBangding = 0,JieBangTime =@JieBangTime,GpsDevicevid='',GpsDevicevKey='' where UserID = @UserID and UserDenno = @UserDenno";
                     cmd = db.CreateCommand(sql);
                     cmd.Parameters.Add("@UserID", UserID);
                     cmd.Parameters.Add("@UserDenno", UserDenno);
