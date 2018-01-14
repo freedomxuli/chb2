@@ -2867,7 +2867,9 @@ public class Handler
                     {
 
                         string sql_yun = "select * from YunDan where GpsDeviceID = @GpsDeviceID and IsBangding = 1";
-                        DataTable dt_yun_num = db.ExecuteDataTable(sql_yun);
+                        cmd = db.CreateCommand(sql_yun);
+                        cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID);
+                        DataTable dt_yun_num = db.ExecuteDataTable(cmd);
                         if (dt_yun_num.Rows.Count > 0)
                         {
                             sign = 5;//已绑定设备，请先解绑已绑定的设备的运单
