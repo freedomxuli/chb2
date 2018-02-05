@@ -1738,6 +1738,7 @@ public class Handler
                 dr["ChongZhiCiShu"] = ChongZhiCiShu;
                 dr["ChongZhiTime"] = DateTime.Now;
                 dr["ZhiFuZhuangTai"] = 0;
+                dr["ChongZhiSH"] = 0;
                 dr["ChongZhiRemark"] = ChongZhiRemark;
                 dr["OrderDenno"] = OrderDenno;
                 dt.Rows.Add(dr);
@@ -1750,6 +1751,35 @@ public class Handler
 
                 //将url生成二维码图片
                 return "MakeQRCode.aspx?data=" + HttpUtility.UrlEncode(url);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
+    [CSMethod("ShowAliByCZ")]
+    public bool ShowAliByCZ(string OrderDenno, decimal ChongZhiJinE, int ChongZhiCiShu, string ChongZhiRemark)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                DataTable dt = db.GetEmptyDataTable("ChongZhi");
+                DataRow dr = dt.NewRow();
+                dr["UserID"] = SystemUser.CurrentUser.UserID;
+                dr["ChongZhiJinE"] = ChongZhiJinE;
+                dr["ChongZhiCiShu"] = ChongZhiCiShu;
+                dr["ChongZhiTime"] = DateTime.Now;
+                dr["ZhiFuZhuangTai"] = 0;
+                dr["ChongZhiSH"] = 0;
+                dr["ChongZhiRemark"] = ChongZhiRemark;
+                dr["OrderDenno"] = OrderDenno;
+                dt.Rows.Add(dr);
+                db.InsertTable(dt);
+
+                return true;
             }
             catch (Exception ex)
             {

@@ -95,6 +95,32 @@ Ext.onReady(function () {
                                     {
                                         xtype: 'button',
                                         iconCls: 'enable',
+                                        text: '支付宝支付',
+                                        style: 'padding:15px;margin-left:20px;',
+                                        handler: function () {
+                                            CS('CZCLZ.Handler.GetOrderDenno', function (ret) {
+                                                if (ret) {
+                                                    OrderDenno = ret;
+                                                    //window.open("../../PayByAli/Ali_url.aspx");
+                                                    var win = new Ali();
+                                                    win.show(null, function () {
+                                                        CS('CZCLZ.Handler.ShowAliByCZ', function (retVal) {
+                                                            if (retVal) {
+                                                                Ext.getCmp("AliFrame").update("<iframe frameborder='0' src='../../PayByAli/Ali_url.aspx?orderdenno=" + OrderDenno + "&fin_je=" + fin_je + "&lx=1' width='100%' height='100%'></iframe>");
+                                                                setTimeout(function () {
+                                                                    Ext.getCmp("AliFrame").show();
+                                                                    getSuccess2();
+                                                                }, 1500);
+                                                            }
+                                                        }, CS.onError, OrderDenno, fin_je, fin_num, memo);
+                                                    });
+                                                }
+                                            }, CS.onError, "01");
+                                        }
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        iconCls: 'enable',
                                         text: '公对公支付',
                                         style: 'padding:15px;margin-left:20px;',
                                         handler: function () {
@@ -260,6 +286,20 @@ function getSuccess() {
     }, 3000);
 }
 
+function getSuccess2() {
+    StartSearch = setInterval(function () {
+        ACS('CZCLZ.Handler.StartSearch', function (retVal) {
+            if (retVal) {
+                Ext.getCmp("AliYun").close();
+                Ext.Msg.alert("提示", "充值成功！", function () {
+                    radioBind();
+                    window.clearInterval(StartSearch);
+                });
+            }
+        }, CS.onError, OrderDenno)
+    }, 3000);
+}
+
 Ext.define('EWM', {
     extend: 'Ext.window.Window',
 
@@ -294,6 +334,58 @@ Ext.define('EWM', {
                         {
                             text: '关闭',
                             iconCls:'close',
+                            handler: function () {
+                                window.clearInterval(StartSearch);
+                                me.close();
+                            }
+                        }
+                    ]
+                }
+            ]
+        });
+
+        me.callParent(arguments);
+    }
+
+});
+
+Ext.define('Ali', {
+    extend: 'Ext.window.Window',
+
+    height: 350,
+    width:700,
+    layout: {
+        type: 'fit'
+    },
+    title: '支付宝支付',
+    modal: true,
+    id: 'AliYun',
+
+    initComponent: function () {
+        var me = this;
+
+        Ext.applyIf(me, {
+            items: [
+                {
+                    xtype: 'panel',
+                    layout: {
+                        type: 'fit'
+                    },
+                    id: 'AliFrame',
+                    hidden: true,
+                    html: "",
+                    //items: [
+                    //    {
+                    //        xtype: 'image',
+                    //        id: 'ShowEWM',
+                    //        margin: '80 140 80 140'
+                    //    }
+                    //],
+                    buttonAlign: 'center',
+                    buttons: [
+                        {
+                            text: '关闭',
+                            iconCls: 'close',
                             handler: function () {
                                 window.clearInterval(StartSearch);
                                 me.close();
