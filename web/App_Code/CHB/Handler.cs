@@ -3157,6 +3157,153 @@ public class Handler
         }
     }
 
+    [CSMethod("GetPoint_file", 2)]
+    public byte[] GetPoint_file(string UserID, string YunDanDenno)
+    {
+        using (DBConnection dbc = new DBConnection())
+        {
+            try
+            {
+                //DataTable dt = GetPJSDXLTJByPjsd(startdate, endate, pjsdno, pjsdid, qyid);
+                //dt.Columns.Remove("avgprice_qr");
+                //dt.Columns.Remove("zbprice_qr");
+                //dt.Columns.Remove("PJYH_qr");
+
+                Workbook workbook = new Workbook(); //工作簿
+                Worksheet sheet = workbook.Worksheets[0]; //工作表
+                Cells cells = sheet.Cells;//单元格
+
+                //为标题设置样式  
+                Style styleTitle = workbook.Styles[workbook.Styles.Add()];//新增样式
+                styleTitle.HorizontalAlignment = TextAlignmentType.Center;//文字居中
+                styleTitle.Font.Name = "宋体";//文字字体
+                styleTitle.Font.Size = 16;//文字大小
+                styleTitle.Font.IsBold = true;//粗体
+
+                //样式1
+                Style style1 = workbook.Styles[workbook.Styles.Add()];//新增样式
+                style1.HorizontalAlignment = TextAlignmentType.Center;//文字居中
+                style1.Font.Name = "宋体";//文字字体
+                style1.Font.Size = 12;//文字大小
+                style1.Font.IsBold = true;//粗体
+                //style1.IsTextWrapped = true;//单元格内容自动换行
+
+                //样式1
+                Style style2 = workbook.Styles[workbook.Styles.Add()];//新增样式
+                style2.HorizontalAlignment = TextAlignmentType.Center;//文字居中
+                style2.Font.Name = "宋体";//文字字体
+                style2.Font.Size = 12;//文字大小
+               // style2.IsTextWrapped = true;//单元格内容自动换行
+                style2.Font.IsBold = true;//粗体
+                style2.Borders[BorderType.LeftBorder].LineStyle = CellBorderType.Thin;
+                style2.Borders[BorderType.RightBorder].LineStyle = CellBorderType.Thin;
+                style2.Borders[BorderType.TopBorder].LineStyle = CellBorderType.Thin;
+                style2.Borders[BorderType.BottomBorder].LineStyle = CellBorderType.Thin;
+
+                Style style3 = workbook.Styles[workbook.Styles.Add()];//新增样式
+                style3.HorizontalAlignment = TextAlignmentType.Center;//文字居中
+                style3.Font.Name = "宋体";//文字字体
+                style3.Font.Size = 12;//文字大小
+                style3.IsTextWrapped = true;//单元格内容自动换行
+                style3.Borders[BorderType.LeftBorder].LineStyle = CellBorderType.Thin;
+                style3.Borders[BorderType.RightBorder].LineStyle = CellBorderType.Thin;
+                style3.Borders[BorderType.TopBorder].LineStyle = CellBorderType.Thin;
+                style3.Borders[BorderType.BottomBorder].LineStyle = CellBorderType.Thin;
+
+                int maxnum = 5;
+                int currentRow = 0;
+                cells.Merge(currentRow, 0, 1, maxnum);
+                cells.SetRowHeight(currentRow, 28);
+                cells[currentRow, 0].PutValue("运单号："+YunDanDenno + "定位表");
+                cells[currentRow, 0].SetStyle(styleTitle);
+
+                currentRow++;
+
+                cells[currentRow, 0].PutValue("序号");
+                cells[currentRow, 0].SetStyle(style2);
+                cells.SetColumnWidth(0, 8);
+
+                cells[currentRow, 1].PutValue("经度");
+                cells[currentRow, 1].SetStyle(style2);
+                cells.SetColumnWidth(1, 25);
+
+                cells[currentRow, 2].PutValue("纬度");
+                cells[currentRow, 2].SetStyle(style2);
+                cells.SetColumnWidth(2, 25);
+
+                cells[currentRow, 3].PutValue("定位时间");
+                cells[currentRow, 3].SetStyle(style2);
+                cells.SetColumnWidth(3, 25);
+
+                cells[currentRow, 4].PutValue("定位地址");
+                cells[currentRow, 4].SetStyle(style2);
+                cells.SetColumnWidth(4, 65);
+
+                cells.SetRowHeight(currentRow, 20);
+
+                int xh = 0;
+                //foreach (DataRow dr in dt.Rows)
+                //{
+                //    currentRow++;
+                //    xh++;
+                //    cells[currentRow, 0].PutValue(xh);
+                //    cells[currentRow, 0].SetStyle(style3);
+
+                //    cells[currentRow, 1].PutValue(dr["product_name"].ToString());
+                //    cells[currentRow, 1].SetStyle(style3);
+                //    cells[currentRow, 1].Style.HorizontalAlignment = TextAlignmentType.Left;
+
+
+                //    if (dr["avgprice"].ToString() != "")
+                //    {
+                //        cells[currentRow, 2].PutValue(Math.Round(Convert.ToDecimal(dr["avgprice"].ToString()), 2));
+                //    }
+                //    else
+                //    {
+                //        cells[currentRow, 2].PutValue(dr["avgprice"].ToString());
+                //    }
+                //    cells[currentRow, 2].SetStyle(style3);
+                //    cells[currentRow, 2].Style.HorizontalAlignment = TextAlignmentType.Right;
+
+                //    if (dr["zbprice"].ToString() != "")
+                //    {
+                //        cells[currentRow, 3].PutValue(Math.Round(Convert.ToDecimal(dr["zbprice"].ToString()), 2));
+                //    }
+                //    else
+                //    {
+                //        cells[currentRow, 3].PutValue(dr["zbprice"].ToString());
+                //    }
+                //    cells[currentRow, 3].SetStyle(style3);
+                //    cells[currentRow, 3].Style.HorizontalAlignment = TextAlignmentType.Right;
+
+                //    if (dr["PJYH"].ToString() != "")
+                //    {
+                //        cells[currentRow, 4].PutValue(dr["PJYH"].ToString() + "%");
+                //    }
+                //    else
+                //    {
+                //        cells[currentRow, 4].PutValue(dr["PJYH"].ToString());
+                //    }
+                //    cells[currentRow, 4].SetStyle(style3);
+                //    cells[currentRow, 4].Style.HorizontalAlignment = TextAlignmentType.Right;
+
+                //    cells.SetRowHeight(currentRow, 18);
+                //}
+
+                //sheet.AutoFitColumns();
+
+                System.IO.MemoryStream ms = workbook.SaveToStream();
+                byte[] bt = ms.ToArray();
+                return bt;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+    }
+
     public System.Collections.Hashtable Gethttpresult(string url, string data)
     {
         WebRequest request = WebRequest.Create(url);

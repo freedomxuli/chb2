@@ -29,6 +29,9 @@ public class MenuControl
                <Item Name='自由查单'>
                    <Tab p='' Name='自由查单'>approot/r/page/ydcx/zycd.html</Tab>
                 </Item>
+               <Item Name='定位下载'>
+                   <Tab p='' Name='定位下载'>approot/r/page/ydcx/dwxz.html</Tab>
+                </Item>
             </Menu>
             <Menu Name='我的GPS'>            
                 <Item Name='GPS管理'>
