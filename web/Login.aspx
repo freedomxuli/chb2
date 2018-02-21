@@ -101,7 +101,7 @@ body,td,th {
                         <td width="31%" height="36">&nbsp;</td>
                         <td width="20%" align="center"><a href="#" onclick="return Login();"><img src="images/1.jpg" width="60" height="24" border="0"></a></td>
                         <td width="21%" align="center"><a href="#" onclick="javascript:var win = window.open('', '_self');win.close();return false;"><img src="images/2.jpg" width="60" height="24" border="0" onclick="chongzhi();"></a></td>
-                        <td width="28%">&nbsp;</td>
+                        <td width="28%"><a href="javascript:void(0);" onclick="zc();">注册新用户</a></td>
                       </tr>
                     </table></td>
                 </tr>
@@ -124,7 +124,7 @@ body,td,th {
 </table>
     <script type="text/javascript">
         var newcity = {};
-
+        var yanzhengma = "";
         var province = Ext.create('Ext.data.Store', {
             fields: [
                 'ID', 'MC'
@@ -140,8 +140,8 @@ body,td,th {
         Ext.define('zhuceWin', {
             extend: 'Ext.window.Window',
 
-            height: document.documentElement.clientHeight/1.5,
-            width: document.documentElement.clientWidth / 2,
+            height: document.documentElement.clientHeight/3,
+            width: document.documentElement.clientWidth / 3,
             layout: {
                 type: 'fit'
             },
@@ -173,13 +173,14 @@ body,td,th {
                                         {
                                             xtype: 'combobox',
                                             columnWidth: 0.65,
-                                            padding: 20,
+                                            padding: 10,
                                             valueField: 'ID',
                                             displayField: 'MC',
                                             queryMode: 'local',
                                             store: province,
                                             id: 'User_Province',
                                             fieldLabel: '所在城市',
+                                            editable:false,
                                             listeners: {
                                                 change: function (data, newValue, oldValue, eOpts) {
                                                     city.loadData(newcity[newValue]);
@@ -189,41 +190,73 @@ body,td,th {
                                         {
                                             xtype: 'combobox',
                                             columnWidth: 0.35,
-                                            padding: 20,
+                                            padding: 10,
                                             valueField: 'ID',
                                             displayField: 'MC',
                                             queryMode: 'local',
                                             store: city,
+                                            editable: false,
                                             id: 'User_City'
                                         },
                                         {
                                             xtype: 'textfield',
                                             columnWidth: 1,
-                                            padding: 20,
-                                            fieldLabel: '手机号码'
+                                            padding: 10,
+                                            fieldLabel: '手机号码',
+                                            id:'MobilePhone'
                                         },
                                         {
                                             xtype: 'textfield',
                                             columnWidth: 1,
-                                            padding: 20,
-                                            fieldLabel: '登录密码'
+                                            padding: 10,
+                                            fieldLabel: '登录密码',
+                                            id:'dlmm'
                                         },
                                         {
                                             xtype: 'textfield',
                                             columnWidth: 1,
-                                            padding: 20,
-                                            fieldLabel: '确认密码'
+                                            padding: 10,
+                                            fieldLabel: '确认密码',
+                                            id:'qrmm'
                                         },
                                         {
                                             xtype: 'textfield',
                                             columnWidth: 0.8,
-                                            padding: 20,
-                                            fieldLabel: '验证码'
+                                            padding: 10,
+                                            fieldLabel: '验证码',
+                                            id:'yzm'
                                         },
                                         {
                                             xtype: 'button',
-                                            margin: '20 0 20 10',
-                                            text: '发送'
+                                            margin: '10 0 10 10',
+                                            text: '发送验证',
+                                            handler: function () {
+                                                if (Ext.getCmp("MobilePhone").getValue() == "" || Ext.getCmp("MobilePhone").getValue() == null)
+                                                {
+                                                    Ext.Msg.alert("提示", "请填写手机号！");
+                                                    return;
+                                                }
+                                                CS('CZCLZ.Handler.GetYanzhengma', function (retVal) {
+                                                    if (retVal)
+                                                    {
+                                                        if (retVal.sign == "0") {
+                                                            Ext.Msg.alert("提示", retVal.msg);
+                                                            return;
+                                                        } else {
+                                                            Ext.Msg.alert("提示", "验证码发送成功！", function () {
+                                                                yanzhengma = retVal.yzm;
+                                                            });
+                                                        }
+                                                    }
+                                                }, function (retValue) {
+                                                    Ext.MessageBox.show({
+                                                        title: "错误",
+                                                        msg: retValue,
+                                                        buttons: Ext.MessageBox.OK,
+                                                        icon: Ext.MessageBox.WARNING
+                                                    });
+                                                }, Ext.getCmp("MobilePhone").getValue(), "zhuce");
+                                            }
                                         }
                                     ],
                                     buttonAlign: 'center',
@@ -231,7 +264,61 @@ body,td,th {
                                         {
                                             text: '注册',
                                             handler: function () {
-                                                alert(1);
+                                                if (Ext.getCmp("User_Province").getValue() == "" || Ext.getCmp("User_Province").getValue() == null) {
+                                                    Ext.Msg.alert("提示", "请填写省份！");
+                                                    return;
+                                                }
+                                                if (Ext.getCmp("User_City").getValue() == "" || Ext.getCmp("User_City").getValue() == null) {
+                                                    Ext.Msg.alert("提示", "请填写城市！");
+                                                    return;
+                                                }
+                                                if (Ext.getCmp("MobilePhone").getValue() == "" || Ext.getCmp("MobilePhone").getValue() == null) {
+                                                    Ext.Msg.alert("提示", "请填写手机号！");
+                                                    return;
+                                                }
+                                                if (Ext.getCmp("dlmm").getValue() == "" || Ext.getCmp("dlmm").getValue() == null) {
+                                                    Ext.Msg.alert("提示", "请填写登录密码！");
+                                                    return;
+                                                }
+                                                if (Ext.getCmp("qrmm").getValue() == "" || Ext.getCmp("qrmm").getValue() == null) {
+                                                    Ext.Msg.alert("提示", "请填写确认密码！");
+                                                    return;
+                                                }
+                                                if (Ext.getCmp("yzm").getValue() == "" || Ext.getCmp("yzm").getValue() == null) {
+                                                    Ext.Msg.alert("提示", "请填写验证码！");
+                                                    return;
+                                                }
+                                                if (Ext.getCmp("dlmm").getValue() !=  Ext.getCmp("qrmm").getValue()) {
+                                                    Ext.Msg.alert("提示", "确认密码与确认密码需一致！");
+                                                    return;
+                                                }
+                                                if (Ext.getCmp("yzm").getValue() != yanzhengma)
+                                                {
+                                                    Ext.Msg.alert("提示", "验证码错误！");
+                                                    return;
+                                                }
+                                                CS('CZCLZ.Handler.Zhuce', function (retVal) {
+                                                    if (retVal) {
+                                                        if (retVal) {
+                                                            if (retVal.sign == "0") {
+                                                                Ext.Msg.alert("提示", retVal.msg);
+                                                                return;
+                                                            } else {
+                                                                Ext.Msg.alert("提示", "注册成功！", function () {
+                                                                    //yanzhengma = retVal.yzm;
+                                                                    location.reload();
+                                                                });
+                                                            }
+                                                        }
+                                                    }
+                                                }, function (retValue) {
+                                                    Ext.MessageBox.show({
+                                                        title: "错误",
+                                                        msg: retValue,
+                                                        buttons: Ext.MessageBox.OK,
+                                                        icon: Ext.MessageBox.WARNING
+                                                    });
+                                                }, Ext.getCmp("User_Province").getValue() + " " + Ext.getCmp("User_City").getValue(), Ext.getCmp("MobilePhone").getValue(), Ext.getCmp("dlmm").getValue(), "APP");
                                             }
                                         },
                                         {
@@ -303,7 +390,7 @@ body,td,th {
             win.close();
             return false;
         }
-        function zhuce() {
+        function zc() {
 
             var win = new zhuceWin();
             win.show(null, function () {

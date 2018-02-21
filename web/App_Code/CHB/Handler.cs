@@ -122,6 +122,79 @@ public class Handler
         }
     }
 
+    [CSMethod("GetYanzhengma")]
+    public object GetYanzhengma(string UserName, string type)
+    {
+        try
+        {
+            string sign = "0";
+            string msg = "获取验证码失败";
+            string yzm = "";
+            string url = "http://chb.yk56.net/WebService/APP_GetYanZhengMa.ashx";
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("UserName", UserName);
+            parameters.Add("type", type);
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+            if (obj["sign"].ToString() == "1")
+            {
+                sign = "1";
+                yzm = obj["yanzhengma"].ToString();
+            }
+            else
+            {
+                msg = obj["msg"].ToString();
+            }
+            return new { sign = sign, msg = msg, yzm = yzm };
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    [CSMethod("Zhuce")]
+    public object GetYanzhengma(string UserCity, string UserName, string UserPassword, string UserLeiXing)
+    {
+        try
+        {
+            string sign = "0";
+            string msg = "";
+            string url = "http://chb.yk56.net/WebService/APP_ZhuCe.ashx";
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("UserCity", UserCity);
+            parameters.Add("UserName", UserName);
+            parameters.Add("UserPassword", UserPassword);
+            parameters.Add("UserLeiXing", UserLeiXing);
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+            if (obj["sign"].ToString() == "1")
+            {
+                sign = "1";
+                msg = obj["msg"].ToString();
+            }
+            else
+            {
+                msg = obj["msg"].ToString();
+            }
+            return new { sign = sign, msg = msg};
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
     [CSMethod("GetCompanyHis")]
     public DataTable GetCompanyHis()
     {
@@ -1759,8 +1832,8 @@ public class Handler
         }
     }
 
-    [CSMethod("ShowAliByCZ")]
-    public bool ShowAliByCZ(string OrderDenno, decimal ChongZhiJinE, int ChongZhiCiShu, string ChongZhiRemark)
+    [CSMethod("ShowAliByYJ")]
+    public bool ShowAliByYJ(string OrderDenno, decimal ChongZhiJinE, int ChongZhiCiShu, string ChongZhiRemark)
     {
         using (var db = new DBConnection())
         {
@@ -3158,16 +3231,41 @@ public class Handler
     }
 
     [CSMethod("GetPoint_file", 2)]
-    public byte[] GetPoint_file(string UserID, string YunDanDenno)
+    public byte[] GetPoint_file(string UserID, string YunDanDenno,string startTime,string endTime)
     {
         using (DBConnection dbc = new DBConnection())
         {
             try
             {
-                //DataTable dt = GetPJSDXLTJByPjsd(startdate, endate, pjsdno, pjsdid, qyid);
-                //dt.Columns.Remove("avgprice_qr");
-                //dt.Columns.Remove("zbprice_qr");
-                //dt.Columns.Remove("PJYH_qr");
+                DataTable dt_yun = dbc.ExecuteDataTable("select * from YunDan where UserID = '" + UserID + "' and YunDanDenno = '" + YunDanDenno + "'");
+                DataTable dt_gps = new DataTable();
+                string conn = "";
+                string sql_gps = "";
+                if (dt_yun.Rows.Count > 0)
+                {
+                    DateTime BangDingTime_new = Convert.ToDateTime(dt_yun.Rows[0]["BangDingTime"]).AddHours(-1);
+                    if (BangDingTime_new < Convert.ToDateTime(startTime))
+                        BangDingTime_new = Convert.ToDateTime(startTime);
+                    if (dt_yun.Rows[0]["GpsDeviceID"].ToString().Substring(0,4)=="1919")
+                        sql_gps = "select * from GpsLocation where GpsDeviceID = '" + dt_yun.Rows[0]["GpsDeviceID"].ToString() + "' and Gps_time > '" + BangDingTime_new + "'";
+                    else if(dt_yun.Rows[0]["GpsDeviceID"].ToString().Substring(0,4)=="8630")
+                        sql_gps = "select * from GpsLocation2 where GpsDeviceID = '" + dt_yun.Rows[0]["GpsDeviceID"].ToString() + "' and Gps_time > '" + BangDingTime_new + "'";
+                    if (dt_yun.Rows[0]["IsBangding"].ToString() == "0")
+                    {
+                        DateTime JieBangTime_new = Convert.ToDateTime(dt_yun.Rows[0]["JieBangTime"]);
+                        if (JieBangTime_new > Convert.ToDateTime(endTime))
+                            JieBangTime_new = Convert.ToDateTime(endTime);
+                        conn = " and Gps_time < '" + JieBangTime_new + "'";
+                        sql_gps = sql_gps + conn + " order by Gps_time desc";
+                    }
+                    else
+                    {
+                        DateTime JieBangTime_new = Convert.ToDateTime(endTime);
+                        conn = " and Gps_time < '" + JieBangTime_new + "'";
+                        sql_gps = sql_gps + conn + " order by Gps_time desc";
+                    }
+                    dt_gps = dbc.ExecuteDataTable(sql_gps);
+                }
 
                 Workbook workbook = new Workbook(); //工作簿
                 Worksheet sheet = workbook.Worksheets[0]; //工作表
@@ -3214,7 +3312,7 @@ public class Handler
                 int currentRow = 0;
                 cells.Merge(currentRow, 0, 1, maxnum);
                 cells.SetRowHeight(currentRow, 28);
-                cells[currentRow, 0].PutValue("运单号："+YunDanDenno + "定位表");
+                cells[currentRow, 0].PutValue("运单号：" + dt_yun.Rows[0]["UserDenno"].ToString() + "定位表");
                 cells[currentRow, 0].SetStyle(styleTitle);
 
                 currentRow++;
@@ -3242,53 +3340,32 @@ public class Handler
                 cells.SetRowHeight(currentRow, 20);
 
                 int xh = 0;
-                //foreach (DataRow dr in dt.Rows)
-                //{
-                //    currentRow++;
-                //    xh++;
-                //    cells[currentRow, 0].PutValue(xh);
-                //    cells[currentRow, 0].SetStyle(style3);
+                foreach (DataRow dr in dt_gps.Rows)
+                {
+                    currentRow++;
+                    xh++;
+                    cells[currentRow, 0].PutValue(xh);
+                    cells[currentRow, 0].SetStyle(style3);
 
-                //    cells[currentRow, 1].PutValue(dr["product_name"].ToString());
-                //    cells[currentRow, 1].SetStyle(style3);
-                //    cells[currentRow, 1].Style.HorizontalAlignment = TextAlignmentType.Left;
+                    cells[currentRow, 1].PutValue(dr["Gps_lng"].ToString());
+                    cells[currentRow, 1].SetStyle(style3);
+                    cells[currentRow, 1].Style.HorizontalAlignment = TextAlignmentType.Left;
 
 
-                //    if (dr["avgprice"].ToString() != "")
-                //    {
-                //        cells[currentRow, 2].PutValue(Math.Round(Convert.ToDecimal(dr["avgprice"].ToString()), 2));
-                //    }
-                //    else
-                //    {
-                //        cells[currentRow, 2].PutValue(dr["avgprice"].ToString());
-                //    }
-                //    cells[currentRow, 2].SetStyle(style3);
-                //    cells[currentRow, 2].Style.HorizontalAlignment = TextAlignmentType.Right;
+                    cells[currentRow, 2].PutValue(dr["Gps_lat"].ToString());
+                    cells[currentRow, 2].SetStyle(style3);
+                    cells[currentRow, 2].Style.HorizontalAlignment = TextAlignmentType.Left;
 
-                //    if (dr["zbprice"].ToString() != "")
-                //    {
-                //        cells[currentRow, 3].PutValue(Math.Round(Convert.ToDecimal(dr["zbprice"].ToString()), 2));
-                //    }
-                //    else
-                //    {
-                //        cells[currentRow, 3].PutValue(dr["zbprice"].ToString());
-                //    }
-                //    cells[currentRow, 3].SetStyle(style3);
-                //    cells[currentRow, 3].Style.HorizontalAlignment = TextAlignmentType.Right;
+                    cells[currentRow, 3].PutValue(Convert.ToDateTime(dr["Gps_time"].ToString()).ToString("yyyy-MM-dd HH:mm:ss"));
+                    cells[currentRow, 3].SetStyle(style3);
+                    cells[currentRow, 3].Style.HorizontalAlignment = TextAlignmentType.Left;
 
-                //    if (dr["PJYH"].ToString() != "")
-                //    {
-                //        cells[currentRow, 4].PutValue(dr["PJYH"].ToString() + "%");
-                //    }
-                //    else
-                //    {
-                //        cells[currentRow, 4].PutValue(dr["PJYH"].ToString());
-                //    }
-                //    cells[currentRow, 4].SetStyle(style3);
-                //    cells[currentRow, 4].Style.HorizontalAlignment = TextAlignmentType.Right;
+                    cells[currentRow, 4].PutValue(dr["Gps_info"].ToString());
+                    cells[currentRow, 4].SetStyle(style3);
+                    cells[currentRow, 4].Style.HorizontalAlignment = TextAlignmentType.Left;
 
-                //    cells.SetRowHeight(currentRow, 18);
-                //}
+                    cells.SetRowHeight(currentRow, 48);
+                }
 
                 //sheet.AutoFitColumns();
 

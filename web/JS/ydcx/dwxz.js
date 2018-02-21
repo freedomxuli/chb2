@@ -90,7 +90,7 @@ Ext.onReady(function () {
                                 menuDisabled: true,
                                 text: '查看轨迹',
                                 renderer: function (value, cellmeta, record, rowIndex, columnIndex, store) {
-                                    return "<a href='javascript:void(0);' onClick='ShowGJ(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看轨迹</a>　<a href='javascript:void(0);' onClick='dc(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>下载定位</a>";
+                                    return "<a href='javascript:void(0);' onClick='ShowGJ(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看轨迹</a>　<a href='javascript:void(0);' onClick='dc(\"" + value + "\",\"" + record.data.YunDanDenno + "\",\"" + record.data.BangDingTime + "\");'>下载定位</a>";
                                 }
                             },
                             {
@@ -508,7 +508,87 @@ function JCBD(UserID, YunDanDenno) {
     });
 }
 
-function dc(UserID, YunDanDenno)
+Ext.define('dcWin', {
+    extend: 'Ext.window.Window',
+
+    height: 289,
+    width: 441,
+    layout: {
+        type: 'fit'
+    },
+    title: '导出定位',
+    modal: true,
+
+    initComponent: function () {
+        var me = this;
+
+        Ext.applyIf(me, {
+            items: [
+                {
+                    xtype: 'panel',
+                    layout: {
+                        type: 'column'
+                    },
+                    items: [
+                        {
+                            xtype: 'datefield',
+                            padding: 10,
+                            format: 'Y-m-d',
+                            id:'StartTime',
+                            fieldLabel: '开始时间'
+                        },
+                        {
+                            xtype: 'datefield',
+                            padding: 10,
+                            format: 'Y-m-d',
+                            id: 'EndTime',
+                            fieldLabel: '结束时间'
+                        }
+                    ],
+                    buttonAlign: 'center',
+                    buttons: [
+                        {
+                            text: '下载',
+                            handler: function () {
+                                if (Ext.getCmp("StartTime").getValue() == "" || Ext.getCmp("StartTime").getValue() == "")
+                                {
+                                    Ext.Msg.alert("提示", "开始时间必填！");
+                                    return;
+                                }
+                                if (Ext.getCmp("EndTime").getValue() == "" || Ext.getCmp("EndTime").getValue() == "") {
+                                    Ext.Msg.alert("提示", "结束时间必填！");
+                                    return;
+                                }
+                                var date3 = new Date(Ext.getCmp("EndTime").getValue()).getTime() - new Date(Ext.getCmp("StartTime").getValue()).getTime();
+                                if (date3 < 0)
+                                {
+                                    Ext.Msg.alert("提示", "结束时间应大于开始时间！");
+                                    return;
+                                }
+                                var days = Math.floor(date3 / (24 * 3600 * 1000));
+                                if (days > 7)
+                                {
+                                    Ext.Msg.alert("提示", "结束时间与开始时间最大时间差为7天！");
+                                    return;
+                                }
+                                DownloadFile("CZCLZ.Handler.GetPoint_file", "定位下载.xls", me.UserID, me.YunDanDenno, Ext.getCmp("StartTime").getValue(), Ext.getCmp("EndTime").getValue());
+                            }
+                        }
+                    ]
+                }
+            ]
+        });
+
+        me.callParent(arguments);
+    }
+
+});
+
+function dc(UserID, YunDanDenno, BangDingTime)
 {
-    DownloadFile("CZCLZ.Handler.GetPoint_file", "定位下载.xls", UserID, YunDanDenno);
+    var win = new dcWin({ UserID: UserID, YunDanDenno: YunDanDenno });
+    win.show(null, function () {
+        Ext.getCmp("StartTime").setValue(new Date(BangDingTime));
+        Ext.getCmp("EndTime").setValue(new Date(new Date(BangDingTime).getTime() + (7 * 24 * 60 * 60 * 1000)));
+    });
 }

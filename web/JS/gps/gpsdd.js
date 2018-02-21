@@ -194,6 +194,21 @@ Ext.define('zhifuWin', {
                             }
                         },
                         {
+                            xtype: 'button',
+                            iconCls: 'enable',
+                            text: '支付宝支付',
+                            handler: function () {
+                                var win = new Ali();
+                                win.show(null, function () {
+                                    Ext.getCmp("AliFrame").update("<iframe frameborder='0' src='../../PayByAli/Ali_url.aspx?orderdenno=" + me.OrderDenno + "&fin_je=" + me.GpsDingDanJinE + "&lx=2' width='100%' height='100%'></iframe>");
+                                    setTimeout(function () {
+                                        Ext.getCmp("AliFrame").show();
+                                        getSuccess2(me.OrderDenno);
+                                    }, 1500);
+                                });
+                            }
+                        },
+                        {
                             text: '公对公支付',
                             iconCls: 'enable',
                             handler: function () {
@@ -260,6 +275,52 @@ Ext.define('EWM', {
                             margin: '80 140 80 140'
                         }
                     ],
+                    buttonAlign: 'center',
+                    buttons: [
+                        {
+                            text: '关闭',
+                            iconCls: 'close',
+                            handler: function () {
+                                DataBind();
+                                window.clearInterval(StartSearch);
+                                me.close();
+                            }
+                        }
+                    ]
+                }
+            ]
+        });
+
+        me.callParent(arguments);
+    }
+
+});
+
+Ext.define('Ali', {
+    extend: 'Ext.window.Window',
+
+    height: 350,
+    width: 700,
+    layout: {
+        type: 'fit'
+    },
+    title: '支付宝支付',
+    modal: true,
+    id: 'AliYun',
+
+    initComponent: function () {
+        var me = this;
+
+        Ext.applyIf(me, {
+            items: [
+                {
+                    xtype: 'panel',
+                    layout: {
+                        type: 'fit'
+                    },
+                    id: 'AliFrame',
+                    hidden: true,
+                    html: "",
                     buttonAlign: 'center',
                     buttons: [
                         {
@@ -422,5 +483,19 @@ function getSuccess(OrderDenno) {
                 });
             }
         }, CS.onError, OrderDenno)
+    }, 3000);
+}
+
+function getSuccess2(OrderDenno) {
+    StartSearch = setInterval(function () {
+        ACS('CZCLZ.Handler.StartSearch', function (retVal) {
+            if (retVal) {
+                Ext.getCmp("AliYun").close();
+                DataBind();
+                Ext.Msg.alert("提示", "支付成功！", function () {
+                    window.clearInterval(StartSearch);
+                });
+            }
+        }, CS.onError, OrderDenno);
     }, 3000);
 }
