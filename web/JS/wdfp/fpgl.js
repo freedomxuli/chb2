@@ -52,7 +52,7 @@ Ext.onReady(function () {
                                 flex: 1,
                                 sortable: false,
                                 menuDisabled: true,
-                                text: '组织机构代码'
+                                text: '纳税人识别号'
                             },
                             {
                                 xtype: 'gridcolumn',
