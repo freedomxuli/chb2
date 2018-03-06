@@ -93,6 +93,9 @@ Ext.onReady(function () {
                                                         handler: function () {
                                                             if (Ext.getCmp("GpsDeviceID").getValue() != "" && Ext.getCmp("GpsDeviceID").getValue() != null) {
                                                                 var n = Ext.getCmp("GpsDeviceID").getValue().indexOf("1919");
+                                                                if (n != 0) {
+                                                                    n = Ext.getCmp("GpsDeviceID").getValue().indexOf("8630");
+                                                                }
                                                                 if (n == 0) {
                                                                     CS('CZCLZ.Handler.TuiDanDeciceIsClose', function (ret) {
                                                                         if (ret) {

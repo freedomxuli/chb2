@@ -261,21 +261,12 @@ public class Handler
                 dbc.ExecuteNonQuery(cmd);
                 #endregion
 
-                #region  更新用户剩余次数
-                int UserRemainder = Convert.ToInt32(dt_user.Rows[0]["UserRemainder"].ToString()) - 1;
-                sql = "update [dbo].[User] set UserRemainder = @UserRemainder where UserID = @UserID";
-                cmd = dbc.CreateCommand(sql);
-                cmd.Parameters.AddWithValue("@UserID", UserID);
-                cmd.Parameters.AddWithValue("@UserRemainder", UserRemainder);
-                dbc.ExecuteNonQuery(cmd);
-                #endregion
-
-                #region  更新设备绑定状态
-                sql = "update YunDan set IsBangding = 0 where GpsDeviceID = @GpsDeviceID";
-                cmd = dbc.CreateCommand(sql);
-                cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID);
-                dbc.ExecuteNonQuery(cmd);
-                #endregion
+                //#region  更新设备绑定状态
+                //sql = "update YunDan set IsBangding = 0 where GpsDeviceID = @GpsDeviceID";
+                //cmd = dbc.CreateCommand(sql);
+                //cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID);
+                //dbc.ExecuteNonQuery(cmd);
+                //#endregion
 
                 #region  插入运单表
                 Hashtable gpsinfo = Gethttpresult("http://101.37.253.238:89/gpsonline/GPSAPI", "version=1&method=vLoginSystem&name=" + GpsDeviceID + "&pwd=123456");
@@ -302,6 +293,15 @@ public class Handler
                     DateTime gpstm = DateTime.Now;
                     if (gpslocation["success"].ToString().ToUpper() == "True".ToUpper())
                     {
+                        #region  更新用户剩余次数
+                        int UserRemainder = Convert.ToInt32(dt_user.Rows[0]["UserRemainder"].ToString()) - 1;
+                        sql = "update [dbo].[User] set UserRemainder = @UserRemainder where UserID = @UserID";
+                        cmd = dbc.CreateCommand(sql);
+                        cmd.Parameters.AddWithValue("@UserID", UserID);
+                        cmd.Parameters.AddWithValue("@UserRemainder", UserRemainder);
+                        dbc.ExecuteNonQuery(cmd);
+                        #endregion
+
                         Newtonsoft.Json.Linq.JArray ja = (Newtonsoft.Json.Linq.JArray)Newtonsoft.Json.JsonConvert.DeserializeObject(gpslocation["locs"].ToString());
                         string newgpstime = ja.First()["gpstime"].ToString();
                         //newgpstime = newgpstime.Substring(0, newgpstime.Length - 2);
@@ -431,7 +431,7 @@ public class Handler
                             dr_yundan["CarrierTel"] = CarrierTel;
                             dr_yundan["DaoDaAddress"] = DaoDaAddress;
                             dr_yundan["QiShiAddress"] = QiShiAddress;
-                            if (IsChuFaMessage=="false")
+                            if (IsChuFaMessage == "false")
                                 dr_yundan["IsChuFaMessage"] = 0;
                             else
                                 dr_yundan["IsChuFaMessage"] = 1;
@@ -448,7 +448,8 @@ public class Handler
                             if (jsr.Length > 0)
                             {
                                 DataTable dt_detail = dbc.GetEmptyDataTable("YunDanDetails");
-                                for (int i = 0; i < jsr.Length; i++) {
+                                for (int i = 0; i < jsr.Length; i++)
+                                {
                                     DataRow dr = dt_detail.NewRow();
                                     dr["YunDanDenno"] = dr_yundan["YunDanDenno"];
                                     foreach (var item in jsr[i])
@@ -463,6 +464,10 @@ public class Handler
                             dbc.CommitTransaction();
                         }
                     }
+                }
+                else
+                {
+                    throw new Exception("该设备链接不上服务器！请联系查货宝！");
                 }
 
                 #endregion
