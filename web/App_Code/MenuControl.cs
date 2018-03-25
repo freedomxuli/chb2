@@ -18,8 +18,11 @@ public class MenuControl
         <MainMenu>
         
             <Menu Name='制单'>            
-                <Item Name='制单'>
-                   <Tab p='' Name='制单'>approot/r/page/zhidan/zhidan.html</Tab>
+                <Item Name='新增运单'>
+                   <Tab p='' Name='新增运单'>approot/r/page/zhidan/selectzd.html</Tab>
+                </Item>
+                <Item Name='制单设置'>
+                   <Tab p='' Name='制单设置'>approot/r/page/zhidan/zhidansz.html</Tab>
                 </Item>
             </Menu>
             <Menu Name='运单查询'>            
