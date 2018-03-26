@@ -47,6 +47,9 @@ public class InterFaceHandler : IHttpHandler {
             case "GetWayBillMemoByUserDenno":
                 str = GetWayBillMemoByUserDenno(context);
                 break;
+            case "GetWayBillMemoByUserDennoZC":
+                str = GetWayBillMemoByUserDennoZC(context);
+                break;
             case "RelieveWayBill":
                 str = RelieveWayBill(context);
                 break;
@@ -375,6 +378,38 @@ public class InterFaceHandler : IHttpHandler {
         {
             hash["sign"] = "0";
             hash["msg"] = "制单失败，错误:" + ex.Message;
+        }
+        return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
+    }
+
+    public string GetWayBillMemoByUserDennoZC(HttpContext context)
+    {
+        Newtonsoft.Json.Linq.JObject hash = new Newtonsoft.Json.Linq.JObject();
+        hash["sign"] = "0";
+        hash["msg"] = "查单失败！";
+        try
+        {
+            if (!string.IsNullOrEmpty(context.Request["UserDenno"]) && !string.IsNullOrEmpty(context.Request["UserID"]))
+            {
+                Handler App_Handler = new Handler();
+                System.Data.DataTable dt = App_Handler.GetWayBillMemoByUserDennoZC(context.Request["UserID"], context.Request["UserDenno"]);
+                Newtonsoft.Json.Linq.JArray jary = new Newtonsoft.Json.Linq.JArray();
+                jary = Newtonsoft.Json.JsonConvert.DeserializeObject(Newtonsoft.Json.JsonConvert.SerializeObject(dt)) as Newtonsoft.Json.Linq.JArray;
+
+                hash["sign"] = "1";
+                hash["msg"] = "查单成功！";
+                hash["info"] = jary;
+            }
+            else
+            {
+                hash["sign"] = "2";
+                hash["msg"] = "查单失败，用户标示或单号不能为空";
+            }
+        }
+        catch (Exception ex)
+        {
+            hash["sign"] = "0";
+            hash["msg"] = "查单失败，错误:" + ex.Message;
         }
         return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
     }

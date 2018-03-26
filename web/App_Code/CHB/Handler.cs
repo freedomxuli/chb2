@@ -244,6 +244,14 @@ public class Handler
 
                 string UserID = SystemUser.CurrentUser.UserID;
 
+                string sql_danhao = "select * from YunDan where UserID = @UserID and UserDenno = @UserDenno";
+                SqlCommand cmd_danhao = dbc.CreateCommand(sql_danhao);
+                cmd_danhao.Parameters.AddWithValue("@UserID", UserID);
+                cmd_danhao.Parameters.AddWithValue("@UserDenno", UserDenno);
+                DataTable dt_userdenno = dbc.ExecuteDataTable(cmd_danhao);
+                if (dt_userdenno.Rows.Count > 0)
+                    throw new Exception("单号为：" + UserDenno + "的单号重复！");
+
                 string sql_user = "select * from [dbo].[User] where UserID = @UserID";
                 SqlCommand cmd = dbc.CreateCommand(sql_user);
                 cmd.Parameters.AddWithValue("@UserID", UserID);
@@ -3187,6 +3195,56 @@ public class Handler
                 cmd.Parameters.AddWithValue("@UserID", UserID);
                 cmd.Parameters.AddWithValue("@UserDenno", UserDenno);
                 DataTable dt = db.ExecuteDataTable(cmd);
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
+    public DataTable GetWayBillMemoByUserDennoZC(string UserID, string UserDenno)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                string sql = "select BangDingTime Time,UserDenno,QiShiZhan Departure,DaoDaZhan Destination,SuoShuGongSi Company,GpsDeviceID,YunDanRemark Memo,Gps_lastinfo,Gps_lastlat,Gps_lastlng,QiShiZhan_lat,QiShiZhan_lng,DaoDaZhan_lat,DaoDaZhan_lng from YunDan where UserID = @UserID and UserDenno = @UserDenno";
+                SqlCommand cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID", UserID);
+                cmd.Parameters.AddWithValue("@UserDenno", UserDenno);
+                DataTable dt = db.ExecuteDataTable(cmd);
+                dt.Columns.Add("ArriveState");
+
+                sql = "select * from YunDanIsArrive where YunDanDenno in (select YunDanDenno from YunDan where UserID = @UserID and UserDenno = @UserDenno)";
+                cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID", UserID);
+                cmd.Parameters.AddWithValue("@UserDenno", UserDenno);
+                DataTable dt_arrive = db.ExecuteDataTable(cmd);
+                if (dt_arrive.Rows.Count > 0)
+                {
+                    string DaoDaZhan = dt.Rows[0]["DaoDaZhan"].ToString().Replace(" ", "");
+                    string[] LastZhanArray = dt.Rows[0]["Gps_lastinfo"].ToString().Split(' ');
+                    string LastZhan = "";
+                    if (LastZhanArray.Length >= 2)
+                    {
+                        LastZhan = LastZhanArray[0] + LastZhanArray[1];
+                    }
+                    if (DaoDaZhan == LastZhan)
+                    {
+                        dt.Rows[0]["ArriveState"] = 1;//已达
+                    }
+                    else
+                    {
+                        dt.Rows[0]["ArriveState"] = 2;//返回
+                    }
+                }
+                else
+                { 
+                   dt.Rows[0]["ArriveState"] = 0;//未达
+                }
+
                 return dt;
             }
             catch (Exception ex)
