@@ -401,11 +401,11 @@ public class Handler
                             DataTable dt_yundan = dbc.GetEmptyDataTable("YunDan");
                             DataRow dr_yundan = dt_yundan.NewRow();
                             dr_yundan["YunDanDenno"] = DateTime.Now.ToString("yyyyMMddHHmmssfff");
-                            dr_yundan["UserDenno"] = UserDenno;
+                            dr_yundan["UserDenno"] = UserDenno.TrimEnd(' ').TrimStart(' ');
                             dr_yundan["UserID"] = UserID;
                             dr_yundan["QiShiZhan"] = QiShiZhan_Text;
                             dr_yundan["DaoDaZhan"] = DaoDaZhan_Text;
-                            dr_yundan["SuoShuGongSi"] = SuoShuGongSi;
+                            dr_yundan["SuoShuGongSi"] = SuoShuGongSi.TrimEnd(' ').TrimStart(' ');
                             dr_yundan["BangDingTime"] = DateTime.Now;
                             dr_yundan["GpsDeviceID"] = GpsDeviceID;
                             dr_yundan["Gps_lastlat"] = newlat;
@@ -690,11 +690,11 @@ public class Handler
                             DataTable dt_yundan = dbc.GetEmptyDataTable("YunDan");
                             DataRow dr_yundan = dt_yundan.NewRow();
                             dr_yundan["YunDanDenno"] = DateTime.Now.ToString("yyyyMMddHHmmssfff");
-                            dr_yundan["UserDenno"] = UserDenno;
+                            dr_yundan["UserDenno"] = UserDenno.TrimEnd(' ').TrimStart(' ');
                             dr_yundan["UserID"] = UserID;
                             dr_yundan["QiShiZhan"] = QiShiZhan_Text;
                             dr_yundan["DaoDaZhan"] = DaoDaZhan_Text;
-                            dr_yundan["SuoShuGongSi"] = SuoShuGongSi;
+                            dr_yundan["SuoShuGongSi"] = SuoShuGongSi.TrimEnd(' ').TrimStart(' ');
                             dr_yundan["BangDingTime"] = DateTime.Now;
                             dr_yundan["GpsDeviceID"] = GpsDeviceID;
                             dr_yundan["Gps_lastlat"] = newlat;
@@ -788,9 +788,9 @@ public class Handler
     }
 
     [CSMethod("SearchMyYunDan")]
-    public object SearchMyYunDan(int CurrentPage, int PageSize, string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string SuoShuGongSi,string GpsDeviceID, string UserDenno, string IsBangding, int isyj)
+    public object SearchMyYunDan(int CurrentPage, int PageSize, string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string SuoShuGongSi, string GpsDeviceID, string UserDenno, string IsBangding, int isyj)
     {
-        using(var db = new DBConnection())
+        using (var db = new DBConnection())
         {
             try
             {
@@ -870,7 +870,7 @@ public class Handler
                           where a.UserID = @UserID and a.IsBangding = 1 and TimeCZ < 0" + conn + " and a.YunDanDenno not in (select YunDanDenno from YunDanIsArrive) order by BangDingTime desc";
                 }
                 SqlCommand cmd = db.CreateCommand(sql);
-                cmd.Parameters.AddWithValue("@UserID",SystemUser.CurrentUser.UserID);
+                cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
                 if (!string.IsNullOrEmpty(UserDenno))
                     cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno + "%");
                 if (!string.IsNullOrEmpty(GpsDeviceID))
@@ -908,6 +908,497 @@ public class Handler
                                 dt.Rows[i]["Gps_duration"] = hour + "小时" + minute + "分钟";
                             }
                         }
+                    }
+                }
+
+                #region  插入操作表
+                DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
+                DataRow dr = dt_caozuo.NewRow();
+                dr["UserID"] = SystemUser.CurrentUser.UserID;
+                dr["CaoZuoLeiXing"] = "我的运单";
+                dr["CaoZuoNeiRong"] = "web登录我的运单查询，搜索单号：" + UserDenno;
+                dr["CaoZuoTime"] = DateTime.Now;
+                dr["CaoZuoRemark"] = "";
+                dt_caozuo.Rows.Add(dr);
+                db.InsertTable(dt_caozuo);
+                #endregion
+
+                return new { dt = dt, cp = cp, ac = ac };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
+    [CSMethod("SearchMyYunDanByZT")]
+    public object SearchMyYunDanByZT(int CurrentPage, int PageSize, string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string SuoShuGongSi, string GpsDeviceID, string UserDenno, string StartTime, string EndTime, string Purchaser, string CarrierCompany)
+    {
+        using(var db = new DBConnection())
+        {
+            try
+            {
+                int cp = CurrentPage;
+                int ac = 0;
+
+                string conn = "";
+
+                string QiShiZhan = "";
+                string DaoDaZhan = "";
+
+                if (!string.IsNullOrEmpty(QiShiZhan_Province))
+                {
+                    QiShiZhan += QiShiZhan_Province;
+                }
+                if (!string.IsNullOrEmpty(QiShiZhan_City))
+                {
+                    if (QiShiZhan_Province != QiShiZhan_City)
+                        QiShiZhan += " " + QiShiZhan_City;
+                }
+                if (!string.IsNullOrEmpty(QiShiZhan_Qx))
+                {
+                    conn += " and QiShiZhan_QX like @QiShiZhan_QX";
+                }
+                if (!string.IsNullOrEmpty(QiShiZhan))
+                {
+                    conn += " and QiShiZhan like @QiShiZhan";
+                }
+                if (!string.IsNullOrEmpty(DaoDaZhan_Province))
+                {
+                    DaoDaZhan += DaoDaZhan_Province;
+                }
+                if (!string.IsNullOrEmpty(DaoDaZhan_City))
+                {
+                    if (DaoDaZhan_Province != DaoDaZhan_City)
+                        DaoDaZhan += " " + DaoDaZhan_City;
+                }
+
+                if (!string.IsNullOrEmpty(DaoDaZhan_Qx))
+                {
+                    conn += " and DaoDaZhan_QX like @DaoDaZhan_QX";
+                }
+                if (!string.IsNullOrEmpty(DaoDaZhan))
+                {
+                    conn += " and DaoDaZhan like @DaoDaZhan";
+                }
+                if (!string.IsNullOrEmpty(SuoShuGongSi))
+                {
+                    conn += " and SuoShuGongSi like @SuoShuGongSi";
+                }
+                if (!string.IsNullOrEmpty(UserDenno))
+                    conn += " and UserDenno like @UserDenno";
+
+                if (!string.IsNullOrEmpty(GpsDeviceID))
+                    conn += " and GpsDeviceID = @GpsDeviceID";
+
+                if (!string.IsNullOrEmpty(StartTime) && !string.IsNullOrEmpty(EndTime))
+                    conn += " and BangDingTime >= @StartTime and BangDingTime <= @EndTime";
+
+                if(!string.IsNullOrEmpty(Purchaser))
+                    conn += " and Purchaser like @Purchaser";
+
+                if (!string.IsNullOrEmpty(CarrierCompany))
+                    conn += " and CarrierCompany like @CarrierCompany";
+
+                string sql = "select * from YunDan where UserID = @UserID and IsBangding = 1" + conn + " order by BangDingTime desc";
+//                if (isyj == 1)
+//                {
+//                    sql = @"select a.* from YunDan a 
+//                          inner join (
+//	                          select DATEDIFF(mi,dateadd(SS,duration,getdate()),dateadd(HH,a.Expect_Hour,a.BangDingTime)) TimeCZ,a.YunDanDenno from YunDan a
+//	                          inner join (select *,cast(Gps_duration as decimal) duration from YunDanDistance where Gps_duration is not null) b on a.YunDanDenno = b.YunDanDenno
+//	                          where a.Expect_Hour is not null and a.UserID = @UserID and a.IsBangding = 1 
+//                          ) b on a.YunDanDenno = b.YunDanDenno
+//                          where a.UserID = @UserID and a.IsBangding = 1 and TimeCZ < 0" + conn + " and a.YunDanDenno not in (select YunDanDenno from YunDanIsArrive) order by BangDingTime desc";
+//                }
+                SqlCommand cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID",SystemUser.CurrentUser.UserID);
+                if (!string.IsNullOrEmpty(UserDenno))
+                    cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno.Replace(" ","") + "%");
+                if (!string.IsNullOrEmpty(GpsDeviceID))
+                    cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID.Replace(" ", ""));
+                if (!string.IsNullOrEmpty(QiShiZhan))
+                    cmd.Parameters.AddWithValue("@QiShiZhan", "%" + QiShiZhan + "%");
+                if (!string.IsNullOrEmpty(DaoDaZhan))
+                    cmd.Parameters.AddWithValue("@DaoDaZhan", "%" + DaoDaZhan + "%");
+                if (!string.IsNullOrEmpty(SuoShuGongSi))
+                    cmd.Parameters.AddWithValue("@SuoShuGongSi", "%" + SuoShuGongSi.Replace(" ", "") + "%");
+                if (!string.IsNullOrEmpty(QiShiZhan_Qx))
+                    cmd.Parameters.AddWithValue("@QiShiZhan_QX", "%" + QiShiZhan_Qx + "%");
+                if (!string.IsNullOrEmpty(DaoDaZhan_Qx))
+                    cmd.Parameters.AddWithValue("@DaoDaZhan_QX", "%" + DaoDaZhan_Qx + "%");
+                if (!string.IsNullOrEmpty(StartTime) && !string.IsNullOrEmpty(EndTime))
+                {
+                    cmd.Parameters.AddWithValue("@StartTime", Convert.ToDateTime(StartTime));
+                    cmd.Parameters.AddWithValue("@EndTime", Convert.ToDateTime(EndTime));
+                }
+                if(!string.IsNullOrEmpty(Purchaser))
+                    cmd.Parameters.AddWithValue("@Purchaser", "%" + Purchaser.Replace(" ", "") + "%");
+                if (!string.IsNullOrEmpty(CarrierCompany))
+                    cmd.Parameters.AddWithValue("@CarrierCompany", "%" + CarrierCompany.Replace(" ", "") + "%");
+
+                DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
+                dt.Columns.Add("Expect_ArriveTime");
+                dt.Columns.Add("Actual_ArriveTime");
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    sql = "select * from YunDanDistance where YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'";
+                    DataTable dt_distance = db.ExecuteDataTable(sql);
+                    if (dt_distance.Rows.Count > 0)
+                    {
+                        if (!string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_distance"].ToString()) && !string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_duration"].ToString()))
+                        {
+                            dt.Rows[i]["Gps_distance"] = dt_distance.Rows[0]["Gps_distance"].ToString() + "公里";
+
+                            int hour = 0;
+                            int minute = 0;
+                            if (Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) / 60) == 0)
+                                dt.Rows[i]["Gps_duration"] = Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()).ToString("F0") + "分钟";
+                            else
+                            {
+                                hour = Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) / 60);
+                                minute = Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) % 60);
+                                dt.Rows[i]["Gps_duration"] = hour + "小时" + minute + "分钟";
+                            }
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(dt.Rows[i]["Expect_Hour"].ToString()))
+                    {
+                        dt.Rows[i]["Expect_ArriveTime"] = Convert.ToDateTime(dt.Rows[i]["BangDingTime"]).AddHours(Convert.ToDouble(dt.Rows[i]["Expect_Hour"].ToString()));
+                    }
+                    sql = "select * from YunDanIsArrive where YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'";
+                    DataTable dt_arrive = db.ExecuteDataTable(sql);
+                    if (dt_arrive.Rows.Count > 0)
+                    {
+                        dt.Rows[i]["Actual_ArriveTime"] = dt_arrive.Rows[0]["Addtime"];
+                    }
+                }
+
+                #region  插入操作表
+                DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
+                DataRow dr = dt_caozuo.NewRow();
+                dr["UserID"] = SystemUser.CurrentUser.UserID;
+                dr["CaoZuoLeiXing"] = "我的运单";
+                dr["CaoZuoNeiRong"] = "web登录我的运单查询，搜索单号：" + UserDenno;
+                dr["CaoZuoTime"] = DateTime.Now;
+                dr["CaoZuoRemark"] = "";
+                dt_caozuo.Rows.Add(dr);
+                db.InsertTable(dt_caozuo);
+                #endregion
+
+                return new { dt = dt, cp = cp, ac = ac };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
+    [CSMethod("SearchMyYunDanByYJ")]
+    public object SearchMyYunDanByYJ(int CurrentPage, int PageSize, string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string SuoShuGongSi, string GpsDeviceID, string UserDenno, string StartTime, string EndTime, string Purchaser, string CarrierCompany)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                int cp = CurrentPage;
+                int ac = 0;
+
+                string conn = "";
+
+                string QiShiZhan = "";
+                string DaoDaZhan = "";
+
+                if (!string.IsNullOrEmpty(QiShiZhan_Province))
+                {
+                    QiShiZhan += QiShiZhan_Province;
+                }
+                if (!string.IsNullOrEmpty(QiShiZhan_City))
+                {
+                    if (QiShiZhan_Province != QiShiZhan_City)
+                        QiShiZhan += " " + QiShiZhan_City;
+                }
+                if (!string.IsNullOrEmpty(QiShiZhan_Qx))
+                {
+                    conn += " and QiShiZhan_QX like @QiShiZhan_QX";
+                }
+                if (!string.IsNullOrEmpty(QiShiZhan))
+                {
+                    conn += " and QiShiZhan like @QiShiZhan";
+                }
+                if (!string.IsNullOrEmpty(DaoDaZhan_Province))
+                {
+                    DaoDaZhan += DaoDaZhan_Province;
+                }
+                if (!string.IsNullOrEmpty(DaoDaZhan_City))
+                {
+                    if (DaoDaZhan_Province != DaoDaZhan_City)
+                        DaoDaZhan += " " + DaoDaZhan_City;
+                }
+
+                if (!string.IsNullOrEmpty(DaoDaZhan_Qx))
+                {
+                    conn += " and DaoDaZhan_QX like @DaoDaZhan_QX";
+                }
+                if (!string.IsNullOrEmpty(DaoDaZhan))
+                {
+                    conn += " and DaoDaZhan like @DaoDaZhan";
+                }
+                if (!string.IsNullOrEmpty(SuoShuGongSi))
+                {
+                    conn += " and SuoShuGongSi like @SuoShuGongSi";
+                }
+                if (!string.IsNullOrEmpty(UserDenno))
+                    conn += " and UserDenno like @UserDenno";
+
+                if (!string.IsNullOrEmpty(GpsDeviceID))
+                    conn += " and GpsDeviceID = @GpsDeviceID";
+
+                if (!string.IsNullOrEmpty(StartTime) && !string.IsNullOrEmpty(EndTime))
+                    conn += " and BangDingTime >= @StartTime and BangDingTime <= @EndTime";
+
+                if (!string.IsNullOrEmpty(Purchaser))
+                    conn += " and Purchaser like @Purchaser";
+
+                if (!string.IsNullOrEmpty(CarrierCompany))
+                    conn += " and CarrierCompany like @CarrierCompany";
+
+                string sql = @"select a.* from YunDan a 
+                                inner join (
+                	                select DATEDIFF(mi,dateadd(SS,duration,getdate()),dateadd(HH,a.Expect_Hour,a.BangDingTime)) TimeCZ,a.YunDanDenno from YunDan a
+                	                inner join (select *,cast(Gps_duration as decimal) duration from YunDanDistance where Gps_duration is not null) b on a.YunDanDenno = b.YunDanDenno
+                	                where a.Expect_Hour is not null and a.UserID = @UserID and a.IsBangding = 1 
+                                ) b on a.YunDanDenno = b.YunDanDenno
+                                where a.UserID = @UserID and a.IsBangding = 1 and TimeCZ < 0" + conn + " and a.YunDanDenno not in (select YunDanDenno from YunDanIsArrive) order by BangDingTime desc";
+                SqlCommand cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                if (!string.IsNullOrEmpty(UserDenno))
+                    cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno.Replace(" ", "") + "%");
+                if (!string.IsNullOrEmpty(GpsDeviceID))
+                    cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID.Replace(" ", ""));
+                if (!string.IsNullOrEmpty(QiShiZhan))
+                    cmd.Parameters.AddWithValue("@QiShiZhan", "%" + QiShiZhan + "%");
+                if (!string.IsNullOrEmpty(DaoDaZhan))
+                    cmd.Parameters.AddWithValue("@DaoDaZhan", "%" + DaoDaZhan + "%");
+                if (!string.IsNullOrEmpty(SuoShuGongSi))
+                    cmd.Parameters.AddWithValue("@SuoShuGongSi", "%" + SuoShuGongSi.Replace(" ", "") + "%");
+                if (!string.IsNullOrEmpty(QiShiZhan_Qx))
+                    cmd.Parameters.AddWithValue("@QiShiZhan_QX", "%" + QiShiZhan_Qx + "%");
+                if (!string.IsNullOrEmpty(DaoDaZhan_Qx))
+                    cmd.Parameters.AddWithValue("@DaoDaZhan_QX", "%" + DaoDaZhan_Qx + "%");
+                if (!string.IsNullOrEmpty(StartTime) && !string.IsNullOrEmpty(EndTime))
+                {
+                    cmd.Parameters.AddWithValue("@StartTime", Convert.ToDateTime(StartTime));
+                    cmd.Parameters.AddWithValue("@EndTime", Convert.ToDateTime(EndTime));
+                }
+                if (!string.IsNullOrEmpty(Purchaser))
+                    cmd.Parameters.AddWithValue("@Purchaser", "%" + Purchaser.Replace(" ", "") + "%");
+                if (!string.IsNullOrEmpty(CarrierCompany))
+                    cmd.Parameters.AddWithValue("@CarrierCompany", "%" + CarrierCompany.Replace(" ", "") + "%");
+
+                DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
+                dt.Columns.Add("Expect_ArriveTime");
+                dt.Columns.Add("Actual_ArriveTime");
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    sql = "select * from YunDanDistance where YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'";
+                    DataTable dt_distance = db.ExecuteDataTable(sql);
+                    if (dt_distance.Rows.Count > 0)
+                    {
+                        if (!string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_distance"].ToString()) && !string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_duration"].ToString()))
+                        {
+                            dt.Rows[i]["Gps_distance"] = dt_distance.Rows[0]["Gps_distance"].ToString() + "公里";
+
+                            int hour = 0;
+                            int minute = 0;
+                            if (Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) / 60) == 0)
+                                dt.Rows[i]["Gps_duration"] = Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()).ToString("F0") + "分钟";
+                            else
+                            {
+                                hour = Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) / 60);
+                                minute = Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) % 60);
+                                dt.Rows[i]["Gps_duration"] = hour + "小时" + minute + "分钟";
+                            }
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(dt.Rows[i]["Expect_Hour"].ToString()))
+                    {
+                        dt.Rows[i]["Expect_ArriveTime"] = Convert.ToDateTime(dt.Rows[i]["BangDingTime"]).AddHours(Convert.ToDouble(dt.Rows[i]["Expect_Hour"].ToString()));
+                    }
+                    sql = "select * from YunDanIsArrive where YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'";
+                    DataTable dt_arrive = db.ExecuteDataTable(sql);
+                    if (dt_arrive.Rows.Count > 0)
+                    {
+                        dt.Rows[i]["Actual_ArriveTime"] = dt_arrive.Rows[0]["Addtime"];
+                    }
+                }
+
+                #region  插入操作表
+                DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
+                DataRow dr = dt_caozuo.NewRow();
+                dr["UserID"] = SystemUser.CurrentUser.UserID;
+                dr["CaoZuoLeiXing"] = "我的运单";
+                dr["CaoZuoNeiRong"] = "web登录我的运单查询，搜索单号：" + UserDenno;
+                dr["CaoZuoTime"] = DateTime.Now;
+                dr["CaoZuoRemark"] = "";
+                dt_caozuo.Rows.Add(dr);
+                db.InsertTable(dt_caozuo);
+                #endregion
+
+                return new { dt = dt, cp = cp, ac = ac };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
+    [CSMethod("SearchMyYunDanByLS")]
+    public object SearchMyYunDanByLS(int CurrentPage, int PageSize, string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string SuoShuGongSi, string GpsDeviceID, string UserDenno, string StartTime, string EndTime, string Purchaser, string CarrierCompany)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                int cp = CurrentPage;
+                int ac = 0;
+
+                string conn = "";
+
+                string QiShiZhan = "";
+                string DaoDaZhan = "";
+
+                if (!string.IsNullOrEmpty(QiShiZhan_Province))
+                {
+                    QiShiZhan += QiShiZhan_Province;
+                }
+                if (!string.IsNullOrEmpty(QiShiZhan_City))
+                {
+                    if (QiShiZhan_Province != QiShiZhan_City)
+                        QiShiZhan += " " + QiShiZhan_City;
+                }
+                if (!string.IsNullOrEmpty(QiShiZhan_Qx))
+                {
+                    conn += " and QiShiZhan_QX like @QiShiZhan_QX";
+                }
+                if (!string.IsNullOrEmpty(QiShiZhan))
+                {
+                    conn += " and QiShiZhan like @QiShiZhan";
+                }
+                if (!string.IsNullOrEmpty(DaoDaZhan_Province))
+                {
+                    DaoDaZhan += DaoDaZhan_Province;
+                }
+                if (!string.IsNullOrEmpty(DaoDaZhan_City))
+                {
+                    if (DaoDaZhan_Province != DaoDaZhan_City)
+                        DaoDaZhan += " " + DaoDaZhan_City;
+                }
+
+                if (!string.IsNullOrEmpty(DaoDaZhan_Qx))
+                {
+                    conn += " and DaoDaZhan_QX like @DaoDaZhan_QX";
+                }
+                if (!string.IsNullOrEmpty(DaoDaZhan))
+                {
+                    conn += " and DaoDaZhan like @DaoDaZhan";
+                }
+                if (!string.IsNullOrEmpty(SuoShuGongSi))
+                {
+                    conn += " and SuoShuGongSi like @SuoShuGongSi";
+                }
+                if (!string.IsNullOrEmpty(UserDenno))
+                    conn += " and UserDenno like @UserDenno";
+
+                if (!string.IsNullOrEmpty(GpsDeviceID))
+                    conn += " and GpsDeviceID = @GpsDeviceID";
+
+                if (!string.IsNullOrEmpty(StartTime) && !string.IsNullOrEmpty(EndTime))
+                    conn += " and BangDingTime >= @StartTime and BangDingTime <= @EndTime";
+
+                if (!string.IsNullOrEmpty(Purchaser))
+                    conn += " and Purchaser like @Purchaser";
+
+                if (!string.IsNullOrEmpty(CarrierCompany))
+                    conn += " and CarrierCompany like @CarrierCompany";
+
+                string sql = "select * from YunDan where UserID = @UserID and IsBangding = 0" + conn + " order by BangDingTime desc";
+                //                if (isyj == 1)
+                //                {
+                //                    sql = @"select a.* from YunDan a 
+                //                          inner join (
+                //	                          select DATEDIFF(mi,dateadd(SS,duration,getdate()),dateadd(HH,a.Expect_Hour,a.BangDingTime)) TimeCZ,a.YunDanDenno from YunDan a
+                //	                          inner join (select *,cast(Gps_duration as decimal) duration from YunDanDistance where Gps_duration is not null) b on a.YunDanDenno = b.YunDanDenno
+                //	                          where a.Expect_Hour is not null and a.UserID = @UserID and a.IsBangding = 1 
+                //                          ) b on a.YunDanDenno = b.YunDanDenno
+                //                          where a.UserID = @UserID and a.IsBangding = 1 and TimeCZ < 0" + conn + " and a.YunDanDenno not in (select YunDanDenno from YunDanIsArrive) order by BangDingTime desc";
+                //                }
+                SqlCommand cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                if (!string.IsNullOrEmpty(UserDenno))
+                    cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno.Replace(" ", "") + "%");
+                if (!string.IsNullOrEmpty(GpsDeviceID))
+                    cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID.Replace(" ", ""));
+                if (!string.IsNullOrEmpty(QiShiZhan))
+                    cmd.Parameters.AddWithValue("@QiShiZhan", "%" + QiShiZhan + "%");
+                if (!string.IsNullOrEmpty(DaoDaZhan))
+                    cmd.Parameters.AddWithValue("@DaoDaZhan", "%" + DaoDaZhan + "%");
+                if (!string.IsNullOrEmpty(SuoShuGongSi))
+                    cmd.Parameters.AddWithValue("@SuoShuGongSi", "%" + SuoShuGongSi.Replace(" ", "") + "%");
+                if (!string.IsNullOrEmpty(QiShiZhan_Qx))
+                    cmd.Parameters.AddWithValue("@QiShiZhan_QX", "%" + QiShiZhan_Qx + "%");
+                if (!string.IsNullOrEmpty(DaoDaZhan_Qx))
+                    cmd.Parameters.AddWithValue("@DaoDaZhan_QX", "%" + DaoDaZhan_Qx + "%");
+                if (!string.IsNullOrEmpty(StartTime) && !string.IsNullOrEmpty(EndTime))
+                {
+                    cmd.Parameters.AddWithValue("@StartTime", Convert.ToDateTime(StartTime));
+                    cmd.Parameters.AddWithValue("@EndTime", Convert.ToDateTime(EndTime));
+                }
+                if (!string.IsNullOrEmpty(Purchaser))
+                    cmd.Parameters.AddWithValue("@Purchaser", "%" + Purchaser.Replace(" ", "") + "%");
+                if (!string.IsNullOrEmpty(CarrierCompany))
+                    cmd.Parameters.AddWithValue("@CarrierCompany", "%" + CarrierCompany.Replace(" ", "") + "%");
+
+                DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
+                dt.Columns.Add("Expect_ArriveTime");
+                dt.Columns.Add("Actual_ArriveTime");
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    sql = "select * from YunDanDistance where YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'";
+                    DataTable dt_distance = db.ExecuteDataTable(sql);
+                    if (dt_distance.Rows.Count > 0)
+                    {
+                        if (!string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_distance"].ToString()) && !string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_duration"].ToString()))
+                        {
+                            dt.Rows[i]["Gps_distance"] = dt_distance.Rows[0]["Gps_distance"].ToString() + "公里";
+
+                            int hour = 0;
+                            int minute = 0;
+                            if (Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) / 60) == 0)
+                                dt.Rows[i]["Gps_duration"] = Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()).ToString("F0") + "分钟";
+                            else
+                            {
+                                hour = Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) / 60);
+                                minute = Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) % 60);
+                                dt.Rows[i]["Gps_duration"] = hour + "小时" + minute + "分钟";
+                            }
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(dt.Rows[i]["Expect_Hour"].ToString()))
+                    {
+                        dt.Rows[i]["Expect_ArriveTime"] = Convert.ToDateTime(dt.Rows[i]["BangDingTime"]).AddHours(Convert.ToDouble(dt.Rows[i]["Expect_Hour"].ToString()));
+                    }
+                    sql = "select * from YunDanIsArrive where YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'";
+                    DataTable dt_arrive = db.ExecuteDataTable(sql);
+                    if (dt_arrive.Rows.Count > 0)
+                    {
+                        dt.Rows[i]["Actual_ArriveTime"] = dt_arrive.Rows[0]["Addtime"];
                     }
                 }
 
@@ -3639,6 +4130,323 @@ public class Handler
 
 
                     cells[currentRow, 2].PutValue(dr["Gps_lat"].ToString());
+                    cells[currentRow, 2].SetStyle(style3);
+                    cells[currentRow, 2].Style.HorizontalAlignment = TextAlignmentType.Left;
+
+                    cells[currentRow, 3].PutValue(Convert.ToDateTime(dr["Gps_time"].ToString()).ToString("yyyy-MM-dd HH:mm:ss"));
+                    cells[currentRow, 3].SetStyle(style3);
+                    cells[currentRow, 3].Style.HorizontalAlignment = TextAlignmentType.Left;
+
+                    cells[currentRow, 4].PutValue(dr["Gps_info"].ToString());
+                    cells[currentRow, 4].SetStyle(style3);
+                    cells[currentRow, 4].Style.HorizontalAlignment = TextAlignmentType.Left;
+
+                    cells.SetRowHeight(currentRow, 48);
+                }
+
+                //sheet.AutoFitColumns();
+
+                System.IO.MemoryStream ms = workbook.SaveToStream();
+                byte[] bt = ms.ToArray();
+                return bt;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+    }
+
+    [CSMethod("GetPoint_fileByZT", 2)]
+    public byte[] GetPoint_fileByZT(string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string SuoShuGongSi, string GpsDeviceID, string UserDenno, string StartTime, string EndTime, string Purchaser, string CarrierCompany)
+    {
+        using (DBConnection db = new DBConnection())
+        {
+            try
+            {
+                string conn = "";
+
+                string QiShiZhan = "";
+                string DaoDaZhan = "";
+
+                if (!string.IsNullOrEmpty(QiShiZhan_Province))
+                {
+                    QiShiZhan += QiShiZhan_Province;
+                }
+                if (!string.IsNullOrEmpty(QiShiZhan_City))
+                {
+                    if (QiShiZhan_Province != QiShiZhan_City)
+                        QiShiZhan += " " + QiShiZhan_City;
+                }
+                if (!string.IsNullOrEmpty(QiShiZhan_Qx))
+                {
+                    conn += " and QiShiZhan_QX like @QiShiZhan_QX";
+                }
+                if (!string.IsNullOrEmpty(QiShiZhan))
+                {
+                    conn += " and QiShiZhan like @QiShiZhan";
+                }
+                if (!string.IsNullOrEmpty(DaoDaZhan_Province))
+                {
+                    DaoDaZhan += DaoDaZhan_Province;
+                }
+                if (!string.IsNullOrEmpty(DaoDaZhan_City))
+                {
+                    if (DaoDaZhan_Province != DaoDaZhan_City)
+                        DaoDaZhan += " " + DaoDaZhan_City;
+                }
+
+                if (!string.IsNullOrEmpty(DaoDaZhan_Qx))
+                {
+                    conn += " and DaoDaZhan_QX like @DaoDaZhan_QX";
+                }
+                if (!string.IsNullOrEmpty(DaoDaZhan))
+                {
+                    conn += " and DaoDaZhan like @DaoDaZhan";
+                }
+                if (!string.IsNullOrEmpty(SuoShuGongSi))
+                {
+                    conn += " and SuoShuGongSi like @SuoShuGongSi";
+                }
+                if (!string.IsNullOrEmpty(UserDenno))
+                    conn += " and UserDenno like @UserDenno";
+
+                if (!string.IsNullOrEmpty(GpsDeviceID))
+                    conn += " and GpsDeviceID = @GpsDeviceID";
+
+                if (!string.IsNullOrEmpty(StartTime) && !string.IsNullOrEmpty(EndTime))
+                    conn += " and BangDingTime >= @StartTime and BangDingTime <= @EndTime";
+
+                if (!string.IsNullOrEmpty(Purchaser))
+                    conn += " and Purchaser like @Purchaser";
+
+                if (!string.IsNullOrEmpty(CarrierCompany))
+                    conn += " and CarrierCompany like @CarrierCompany";
+
+                string sql = "select * from YunDan where UserID = @UserID and IsBangding = 1" + conn + " order by BangDingTime desc";
+                //                if (isyj == 1)
+                //                {
+                //                    sql = @"select a.* from YunDan a 
+                //                          inner join (
+                //	                          select DATEDIFF(mi,dateadd(SS,duration,getdate()),dateadd(HH,a.Expect_Hour,a.BangDingTime)) TimeCZ,a.YunDanDenno from YunDan a
+                //	                          inner join (select *,cast(Gps_duration as decimal) duration from YunDanDistance where Gps_duration is not null) b on a.YunDanDenno = b.YunDanDenno
+                //	                          where a.Expect_Hour is not null and a.UserID = @UserID and a.IsBangding = 1 
+                //                          ) b on a.YunDanDenno = b.YunDanDenno
+                //                          where a.UserID = @UserID and a.IsBangding = 1 and TimeCZ < 0" + conn + " and a.YunDanDenno not in (select YunDanDenno from YunDanIsArrive) order by BangDingTime desc";
+                //                }
+                SqlCommand cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                if (!string.IsNullOrEmpty(UserDenno))
+                    cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno.Replace(" ", "") + "%");
+                if (!string.IsNullOrEmpty(GpsDeviceID))
+                    cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID.Replace(" ", ""));
+                if (!string.IsNullOrEmpty(QiShiZhan))
+                    cmd.Parameters.AddWithValue("@QiShiZhan", "%" + QiShiZhan + "%");
+                if (!string.IsNullOrEmpty(DaoDaZhan))
+                    cmd.Parameters.AddWithValue("@DaoDaZhan", "%" + DaoDaZhan + "%");
+                if (!string.IsNullOrEmpty(SuoShuGongSi))
+                    cmd.Parameters.AddWithValue("@SuoShuGongSi", "%" + SuoShuGongSi.Replace(" ", "") + "%");
+                if (!string.IsNullOrEmpty(QiShiZhan_Qx))
+                    cmd.Parameters.AddWithValue("@QiShiZhan_QX", "%" + QiShiZhan_Qx + "%");
+                if (!string.IsNullOrEmpty(DaoDaZhan_Qx))
+                    cmd.Parameters.AddWithValue("@DaoDaZhan_QX", "%" + DaoDaZhan_Qx + "%");
+                if (!string.IsNullOrEmpty(StartTime) && !string.IsNullOrEmpty(EndTime))
+                {
+                    cmd.Parameters.AddWithValue("@StartTime", Convert.ToDateTime(StartTime));
+                    cmd.Parameters.AddWithValue("@EndTime", Convert.ToDateTime(EndTime));
+                }
+                if (!string.IsNullOrEmpty(Purchaser))
+                    cmd.Parameters.AddWithValue("@Purchaser", "%" + Purchaser.Replace(" ", "") + "%");
+                if (!string.IsNullOrEmpty(CarrierCompany))
+                    cmd.Parameters.AddWithValue("@CarrierCompany", "%" + CarrierCompany.Replace(" ", "") + "%");
+
+                DataTable dt = db.ExecuteDataTable(cmd);
+                dt.Columns.Add("Expect_ArriveTime");
+                dt.Columns.Add("Actual_ArriveTime");
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    sql = "select * from YunDanDistance where YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'";
+                    DataTable dt_distance = db.ExecuteDataTable(sql);
+                    if (dt_distance.Rows.Count > 0)
+                    {
+                        if (!string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_distance"].ToString()) && !string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_duration"].ToString()))
+                        {
+                            dt.Rows[i]["Gps_distance"] = dt_distance.Rows[0]["Gps_distance"].ToString() + "公里";
+
+                            int hour = 0;
+                            int minute = 0;
+                            if (Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) / 60) == 0)
+                                dt.Rows[i]["Gps_duration"] = Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()).ToString("F0") + "分钟";
+                            else
+                            {
+                                hour = Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) / 60);
+                                minute = Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) % 60);
+                                dt.Rows[i]["Gps_duration"] = hour + "小时" + minute + "分钟";
+                            }
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(dt.Rows[i]["Expect_Hour"].ToString()))
+                    {
+                        dt.Rows[i]["Expect_ArriveTime"] = Convert.ToDateTime(dt.Rows[i]["BangDingTime"]).AddHours(Convert.ToDouble(dt.Rows[i]["Expect_Hour"].ToString()));
+                    }
+                    sql = "select * from YunDanIsArrive where YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'";
+                    DataTable dt_arrive = db.ExecuteDataTable(sql);
+                    if (dt_arrive.Rows.Count > 0)
+                    {
+                        dt.Rows[i]["Actual_ArriveTime"] = dt_arrive.Rows[0]["Addtime"];
+                    }
+                }
+
+                Workbook workbook = new Workbook(); //工作簿
+                Worksheet sheet = workbook.Worksheets[0]; //工作表
+                Cells cells = sheet.Cells;//单元格
+
+                //为标题设置样式  
+                Style styleTitle = workbook.Styles[workbook.Styles.Add()];//新增样式
+                styleTitle.HorizontalAlignment = TextAlignmentType.Center;//文字居中
+                styleTitle.Font.Name = "宋体";//文字字体
+                styleTitle.Font.Size = 16;//文字大小
+                styleTitle.Font.IsBold = true;//粗体
+
+                //样式1
+                Style style1 = workbook.Styles[workbook.Styles.Add()];//新增样式
+                style1.HorizontalAlignment = TextAlignmentType.Center;//文字居中
+                style1.Font.Name = "宋体";//文字字体
+                style1.Font.Size = 12;//文字大小
+                style1.Font.IsBold = true;//粗体
+                //style1.IsTextWrapped = true;//单元格内容自动换行
+
+                //样式1
+                Style style2 = workbook.Styles[workbook.Styles.Add()];//新增样式
+                style2.HorizontalAlignment = TextAlignmentType.Center;//文字居中
+                style2.Font.Name = "宋体";//文字字体
+                style2.Font.Size = 12;//文字大小
+                // style2.IsTextWrapped = true;//单元格内容自动换行
+                style2.Font.IsBold = true;//粗体
+                style2.Borders[BorderType.LeftBorder].LineStyle = CellBorderType.Thin;
+                style2.Borders[BorderType.RightBorder].LineStyle = CellBorderType.Thin;
+                style2.Borders[BorderType.TopBorder].LineStyle = CellBorderType.Thin;
+                style2.Borders[BorderType.BottomBorder].LineStyle = CellBorderType.Thin;
+
+                Style style3 = workbook.Styles[workbook.Styles.Add()];//新增样式
+                style3.HorizontalAlignment = TextAlignmentType.Center;//文字居中
+                style3.Font.Name = "宋体";//文字字体
+                style3.Font.Size = 12;//文字大小
+                style3.IsTextWrapped = true;//单元格内容自动换行
+                style3.Borders[BorderType.LeftBorder].LineStyle = CellBorderType.Thin;
+                style3.Borders[BorderType.RightBorder].LineStyle = CellBorderType.Thin;
+                style3.Borders[BorderType.TopBorder].LineStyle = CellBorderType.Thin;
+                style3.Borders[BorderType.BottomBorder].LineStyle = CellBorderType.Thin;
+
+                int maxnum = 5;
+                int currentRow = 0;
+                cells.Merge(currentRow, 0, 1, maxnum);
+                cells.SetRowHeight(currentRow, 28);
+                cells[currentRow, 0].PutValue("在途列表");
+                cells[currentRow, 0].SetStyle(styleTitle);
+
+                currentRow++;
+
+                cells[currentRow, 0].PutValue("建单号");
+                cells[currentRow, 0].SetStyle(style2);
+                cells.SetColumnWidth(0, 25);
+
+                cells[currentRow, 1].PutValue("建单公司");
+                cells[currentRow, 1].SetStyle(style2);
+                cells.SetColumnWidth(1, 25);
+
+                cells[currentRow, 2].PutValue("GPS设备号");
+                cells[currentRow, 2].SetStyle(style2);
+                cells.SetColumnWidth(2, 25);
+
+                cells[currentRow, 3].PutValue("制单日期");
+                cells[currentRow, 3].SetStyle(style2);
+                cells.SetColumnWidth(3, 25);
+
+                cells[currentRow, 4].PutValue("收货单位");
+                cells[currentRow, 4].SetStyle(style2);
+                cells.SetColumnWidth(4, 25);
+
+                cells[currentRow, 5].PutValue("收货方联系方式");
+                cells[currentRow, 5].SetStyle(style2);
+                cells.SetColumnWidth(5, 25);
+
+                cells[currentRow, 6].PutValue("预计到达时间");
+                cells[currentRow, 6].SetStyle(style2);
+                cells.SetColumnWidth(6, 25);
+
+                cells[currentRow, 7].PutValue("剩余时间");
+                cells[currentRow, 7].SetStyle(style2);
+                cells.SetColumnWidth(7, 25);
+
+                cells[currentRow, 8].PutValue("剩余路程");
+                cells[currentRow, 8].SetStyle(style2);
+                cells.SetColumnWidth(8, 25);
+
+                cells[currentRow, 9].PutValue("出发地");
+                cells[currentRow, 9].SetStyle(style2);
+                cells.SetColumnWidth(9, 25);
+
+                cells[currentRow, 10].PutValue("实际到达时间");
+                cells[currentRow, 10].SetStyle(style2);
+                cells.SetColumnWidth(10, 25);
+
+                cells[currentRow, 11].PutValue("目的地");
+                cells[currentRow, 11].SetStyle(style2);
+                cells.SetColumnWidth(11, 25);
+
+                cells[currentRow, 12].PutValue("当前位置");
+                cells[currentRow, 12].SetStyle(style2);
+                cells.SetColumnWidth(12, 65);
+
+                cells[currentRow, 13].PutValue("承运公司");
+                cells[currentRow, 13].SetStyle(style2);
+                cells.SetColumnWidth(13, 25);
+
+                cells[currentRow, 14].PutValue("承运公司联系方式");
+                cells[currentRow, 14].SetStyle(style2);
+                cells.SetColumnWidth(14, 25);
+
+                cells[currentRow, 15].PutValue("承运专线");
+                cells[currentRow, 15].SetStyle(style2);
+                cells.SetColumnWidth(15, 25);
+
+                cells[currentRow, 16].PutValue("承运专线联系方式");
+                cells[currentRow, 16].SetStyle(style2);
+                cells.SetColumnWidth(16, 25);
+
+                cells[currentRow, 17].PutValue("承运专线车辆车牌");
+                cells[currentRow, 17].SetStyle(style2);
+                cells.SetColumnWidth(17, 25);
+
+                cells[currentRow, 18].PutValue("驾驶员联系方式");
+                cells[currentRow, 18].SetStyle(style2);
+                cells.SetColumnWidth(18, 25);
+
+                cells[currentRow, 19].PutValue("销售员");
+                cells[currentRow, 19].SetStyle(style2);
+                cells.SetColumnWidth(19, 25);
+
+                cells[currentRow, 20].PutValue("货物信息");
+                cells[currentRow, 20].SetStyle(style2);
+                cells.SetColumnWidth(20, 25);
+
+                cells.SetRowHeight(currentRow, 20);
+
+                foreach (DataRow dr in dt.Rows)
+                {
+                    currentRow++;
+                    cells[currentRow, 0].PutValue(dr["UserDenno"].ToString());
+                    cells[currentRow, 0].SetStyle(style3);
+
+                    cells[currentRow, 1].PutValue(dr["SuoShuGongSi"].ToString());
+                    cells[currentRow, 1].SetStyle(style3);
+                    cells[currentRow, 1].Style.HorizontalAlignment = TextAlignmentType.Left;
+
+
+                    cells[currentRow, 2].PutValue(dr["SuoShuGongSi"].ToString());
                     cells[currentRow, 2].SetStyle(style3);
                     cells[currentRow, 2].Style.HorizontalAlignment = TextAlignmentType.Left;
 
