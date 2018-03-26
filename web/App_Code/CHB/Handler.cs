@@ -514,6 +514,287 @@ public class Handler
             
     }
 
+    [CSMethod("SaveYunDanNew")]
+    public bool SaveYunDanNew(string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string SuoShuGongSi, string UserDenno, string GpsDeviceID, JSReader jsr1, JSReader[] jsr)
+    {
+        using (var dbc = new DBConnection())
+        {
+            try
+            {
+                dbc.BeginTransaction();
+
+                //var cc = jsr1["Expect_Hour"];
+                //foreach (var k in jsr1)
+                //{
+                //    var aa = jsr1[k];
+                //    var bb = 0;
+                //}
+
+                bool isReturn = true;
+
+                string UserID = SystemUser.CurrentUser.UserID;
+
+                string sql_user = "select * from [dbo].[User] where UserID = @UserID";
+                SqlCommand cmd = dbc.CreateCommand(sql_user);
+                cmd.Parameters.AddWithValue("@UserID", UserID);
+                DataTable dt_user = dbc.ExecuteDataTable(cmd);
+
+                if (Convert.ToInt32(dt_user.Rows[0]["UserRemainder"].ToString()) == 0)
+                {
+                    return false;
+                }
+
+                #region  获取自定义数据
+                string sql_sel = "select * from DingDanSetList where UserID = @UserID";
+                cmd = dbc.CreateCommand(sql_sel);
+                cmd.Parameters.AddWithValue("@UserID", UserID);
+                DataTable dt_sel = dbc.ExecuteDataTable(cmd);
+                #endregion
+
+                #region  更新设备绑定状态
+                string sql = "update YunDan set IsBangding = 0 where GpsDeviceID = @GpsDeviceID";
+                cmd = dbc.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID);
+                dbc.ExecuteNonQuery(cmd);
+                #endregion
+
+                #region  更新设备绑定状态
+                sql = "update YunDan set IsBangding = 0 where GpsDeviceID = @GpsDeviceID";
+                cmd = dbc.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID);
+                dbc.ExecuteNonQuery(cmd);
+                #endregion
+
+                #region  插入运单表
+                Hashtable gpsinfo = Gethttpresult("http://101.37.253.238:89/gpsonline/GPSAPI", "version=1&method=vLoginSystem&name=" + GpsDeviceID + "&pwd=123456");
+                if (gpsinfo["success"].ToString().ToUpper() == "True".ToUpper())
+                {
+                    gpsinfo["sign"] = "1";
+                }
+                else
+                {
+                    gpsinfo["sign"] = "0";
+                }
+                string gpsvid = "";
+                string gpsvkey = "";
+                if (gpsinfo["sign"].ToString() == "1")
+                {
+                    gpsvid = gpsinfo["vid"].ToString();
+                    gpsvkey = gpsinfo["vKey"].ToString();
+
+                    Hashtable gpslocation = Gethttpresult("http://101.37.253.238:89/gpsonline/GPSAPI", "version=1&method=loadLocation&vid=" + gpsvid + "&vKey=" + gpsvkey + "");
+
+                    string newlng = "";
+                    string newlat = "";
+                    string newinfo = "";
+                    DateTime gpstm = DateTime.Now;
+                    if (gpslocation["success"].ToString().ToUpper() == "True".ToUpper())
+                    {
+                        #region  更新用户剩余次数
+                        int UserRemainder = Convert.ToInt32(dt_user.Rows[0]["UserRemainder"].ToString()) - 1;
+                        sql = "update [dbo].[User] set UserRemainder = @UserRemainder where UserID = @UserID";
+                        cmd = dbc.CreateCommand(sql);
+                        cmd.Parameters.AddWithValue("@UserID", UserID);
+                        cmd.Parameters.AddWithValue("@UserRemainder", UserRemainder);
+                        dbc.ExecuteNonQuery(cmd);
+                        #endregion
+
+                        Newtonsoft.Json.Linq.JArray ja = (Newtonsoft.Json.Linq.JArray)Newtonsoft.Json.JsonConvert.DeserializeObject(gpslocation["locs"].ToString());
+                        string newgpstime = ja.First()["gpstime"].ToString();
+                        //newgpstime = newgpstime.Substring(0, newgpstime.Length - 2);
+                        newlng = ja.First()["lng"].ToString();
+                        //newlng = newlng.Substring(0, newlng.Length - 2);
+                        newlat = ja.First()["lat"].ToString();
+                        //newlat = newlat.Substring(0, newlat.Length - 2);
+                        newinfo = ja.First()["info"].ToString();
+                        //newinfo = newinfo.Substring(0, newinfo.Length - 2);
+                        //DateTime gpstm =  DateTime.Parse("1970-01-01 00:00:00");
+                        long time_JAVA_Long = long.Parse(newgpstime);// 1207969641193;//java长整型日期，毫秒为单位          
+                        DateTime dt_1970 = new DateTime(1970, 1, 1, 0, 0, 0);
+                        long tricks_1970 = dt_1970.Ticks;//1970年1月1日刻度      
+                        long time_tricks = tricks_1970 + time_JAVA_Long * 10000;//日志日期刻度  
+                        gpstm = new DateTime(time_tricks).AddHours(8);//转化为DateTime
+                        sql = "select * from GpsLocation where Gps_time = @Gps_time and GpsDeviceID = @GpsDeviceID";
+                        cmd = dbc.CreateCommand(sql);
+                        cmd.Parameters.Add("@Gps_time", gpstm);
+                        cmd.Parameters.Add("@GpsDeviceID", GpsDeviceID);
+                        DataTable dt_locations = dbc.ExecuteDataTable(cmd);
+                        if (dt_locations.Rows.Count > 0)
+                        {
+                            DataTable dt_location_new = dbc.GetEmptyDataTable("GpsLocation");
+                            DataRow dr_location = dt_location_new.NewRow();
+                            dr_location["GpsDeviceID"] = GpsDeviceID;
+                            dr_location["Gps_lat"] = newlat;
+                            dr_location["Gps_lng"] = newlng;
+                            dr_location["Gps_time"] = gpstm;
+                            dr_location["Gps_info"] = newinfo;
+                            dr_location["GpsRemark"] = "自动定位";
+                            dt_location_new.Rows.Add(dr_location);
+                            dbc.InsertTable(dt_location_new);
+                        }
+                        //获取起始站、到达站位置
+                        string QiShiZhan_lat = "";
+                        string QiShiZhan_lng = "";
+                        string DaoDaZhan_lat = "";
+                        string DaoDaZhan_lng = "";
+                        string QiShiZhan = "";
+                        string QiShiZhan_Text = "";
+                        string DaoDaZhan = "";
+                        string DaoDaZhan_Text = "";
+
+                        if (QiShiZhan_Province == QiShiZhan_City)
+                        {
+                            QiShiZhan = QiShiZhan_City + QiShiZhan_Qx;
+                            QiShiZhan_Text = QiShiZhan_City + " " + QiShiZhan_Qx;
+                        }
+                        else
+                        {
+                            if (QiShiZhan_City == QiShiZhan_Qx)
+                            {
+                                QiShiZhan = QiShiZhan_Province + QiShiZhan_City;
+                                QiShiZhan_Text = QiShiZhan_Province + " " + QiShiZhan_City;
+                            }
+                            else
+                            {
+                                QiShiZhan = QiShiZhan_Province + QiShiZhan_City + QiShiZhan_Qx;
+                                QiShiZhan_Text = QiShiZhan_Province + " " + QiShiZhan_City;
+                            }
+                        }
+
+                        if (DaoDaZhan_Province == DaoDaZhan_City)
+                        {
+                            DaoDaZhan = DaoDaZhan_City + DaoDaZhan_Qx;
+                            DaoDaZhan_Text = DaoDaZhan_City + " " + DaoDaZhan_Qx;
+                        }
+                        else
+                        {
+                            if (DaoDaZhan_City == DaoDaZhan_Qx)
+                            {
+                                DaoDaZhan = DaoDaZhan_Province + DaoDaZhan_City;
+                                DaoDaZhan_Text = DaoDaZhan_Province + " " + DaoDaZhan_City;
+                            }
+                            else
+                            {
+                                DaoDaZhan = DaoDaZhan_Province + DaoDaZhan_City + DaoDaZhan_Qx;
+                                DaoDaZhan_Text = DaoDaZhan_Province + " " + DaoDaZhan_City;
+                            }
+                        }
+
+                        Hashtable addresshash = getmapinfobyaddress(QiShiZhan, "");
+                        if (addresshash["sign"] == "1")
+                        {
+                            QiShiZhan_lng = addresshash["location"].ToString().Split(',')[0];
+                            QiShiZhan_lat = addresshash["location"].ToString().Split(',')[1];
+                        }
+                        Hashtable daozhanaddresshash = getmapinfobyaddress(DaoDaZhan, "");
+                        if (daozhanaddresshash["sign"] == "1")
+                        {
+                            DaoDaZhan_lng = daozhanaddresshash["location"].ToString().Split(',')[0];
+                            DaoDaZhan_lat = daozhanaddresshash["location"].ToString().Split(',')[1];
+                        }
+
+                        if (!string.IsNullOrEmpty(QiShiZhan_lat) && !string.IsNullOrEmpty(DaoDaZhan_lat))
+                        {
+                            DataTable dt_yundan = dbc.GetEmptyDataTable("YunDan");
+                            DataRow dr_yundan = dt_yundan.NewRow();
+                            dr_yundan["YunDanDenno"] = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+                            dr_yundan["UserDenno"] = UserDenno;
+                            dr_yundan["UserID"] = UserID;
+                            dr_yundan["QiShiZhan"] = QiShiZhan_Text;
+                            dr_yundan["DaoDaZhan"] = DaoDaZhan_Text;
+                            dr_yundan["SuoShuGongSi"] = SuoShuGongSi;
+                            dr_yundan["BangDingTime"] = DateTime.Now;
+                            dr_yundan["GpsDeviceID"] = GpsDeviceID;
+                            dr_yundan["Gps_lastlat"] = newlat;
+                            dr_yundan["Gps_lastlng"] = newlng;
+                            if (newinfo != "")
+                            {
+                                dr_yundan["Gps_lasttime"] = gpstm;
+                            }
+                            dr_yundan["Gps_lastinfo"] = newinfo;
+                            dr_yundan["IsBangding"] = true;
+                            dr_yundan["QiShiZhan_lat"] = QiShiZhan_lat;
+                            dr_yundan["QiShiZhan_lng"] = QiShiZhan_lng;
+                            dr_yundan["DaoDaZhan_lat"] = DaoDaZhan_lat;
+                            dr_yundan["DaoDaZhan_lng"] = DaoDaZhan_lng;
+                            dr_yundan["IsChuFaMessage"] = 1;
+                            dr_yundan["IsDaoDaMessage"] = 1;
+
+                            dr_yundan["QiShiZhan_QX"] = QiShiZhan_Qx;
+                            dr_yundan["DaoDaZhan_QX"] = DaoDaZhan_Qx;
+                            dr_yundan["Expect_Hour"] = 999999;
+
+                            DataTable dt_field = dbc.GetEmptyDataTable("YunDanField");
+
+                            for (int i = 0; i < dt_sel.Rows.Count; i++)
+                            {
+                                if (!string.IsNullOrEmpty(dt_sel.Rows[i]["DingDanSetListBS"].ToString()))
+                                {
+                                    if (dt_sel.Rows[i]["DingDanSetListBS"].ToString() == "Expect_Hour")
+                                        dr_yundan[dt_sel.Rows[i]["DingDanSetListBS"].ToString()] = Convert.ToDecimal(jsr1[dt_sel.Rows[i]["DingDanSetListBS"].ToString()].ToString());
+                                    else
+                                        dr_yundan[dt_sel.Rows[i]["DingDanSetListBS"].ToString()] = jsr1[dt_sel.Rows[i]["DingDanSetListBS"].ToString()];
+                                }
+                                else
+                                {
+                                    DataRow dr_field = dt_field.NewRow();
+                                    dr_field["YunDanFieldID"] = Guid.NewGuid();
+                                    dr_field["YunDanFieldMC"] = dt_sel.Rows[i]["DingDanSetListMC"].ToString();
+                                    dr_field["YunDanFieldLX"] = Convert.ToInt32(dt_sel.Rows[i]["DingDanSetListLX"].ToString());
+                                    dr_field["YunDanFieldBS"] = "div" + dt_sel.Rows[i]["DingDanSetListPX"].ToString();
+                                    dr_field["YunDanFieldLXID"] = dt_sel.Rows[i]["DingDanSetListID"].ToString();
+                                    dr_field["YunDanFieldPX"] = Convert.ToInt32(dt_sel.Rows[i]["DingDanSetListPX"].ToString());
+                                    dr_field["YunDanDenno"] = dr_yundan["YunDanDenno"];
+                                    dr_field["YunDanFieldValue"] = jsr1["div" + dt_sel.Rows[i]["DingDanSetListPX"].ToString()];
+                                    dt_field.Rows.Add(dr_field);
+                                }
+                            }
+
+                            dt_yundan.Rows.Add(dr_yundan);
+                            dbc.InsertTable(dt_yundan);
+                            if(dt_field.Rows.Count > 0)
+                                dbc.InsertTable(dt_field);
+
+                            if (jsr.Length > 0)
+                            {
+                                DataTable dt_detail = dbc.GetEmptyDataTable("YunDanDetails");
+                                for (int i = 0; i < jsr.Length; i++)
+                                {
+                                    DataRow dr = dt_detail.NewRow();
+                                    dr["YunDanDenno"] = dr_yundan["YunDanDenno"];
+                                    foreach (var item in jsr[i])
+                                    {
+                                        dr[item] = jsr[i][item];
+                                    }
+                                    dt_detail.Rows.Add(dr);
+                                }
+                                dbc.InsertTable(dt_detail);
+                            }
+
+                            dbc.CommitTransaction();
+                        }
+                    }
+                }
+                else
+                {
+                    throw new Exception("该设备链接不上服务器！请联系查货宝！");
+                }
+
+                #endregion
+
+                dbc.CommitTransaction();
+
+                return isReturn;
+            }
+            catch (Exception ex)
+            {
+                dbc.RoolbackTransaction();
+                throw ex;
+            }
+        }
+
+    }
+
     [CSMethod("SearchMyYunDan")]
     public object SearchMyYunDan(int CurrentPage, int PageSize, string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string SuoShuGongSi,string GpsDeviceID, string UserDenno, string IsBangding, int isyj)
     {
@@ -3441,6 +3722,206 @@ public class Handler
                 throw ex;
             }
 
+        }
+    }
+
+    [CSMethod("ChangeSetModel")]
+    public bool ChangeSetModel(bool isSet)
+    {
+        using (var db = new DBConnection())
+        {
+            string userid = SystemUser.CurrentUser.UserID;
+            string sql = "delete from DingDanSetModel where UserID = @UserID";
+            SqlCommand cmd = db.CreateCommand(sql);
+            cmd.Parameters.AddWithValue("@UserID", userid);
+            db.ExecuteNonQuery(cmd);
+
+            if (isSet)
+            {
+                sql = "insert into DingDanSetModel values(@DingDanSetModelID,@UserID)";
+                cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@DingDanSetModelID",Guid.NewGuid());
+                cmd.Parameters.AddWithValue("@UserID", userid);
+                db.ExecuteNonQuery(cmd);
+            }
+            return true;
+        }
+    }
+
+    [CSMethod("GetSetModel")]
+    public object GetSetModel()
+    {
+        using (var db = new DBConnection())
+        {
+            string userid = SystemUser.CurrentUser.UserID;
+
+            string sql = "select * from DingDanSetModel where UserID = @UserID";
+            SqlCommand cmd = db.CreateCommand(sql);
+            cmd.Parameters.AddWithValue("@UserID", userid);
+            DataTable dt_model = db.ExecuteDataTable(cmd);
+
+            sql = @"select a.* from (
+                        select '' as DingDanSetListID,SetStoreMc as DingDanSetListMC,'' as DingDanSetListBS,SetStorePx as DingDanSetListPX from DingDanSetStore
+                        union all
+                        select DingDanSetListID,DingDanSetListMC,DingDanSetListBS,DingDanSetListPX from DingDanSetList where DingDanSetListLX = 0 and UserID = @UserID
+                    ) a order by a.DingDanSetListPX";
+            cmd = db.CreateCommand(sql);
+            cmd.Parameters.AddWithValue("@UserID", userid);
+            DataTable dt_btstore = db.ExecuteDataTable(cmd);
+
+            sql = @"select DingDanSetListID,DingDanSetListMC,DingDanSetListBS,DingDanSetListPX from DingDanSetList where DingDanSetListLX = 1 and UserID = @UserID order by DingDanSetListPX";
+            cmd = db.CreateCommand(sql);
+            cmd.Parameters.AddWithValue("@UserID", userid);
+            DataTable dt_xtstore = db.ExecuteDataTable(cmd);
+
+            return new { modelnum = dt_model.Rows.Count, dt_btstore = dt_btstore, dt_xtstore = dt_xtstore };
+        }
+    }
+
+    [CSMethod("GetSelection")]
+    public DataTable GetSelection()
+    {
+        using (var db = new DBConnection())
+        {
+            string userid = SystemUser.CurrentUser.UserID;
+            string sql = "select * from DingDanSetSelection where DingDanSetSelectionBS not in (select DingDanSetListBS from DingDanSetList where UserID = @UserID and DingDanSetListBS is not null) order by DingDanSetSelectionPX";
+            SqlCommand cmd = db.CreateCommand(sql);
+            cmd.Parameters.AddWithValue("@UserID", userid);
+            DataTable dt_selection = db.ExecuteDataTable(cmd);
+            return dt_selection;
+        }
+    }
+
+    [CSMethod("InsertModel")]
+    public bool InsertModel(string DingDanSetSelectionID, int lb)
+    {
+        using (var db = new DBConnection())
+        {
+            string userid = SystemUser.CurrentUser.UserID;
+
+            string sql = "select * from DingDanSetSelection where DingDanSetSelectionID = @DingDanSetSelectionID";
+            SqlCommand cmd = db.CreateCommand(sql);
+            cmd.Parameters.AddWithValue("@DingDanSetSelectionID", DingDanSetSelectionID);
+            DataTable dt_selection = db.ExecuteDataTable(cmd);
+
+            sql = "select max(cast(DingDanSetListPX as int)) DingDanSetListPX from DingDanSetList where UserID = @UserID";
+            cmd = db.CreateCommand(sql);
+            cmd.Parameters.AddWithValue("@UserID", userid);
+            string px = db.ExecuteScalar(cmd).ToString();
+
+            if (string.IsNullOrEmpty(px))
+            {
+                DataTable dt = db.GetEmptyDataTable("DingDanSetList");
+                DataRow dr = dt.NewRow();
+                dr["DingDanSetListID"] = Guid.NewGuid();
+                dr["DingDanSetListMC"] = dt_selection.Rows[0]["DingDanSetSelectionMC"];
+                dr["DingDanSetListBS"] = dt_selection.Rows[0]["DingDanSetSelectionBS"];
+                dr["DingDanSetListPX"] = 6;
+                dr["UserID"] = userid;
+                dr["DingDanSetListLX"] = lb;
+                dt.Rows.Add(dr);
+                db.InsertTable(dt);
+            }
+            else
+            {
+                DataTable dt = db.GetEmptyDataTable("DingDanSetList");
+                DataRow dr = dt.NewRow();
+                dr["DingDanSetListID"] = Guid.NewGuid();
+                dr["DingDanSetListMC"] = dt_selection.Rows[0]["DingDanSetSelectionMC"];
+                dr["DingDanSetListBS"] = dt_selection.Rows[0]["DingDanSetSelectionBS"];
+                dr["DingDanSetListPX"] = Convert.ToInt32(px) + 1;
+                dr["UserID"] = userid;
+                dr["DingDanSetListLX"] = lb;
+                dt.Rows.Add(dr);
+                db.InsertTable(dt); 
+            }
+
+            return true;
+        }
+    }
+
+    [CSMethod("InsertSelection")]
+    public bool InsertSelection(string DingDanSetListMC, int lb)
+    {
+        using (var db = new DBConnection())
+        {
+            string userid = SystemUser.CurrentUser.UserID;
+            string sql = "select max(cast(DingDanSetListPX as int)) DingDanSetListPX from DingDanSetList where UserID = @UserID";
+            SqlCommand cmd = db.CreateCommand(sql);
+            cmd.Parameters.AddWithValue("@UserID", userid);
+            string px = db.ExecuteScalar(cmd).ToString();
+
+            DataTable dt = db.GetEmptyDataTable("DingDanSetList");
+            DataRow dr = dt.NewRow();
+            dr["DingDanSetListID"] = Guid.NewGuid();
+            dr["DingDanSetListMC"] = DingDanSetListMC;
+            dr["DingDanSetListBS"] = DBNull.Value;
+            dr["DingDanSetListPX"] = string.IsNullOrEmpty(px) ? 6 : Convert.ToInt32(px) + 1;
+            dr["UserID"] = userid;
+            dr["DingDanSetListLX"] = lb;
+            dt.Rows.Add(dr);
+            db.InsertTable(dt);
+
+            return true;
+        }
+    }
+
+    [CSMethod("DeleteDingDanSet")]
+    public bool DeleteDingDanSet(string DingDanSetListID)
+    {
+        using (var db = new DBConnection())
+        {
+            string sql = "delete from DingDanSetList where DingDanSetListID = @DingDanSetListID";
+            SqlCommand cmd = db.CreateCommand(sql);
+            cmd.Parameters.AddWithValue("@DingDanSetListID", DingDanSetListID);
+            db.ExecuteNonQuery(cmd);
+            return true;
+        }
+    }
+
+    [CSMethod("SelectModelByUser")]
+    public bool SelectModelByUser()
+    {
+        using (var db = new DBConnection())
+        {
+            string userid = SystemUser.CurrentUser.UserID;
+            string sql = "select * from DingDanSetModel where UserID = @UserID";
+            SqlCommand cmd = db.CreateCommand(sql);
+            cmd.Parameters.AddWithValue("@UserID", userid);
+            DataTable dt = db.ExecuteDataTable(cmd);
+
+            if (dt.Rows.Count > 0)
+                return true;
+            else
+                return false;
+        }
+    }
+
+    [CSMethod("GetSelectionModelByUser")]
+    public DataTable GetSelectionModelByUser()
+    {
+        using (var db = new DBConnection())
+        {
+            string userid = SystemUser.CurrentUser.UserID;
+            string sql = "select * from DingDanSetList where UserID = @UserID order by DingDanSetListPX";
+            SqlCommand cmd = db.CreateCommand(sql);
+            cmd.Parameters.AddWithValue("@UserID", userid);
+            DataTable dt = db.ExecuteDataTable(cmd);
+            return dt;
+        }
+    }
+
+    [CSMethod("GetSelectionByUserBT")]
+    public DataTable GetSelectionByUserBT()
+    {
+        using (var db = new DBConnection())
+        {
+            string userid = SystemUser.CurrentUser.UserID;
+            string sql = "select * from DingDanSetList where UserID = @UserID and DingDanSetListLX = 0 order by DingDanSetListPX";
+            SqlCommand cmd = db.CreateCommand(sql);
+            cmd.Parameters.AddWithValue("@UserID", userid);
+            DataTable dt = db.ExecuteDataTable(cmd);
+            return dt;
         }
     }
 
