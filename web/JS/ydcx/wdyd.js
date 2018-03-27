@@ -975,6 +975,14 @@ Ext.onReady(function () {
                                                             isyj = 0;
                                                             DataBindYJ(1);
                                                         }
+                                                    },
+                                                    {
+                                                        xtype: 'button',
+                                                        iconCls: 'download',
+                                                        text: '下载',
+                                                        handler: function () {
+                                                            DownloadFile("CZCLZ.Handler.GetPoint_fileByYJ", "预警下载.xls", Ext.getCmp('QiShiZhan_ProvinceYJ').getValue(), Ext.getCmp('QiShiZhan_CityYJ').getValue(), Ext.getCmp('QiShiZhan_QxYJ').getValue(), Ext.getCmp('DaoDaZhan_ProvinceYJ').getValue(), Ext.getCmp('DaoDaZhan_CityYJ').getValue(), Ext.getCmp('DaoDaZhan_QxYJ').getValue(), Ext.getCmp('SuoShuGongSiYJ').getValue(), Ext.getCmp('GpsDeviceIDYJ').getValue(), Ext.getCmp('UserDennoYJ').getValue(), Ext.getCmp('StartTimeYJ').getValue(), Ext.getCmp('EndTimeYJ').getValue(), Ext.getCmp('PurchaserYJ').getValue(), Ext.getCmp('CarrierCompanyYJ').getValue());
+                                                        }
                                                     }
                                                 ]
                                             },
@@ -1413,6 +1421,14 @@ Ext.onReady(function () {
                                                         handler: function () {
                                                             isyj = 0;
                                                             DataBindLS(1);
+                                                        }
+                                                    },
+                                                    {
+                                                        xtype: 'button',
+                                                        iconCls: 'download',
+                                                        text: '下载',
+                                                        handler: function () {
+                                                            DownloadFile("CZCLZ.Handler.GetPoint_fileByLS", "历史下载.xls", Ext.getCmp('QiShiZhan_ProvinceLS').getValue(), Ext.getCmp('QiShiZhan_CityLS').getValue(), Ext.getCmp('QiShiZhan_QxLS').getValue(), Ext.getCmp('DaoDaZhan_ProvinceLS').getValue(), Ext.getCmp('DaoDaZhan_CityLS').getValue(), Ext.getCmp('DaoDaZhan_QxLS').getValue(), Ext.getCmp('SuoShuGongSiLS').getValue(), Ext.getCmp('GpsDeviceIDLS').getValue(), Ext.getCmp('UserDennoLS').getValue(), Ext.getCmp('StartTimeLS').getValue(), Ext.getCmp('EndTimeLS').getValue(), Ext.getCmp('PurchaserLS').getValue(), Ext.getCmp('CarrierCompanyLS').getValue());
                                                         }
                                                     }
                                                 ]
