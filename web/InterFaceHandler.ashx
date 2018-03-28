@@ -393,12 +393,20 @@ public class InterFaceHandler : IHttpHandler {
             {
                 Handler App_Handler = new Handler();
                 System.Data.DataTable dt = App_Handler.GetWayBillMemoByUserDennoZC(context.Request["UserID"], context.Request["UserDenno"]);
-                Newtonsoft.Json.Linq.JArray jary = new Newtonsoft.Json.Linq.JArray();
-                jary = Newtonsoft.Json.JsonConvert.DeserializeObject(Newtonsoft.Json.JsonConvert.SerializeObject(dt)) as Newtonsoft.Json.Linq.JArray;
+                if (dt.Rows.Count == 0)
+                {
+                    hash["sign"] = "3";
+                    hash["msg"] = "查单失败，未找到相关单号！";
+                }
+                else
+                {
+                    Newtonsoft.Json.Linq.JArray jary = new Newtonsoft.Json.Linq.JArray();
+                    jary = Newtonsoft.Json.JsonConvert.DeserializeObject(Newtonsoft.Json.JsonConvert.SerializeObject(dt)) as Newtonsoft.Json.Linq.JArray;
 
-                hash["sign"] = "1";
-                hash["msg"] = "查单成功！";
-                hash["info"] = jary;
+                    hash["sign"] = "1";
+                    hash["msg"] = "查单成功！";
+                    hash["info"] = jary;
+                }
             }
             else
             {

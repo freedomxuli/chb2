@@ -14,6 +14,8 @@ using System.Text;
 using System.Diagnostics;
 using SmartFramework4v2.Data;
 using System.Collections;
+using System.IO;
+using Newtonsoft.Json;
 
 /// <summary>
 /// PlanTime 的摘要说明
@@ -25,7 +27,24 @@ public class PlanTime : Registry
         // Schedule an IJob to run at an interval
         // 立即执行每两秒一次的计划任务。（指定一个时间间隔运行，根据自己需求，可以是秒、分、时、天、月、年等。）
         Schedule<MyJob>().ToRunNow().AndEvery(10).Minutes();
-        Schedule<MyGpsDistanceJob>().ToRunNow().AndEvery(10).Minutes(); 
+        Schedule<MyGpsDistanceJob>().ToRunNow().AndEvery(10).Minutes();
+        
+        using (var db = new DBConnection())
+        {
+            string sql = "select * from GpsDeviceTable";
+            DataTable dt = db.ExecuteDataTable(sql);
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                if (dt.Rows[i]["DeviceCode"].ToString() == "1919")
+                {
+                    Schedule<MyJobByGps1>().ToRunNow().AndEvery(Convert.ToInt32(dt.Rows[i]["DeviceTime"].ToString())).Minutes();
+                }
+                else if (dt.Rows[i]["DeviceCode"].ToString() == "8630")
+                {
+                    
+                }
+            }
+        }
 
         // Schedule an IJob to run once, delayed by a specific time interval
         // 延迟一个指定时间间隔执行一次计划任务。（当然，这个间隔依然可以是秒、分、时、天、月、年等。）
@@ -50,6 +69,145 @@ public class PlanTime : Registry
         // 在同一个计划中执行两个（多个）任务
         //Schedule<MyJob>().AndThen<MyOtherJob>().ToRunNow().AndEvery(5).Minutes();
 
+    }
+}
+
+public class MyJobByGps1 : IJob
+{
+    void IJob.Execute()
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                db.BeginTransaction();
+
+                string gpsvid = ""; 
+                string gpsvkey = "";
+
+                string sql = "select GpsDevicevid,GpsDevicevKey,GpsDeviceID,UserDenno,GpsDeviceID,UserID,YunDanDenno from YunDan where IsBangding = 1";
+                DataTable dt_yun = db.ExecuteDataTable(sql);
+
+                sql = @"select a.GpsDeviceID,a.Gps_time from
+                            (
+	                            select GpsDeviceID,Gps_time,row_number() over (partition by GpsDeviceID order by Gps_time desc) rn from GpsLocation a 
+	                            where exists(select 1 from YunDan where IsBangding = 1 and GpsDeviceID = a.GpsDeviceID)
+                            ) a where a.rn = 1";
+                DataTable dt_gps_time = db.ExecuteDataTable(sql);
+
+                DataTable dt_location = db.GetEmptyDataTable("GpsLocation");
+                DataTable dt_yun_up = db.GetEmptyDataTable("YunDan");
+                DataTableTracker dtt_yun_up = new DataTableTracker(dt_yun_up);
+
+                for (int i = 0; i < dt_yun.Rows.Count; i++)
+                {
+                    if (string.IsNullOrEmpty(dt_yun.Rows[i]["GpsDevicevid"].ToString()))
+                    {
+                        Hashtable gpsinfo = Gethttpresult("http://101.37.253.238:89/gpsonline/GPSAPI", "version=1&method=vLoginSystem&name=" + dt_yun.Rows[i]["GpsDeviceID"] + "&pwd=123456");
+                        if (gpsinfo["success"].ToString().ToUpper() != "True".ToUpper())
+                        {
+                            continue;
+                        }
+                        gpsvid = gpsinfo["vid"].ToString();
+                        gpsvkey = gpsinfo["vKey"].ToString();
+                    }
+                    else
+                    {
+                        gpsvid = dt_yun.Rows[i]["GpsDevicevid"].ToString();
+                        gpsvkey = dt_yun.Rows[i]["GpsDevicevKey"].ToString();
+                    }
+
+                    Hashtable gpslocation = Gethttpresult("http://101.37.253.238:89/gpsonline/GPSAPI", "version=1&method=loadLocation&vid=" + gpsvid + "&vKey=" + gpsvkey + "");
+
+                    if (gpslocation["success"].ToString().ToUpper() != "True".ToUpper())
+                    {
+                        continue;
+                    }
+
+                    Newtonsoft.Json.Linq.JArray ja = (Newtonsoft.Json.Linq.JArray)Newtonsoft.Json.JsonConvert.DeserializeObject(gpslocation["locs"].ToString());
+
+                    string newgpstime = ja.First()["gpstime"].ToString();
+                    //newgpstime = newgpstime.Substring(0, newgpstime.Length - 2);
+                    string newlng = ja.First()["lng"].ToString();
+                    //newlng = newlng.Substring(0, newlng.Length - 2);
+                    string newlat = ja.First()["lat"].ToString();
+                    //newlat = newlat.Substring(0, newlat.Length - 2);
+                    string newinfo = ja.First()["info"].ToString();
+                    //newinfo = newinfo.Substring(0, newinfo.Length - 2);
+                    //DateTime gpstm =  DateTime.Parse("1970-01-01 00:00:00");
+                    long time_JAVA_Long = long.Parse(newgpstime);// 1207969641193;//java长整型日期，毫秒为单位          
+                    DateTime dt_1970 = new DateTime(1970, 1, 1, 0, 0, 0);
+                    long tricks_1970 = dt_1970.Ticks;//1970年1月1日刻度      
+                    long time_tricks = tricks_1970 + time_JAVA_Long * 10000;//日志日期刻度  
+                    DateTime gpstm = new DateTime(time_tricks).AddHours(8);//转化为DateTime
+
+                    DataRow[] drs = dt_gps_time.Select("Gps_time = '" + gpstm + "' and GpsDeviceID = '" + dt_yun.Rows[i]["GpsDeviceID"] + "'");
+                    if (drs.Count() == 0)
+                    {
+                        DataRow dr_yun_up = dt_yun_up.NewRow();
+                        dr_yun_up["GpsDeviceID"] = dt_yun.Rows[i]["GpsDeviceID"];
+                        dr_yun_up["YunDanDenno"] = dt_yun.Rows[i]["YunDanDenno"];
+                        dr_yun_up["UserID"] = dt_yun.Rows[i]["UserID"];
+                        dr_yun_up["IsBangding"] = 1;
+                        dr_yun_up["Gps_lasttime"] = gpstm;
+                        dr_yun_up["Gps_lastlng"] = newlng;
+                        dr_yun_up["Gps_lastlat"] = newlat;
+                        dr_yun_up["Gps_lastinfo"] = newinfo;
+                        if (gpsvid != "")
+                        {
+                            dr_yun_up["GpsDevicevid"] = gpsvid;
+                            dr_yun_up["GpsDevicevKey"] = gpsvkey;
+                        }
+                        dt_yun_up.Rows.Add(dr_yun_up);
+
+                        DataRow dr_location = dt_location.NewRow();
+                        dr_location["GpsDeviceID"] = dt_yun.Rows[i]["GpsDeviceID"];
+                        dr_location["Gps_lat"] = newlat;
+                        dr_location["Gps_lng"] = newlng;
+                        dr_location["Gps_time"] = gpstm;
+                        dr_location["Gps_info"] = newinfo;
+                        dr_location["GpsRemark"] = "自动定位";
+                        dt_location.Rows.Add(dr_location);
+                    }
+                }
+                if (dt_location.Rows.Count > 0)
+                    db.InsertTable(dt_location);
+                if (dt_yun_up.Rows.Count > 0)
+                    db.UpdateTable(dt_yun_up, dtt_yun_up);
+
+                db.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                db.RoolbackTransaction();
+            }
+        }
+    }
+
+    public System.Collections.Hashtable Gethttpresult(string url, string data)
+    {
+        WebRequest request = WebRequest.Create(url);
+        Encoding encode = Encoding.GetEncoding("utf-8");
+        request.Method = "POST";
+        Byte[] byteArray = encode.GetBytes(data);
+        request.ContentType = "application/x-www-form-urlencoded";
+
+        request.ContentLength = byteArray.Length;
+        Stream dataStream = request.GetRequestStream();
+        dataStream.Write(byteArray, 0, byteArray.Length);
+        dataStream.Close();
+        WebResponse response = request.GetResponse();
+
+        dataStream = response.GetResponseStream();
+        StreamReader reader = new StreamReader(dataStream, encode);
+        String responseFromServer = reader.ReadToEnd();
+        string outStr = responseFromServer;
+        reader.Close();
+        dataStream.Close();
+        response.Close();
+
+        Hashtable hashTable = JsonConvert.DeserializeObject<Hashtable>(outStr);
+        return hashTable;
     }
 }
 

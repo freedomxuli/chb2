@@ -3989,6 +3989,11 @@ public class Handler
                 DataTable dt = db.ExecuteDataTable(cmd);
                 dt.Columns.Add("ArriveState");
 
+                if (dt.Rows.Count == 0)
+                {
+                    return dt;
+                }
+
                 sql = "select * from YunDanIsArrive where YunDanDenno in (select YunDanDenno from YunDan where UserID = @UserID and UserDenno = @UserDenno)";
                 cmd = db.CreateCommand(sql);
                 cmd.Parameters.AddWithValue("@UserID", UserID);
