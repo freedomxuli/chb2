@@ -17,6 +17,9 @@ public class InterFaceHandler : IHttpHandler {
             case "GDGByGPS":
                 str = GDGByGPS(context);
                 break;
+            case "GDGByGPSSale":
+                str = GDGByGPSSale(context);
+                break;
             case "GDGByCZ":
                 str = GDGByCZ(context);
                 break;
@@ -111,6 +114,31 @@ public class InterFaceHandler : IHttpHandler {
         {
             Handler App_Handler = new Handler();
             bool flag = App_Handler.GDGPay(context.Request["OrderDenno"], context.Request["DGZZCompany"], context.Request["DGZH"], context.Request["DKPZH"]);
+
+            if (flag)
+            {
+                hash["sign"] = "1";
+                hash["msg"] = "支付成功！";
+            }
+        }
+        catch (Exception ex)
+        {
+            hash["sign"] = "0";
+            hash["msg"] = "支付失败，内部错误:" + ex.Message;
+        }
+        return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
+    }
+
+    //gps销售公对公支付
+    public string GDGByGPSSale(HttpContext context)
+    {
+        Newtonsoft.Json.Linq.JObject hash = new Newtonsoft.Json.Linq.JObject();
+        hash["sign"] = "0";
+        hash["msg"] = "支付失败！";
+        try
+        {
+            Handler App_Handler = new Handler();
+            bool flag = App_Handler.GDGPaySale(context.Request["OrderDenno"], context.Request["DGZZCompany"], context.Request["DGZH"], context.Request["DKPZH"]);
 
             if (flag)
             {

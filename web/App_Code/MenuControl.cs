@@ -52,6 +52,15 @@ public class MenuControl
                <Item Name='GPS退单'>
                    <Tab p='' Name='GPS退单'>approot/r/page/gps/gpstd.html</Tab>
                 </Item>
+                <Item Name='销售GPS列表'>
+                   <Tab p='' Name='销售GPS列表'>approot/r/page/gps/gpssale.html</Tab>
+                </Item>
+                <Item Name='GPS销售订单新增'>
+                   <Tab p='' Name='GPS销售订单新增'>approot/r/page/gps/AddGpsDingdanSale.html</Tab>
+                </Item>
+                <Item Name='GPS销售订单'>
+                   <Tab p='' Name='GPS销售订单'>approot/r/page/gps/gpsddsale.html</Tab>
+                </Item>
             </Menu>
             <Menu Name='我的发票'>            
                 <Item Name='发票管理'>

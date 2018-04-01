@@ -66,6 +66,40 @@ public partial class Notify_url : System.Web.UI.Page
                             db.InsertTable(dt_caozuo);
                         }
                     }
+                    else if (OrderDenno.Substring(0, 2) == "03")
+                    {
+                        string sql = "select * from GpsDingDanSale where OrderDenno = '" + OrderDenno + "'";
+                        DataTable dt_dingdan = db.ExecuteDataTable(sql);
+
+                        string sql_dingdan = "update GpsDingDanSale set GpsDingDanZhiFuZhuangTai = 1,GpsDingDanZhiFuShiJian = '" + DateTime.Now + "' where OrderDenno = '" + OrderDenno + "'";
+                        db.ExecuteNonQuery(sql_dingdan);
+
+                        if (dt_dingdan.Rows.Count > 0)
+                        {
+                            string sql_mx = "select * from GpsDingDanSaleMingXi where GpsDingDanDenno = '" + dt_dingdan.Rows[0]["GpsDingDanDenno"].ToString() + "'";
+                            DataTable dt_mx = db.ExecuteDataTable(sql_mx);
+
+                            DataTable dt_device = db.GetEmptyDataTable("GpsDevice");
+                            for (int i = 0; i < dt_mx.Rows.Count; i++)
+                            {
+                                DataRow dr_device = dt_device.NewRow();
+                                dr_device["GpsDeviceID"] = dt_mx.Rows[i]["GpsDeviceID"].ToString();
+                                dr_device["UserID"] = dt_dingdan.Rows[0]["UserID"].ToString();
+                                dt_device.Rows.Add(dr_device);
+                            }
+                            db.InsertTable(dt_device);
+
+                            DataTable dt_devicesale = db.GetEmptyDataTable("GpsDeviceSale");
+                            for (int i = 0; i < dt_mx.Rows.Count; i++)
+                            {
+                                DataRow dr_device = dt_devicesale.NewRow();
+                                dr_device["GpsDeviceID"] = dt_mx.Rows[i]["GpsDeviceID"].ToString();
+                                dr_device["UserID"] = dt_dingdan.Rows[0]["UserID"].ToString();
+                                dt_devicesale.Rows.Add(dr_device);
+                            }
+                            db.InsertTable(dt_devicesale);
+                        }
+                    }
                     else
                     {
                         string sql = "select * from GpsDingDan where OrderDenno = '" + OrderDenno + "'";

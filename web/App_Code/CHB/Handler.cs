@@ -244,6 +244,11 @@ public class Handler
 
                 string UserID = SystemUser.CurrentUser.UserID;
 
+                string sql_device = "select count(*) from GpsDeviceSale where GpsDeviceID = @GpsDeviceID";
+                SqlCommand cmd_device = dbc.CreateCommand(sql_device);
+                cmd_device.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID);
+                string device_num = dbc.ExecuteScalar(cmd_device).ToString();
+
                 string sql_danhao = "select * from YunDan where UserID = @UserID and UserDenno = @UserDenno";
                 SqlCommand cmd_danhao = dbc.CreateCommand(sql_danhao);
                 cmd_danhao.Parameters.AddWithValue("@UserID", UserID);
@@ -257,9 +262,12 @@ public class Handler
                 cmd.Parameters.AddWithValue("@UserID", UserID);
                 DataTable dt_user = dbc.ExecuteDataTable(cmd);
 
-                if (Convert.ToInt32(dt_user.Rows[0]["UserRemainder"].ToString()) == 0)
+                if (Convert.ToInt32(device_num)==0)
                 {
-                    return false;
+                    if (Convert.ToInt32(dt_user.Rows[0]["UserRemainder"].ToString()) == 0)
+                    {
+                        return false;
+                    }
                 }
 
                 #region  更新设备绑定状态
@@ -301,15 +309,18 @@ public class Handler
                     DateTime gpstm = DateTime.Now;
                     if (gpslocation["success"].ToString().ToUpper() == "True".ToUpper())
                     {
-                        #region  更新用户剩余次数
-                        int UserRemainder = Convert.ToInt32(dt_user.Rows[0]["UserRemainder"].ToString()) - 1;
-                        sql = "update [dbo].[User] set UserRemainder = @UserRemainder where UserID = @UserID";
-                        cmd = dbc.CreateCommand(sql);
-                        cmd.Parameters.AddWithValue("@UserID", UserID);
-                        cmd.Parameters.AddWithValue("@UserRemainder", UserRemainder);
-                        dbc.ExecuteNonQuery(cmd);
-                        #endregion
-
+                        if (Convert.ToInt32(device_num) == 0)
+                        {
+                            #region  更新用户剩余次数
+                            int UserRemainder = Convert.ToInt32(dt_user.Rows[0]["UserRemainder"].ToString()) - 1;
+                            sql = "update [dbo].[User] set UserRemainder = @UserRemainder where UserID = @UserID";
+                            cmd = dbc.CreateCommand(sql);
+                            cmd.Parameters.AddWithValue("@UserID", UserID);
+                            cmd.Parameters.AddWithValue("@UserRemainder", UserRemainder);
+                            dbc.ExecuteNonQuery(cmd);
+                            #endregion
+                        }
+                        
                         Newtonsoft.Json.Linq.JArray ja = (Newtonsoft.Json.Linq.JArray)Newtonsoft.Json.JsonConvert.DeserializeObject(gpslocation["locs"].ToString());
                         string newgpstime = ja.First()["gpstime"].ToString();
                         //newgpstime = newgpstime.Substring(0, newgpstime.Length - 2);
@@ -534,14 +545,21 @@ public class Handler
 
                 string UserID = SystemUser.CurrentUser.UserID;
 
+                string sql_device = "select count(*) from GpsDeviceSale where GpsDeviceID = @GpsDeviceID";
+                SqlCommand cmd_device = dbc.CreateCommand(sql_device);
+                cmd_device.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID);
+                string device_num = dbc.ExecuteScalar(cmd_device).ToString();
+
                 string sql_user = "select * from [dbo].[User] where UserID = @UserID";
                 SqlCommand cmd = dbc.CreateCommand(sql_user);
                 cmd.Parameters.AddWithValue("@UserID", UserID);
                 DataTable dt_user = dbc.ExecuteDataTable(cmd);
-
-                if (Convert.ToInt32(dt_user.Rows[0]["UserRemainder"].ToString()) == 0)
+                if (Convert.ToInt32(device_num) == 0)
                 {
-                    return false;
+                    if (Convert.ToInt32(dt_user.Rows[0]["UserRemainder"].ToString()) == 0)
+                    {
+                        return false;
+                    }
                 }
 
                 #region  获取自定义数据
@@ -590,15 +608,18 @@ public class Handler
                     DateTime gpstm = DateTime.Now;
                     if (gpslocation["success"].ToString().ToUpper() == "True".ToUpper())
                     {
-                        #region  更新用户剩余次数
-                        int UserRemainder = Convert.ToInt32(dt_user.Rows[0]["UserRemainder"].ToString()) - 1;
-                        sql = "update [dbo].[User] set UserRemainder = @UserRemainder where UserID = @UserID";
-                        cmd = dbc.CreateCommand(sql);
-                        cmd.Parameters.AddWithValue("@UserID", UserID);
-                        cmd.Parameters.AddWithValue("@UserRemainder", UserRemainder);
-                        dbc.ExecuteNonQuery(cmd);
-                        #endregion
-
+                        if (Convert.ToInt32(device_num) == 0)
+                        {
+                            #region  更新用户剩余次数
+                            int UserRemainder = Convert.ToInt32(dt_user.Rows[0]["UserRemainder"].ToString()) - 1;
+                            sql = "update [dbo].[User] set UserRemainder = @UserRemainder where UserID = @UserID";
+                            cmd = dbc.CreateCommand(sql);
+                            cmd.Parameters.AddWithValue("@UserID", UserID);
+                            cmd.Parameters.AddWithValue("@UserRemainder", UserRemainder);
+                            dbc.ExecuteNonQuery(cmd);
+                            #endregion
+                        }
+                        
                         Newtonsoft.Json.Linq.JArray ja = (Newtonsoft.Json.Linq.JArray)Newtonsoft.Json.JsonConvert.DeserializeObject(gpslocation["locs"].ToString());
                         string newgpstime = ja.First()["gpstime"].ToString();
                         //newgpstime = newgpstime.Substring(0, newgpstime.Length - 2);
@@ -1777,6 +1798,56 @@ public class Handler
         }
     }
 
+
+    [CSMethod("GPSGLSale")]
+    public object GPSGLSale(int CurrentPage, int PageSize)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                int cp = CurrentPage;
+                int ac = 0;
+
+                string sql = "select * from GpsDeviceSale a where UserID = @UserID";
+                SqlCommand cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
+                dt.Columns.Add("IsBangding");
+
+                sql = "select YunDanDenno,GpsDeviceID from YunDan where IsBangding = 1";
+                DataTable dt_yun = db.ExecuteDataTable(sql);
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    DataRow[] drs = dt_yun.Select("GpsDeviceID = '" + dt.Rows[i]["GpsDeviceID"].ToString() + "'");
+                    if (drs.Length > 0)
+                        dt.Rows[i]["IsBangding"] = "已绑定";
+                    else
+                        dt.Rows[i]["IsBangding"] = "未绑定";
+                }
+
+                #region  插入操作表
+                DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
+                DataRow dr = dt_caozuo.NewRow();
+                dr["UserID"] = SystemUser.CurrentUser.UserID;
+                dr["CaoZuoLeiXing"] = "GPS销售管理";
+                dr["CaoZuoNeiRong"] = "web内用户查询GPS设备销售列表。";
+                dr["CaoZuoTime"] = DateTime.Now;
+                dr["CaoZuoRemark"] = "";
+                dt_caozuo.Rows.Add(dr);
+                db.InsertTable(dt_caozuo);
+                #endregion
+
+                return new { dt = dt, cp = cp, ac = ac };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
     [CSMethod("GPSDD")]
     public object GPSDD(int CurrentPage, int PageSize)
     {
@@ -1813,12 +1884,76 @@ public class Handler
         }
     }
 
+    [CSMethod("GPSDDSale")]
+    public object GPSDDSale(int CurrentPage, int PageSize)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                int cp = CurrentPage;
+                int ac = 0;
+
+                string sql = "select * from GpsDingDanSale a where UserID = @UserID and GpsDingDanIsEnd = 1 order by GpsDingDanTime asc";
+                SqlCommand cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
+
+                #region  插入操作表
+                DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
+                DataRow dr = dt_caozuo.NewRow();
+                dr["UserID"] = SystemUser.CurrentUser.UserID;
+                dr["CaoZuoLeiXing"] = "销售订单列表";
+                dr["CaoZuoNeiRong"] = "web内用户查询销售订单列表。";
+                dr["CaoZuoTime"] = DateTime.Now;
+                dr["CaoZuoRemark"] = "";
+                dt_caozuo.Rows.Add(dr);
+                db.InsertTable(dt_caozuo);
+                #endregion
+
+                return new { dt = dt, cp = cp, ac = ac };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
     [CSMethod("AddGPS")]
     public object AddGPS(string GpsDeviceID)
     {
         try
         {
             string url = "http://chb.yk56.net/WebService/APP_ShengChengDingDan.ashx";
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("UserName", SystemUser.CurrentUser.UserName);
+            parameters.Add("GpsDeviceID", GpsDeviceID);
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+            if (obj["sign"].ToString() == "1")
+                return new { sign = "true", msg = "添加成功！", OrderDenno = obj["OrderDenno"].ToString() };
+            else
+                return new { sign = "false", msg = obj["msg"].ToString() };
+
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    [CSMethod("AddGPSSale")]
+    public object AddGPSSale(string GpsDeviceID)
+    {
+        try
+        {
+            string url = "http://chb.yk56.net/WebService/APP_ShengChengDingDanSale.ashx";
             Encoding encoding = Encoding.GetEncoding("utf-8");
             IDictionary<string, string> parameters = new Dictionary<string, string>();
             parameters.Add("UserName", SystemUser.CurrentUser.UserName);
@@ -1873,6 +2008,38 @@ public class Handler
         }
     }
 
+    [CSMethod("GetZhiFuGPSSale")]
+    public object GetZhiFuGPSSale()
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                string username = SystemUser.CurrentUser.UserName;
+                string userid = SystemUser.CurrentUser.UserID;
+
+                string sql = "select * from GpsDingDanSale where UserID = '" + userid + "' and GpsDingDanIsEnd = 0";
+                DataTable dt_gpsdd = db.ExecuteDataTable(sql);
+                if (dt_gpsdd.Rows.Count > 0)
+                {
+                    sql = "select * from GpsDingDanSaleMingXi where GpsDingDanDenno = '" + dt_gpsdd.Rows[0]["GpsDingDanDenno"].ToString() + "'";
+                    DataTable dt = db.ExecuteDataTable(sql);
+                    return new { dt = dt, OrderDenno = dt_gpsdd.Rows[0]["OrderDenno"].ToString() };
+                }
+                else
+                {
+                    DataTable dt = db.GetEmptyDataTable("GpsDingDanSaleMingXi");
+                    return new { dt = dt, OrderDenno = "" };
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
     [CSMethod("GDGPay")]
     public bool GDGPay(string OrderDenno, string DGZZCompany, string DGZH, string DKPZH)
     {
@@ -1913,6 +2080,67 @@ public class Handler
                 db.InsertTable(dt);
 
                 DataTable dt_gdg = db.GetEmptyDataTable("GpsDingDanGDG");
+                DataRow dr_gdg = dt_gdg.NewRow();
+                dr_gdg["GDGZhiFu"] = Guid.NewGuid();
+                dr_gdg["OrderDenno"] = OrderDenno;
+                dr_gdg["DGZZCompany"] = DGZZCompany;
+                dr_gdg["DGZH"] = DGZH;
+                dr_gdg["DKPZH"] = DKPZH;
+                dr_gdg["AddTime"] = DateTime.Now;
+                dt_gdg.Rows.Add(dr_gdg);
+                db.InsertTable(dt_gdg);
+
+                db.CommitTransaction();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                db.RoolbackTransaction();
+                throw ex;
+            }
+        }
+    }
+
+    [CSMethod("GDGPaySale")]
+    public bool GDGPaySale(string OrderDenno, string DGZZCompany, string DGZH, string DKPZH)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                db.BeginTransaction();
+
+                string sql = "select * from GpsDingDanSale where OrderDenno = '" + OrderDenno + "'";
+                DataTable dt_dingdan = db.ExecuteDataTable(sql);
+
+                string sql_dingdan = "update GpsDingDanSale set GpsDingDanZhiFuZhuangTai = 1,GpsDingDanSH = 0,GpsDingDanZhiFuLeiXing = '公对公',GpsDingDanZhiFuShiJian = '" + DateTime.Now + "' where OrderDenno = '" + OrderDenno + "'";
+                db.ExecuteNonQuery(sql_dingdan);
+
+                if (dt_dingdan.Rows.Count > 0)
+                {
+                    string sql_mx = "select * from GpsDingDanSaleMingXi where GpsDingDanDenno = '" + dt_dingdan.Rows[0]["GpsDingDanDenno"].ToString() + "'";
+                    DataTable dt_mx = db.ExecuteDataTable(sql_mx);
+
+                    //DataTable dt_device = db.GetEmptyDataTable("GpsDevice");
+                    //for (int i = 0; i < dt_mx.Rows.Count; i++)
+                    //{
+                    //    DataRow dr_device = dt_device.NewRow();
+                    //    dr_device["GpsDeviceID"] = dt_mx.Rows[i]["GpsDeviceID"].ToString();
+                    //    dr_device["UserID"] = dt_dingdan.Rows[0]["UserID"].ToString();
+                    //    dt_device.Rows.Add(dr_device);
+                    //}
+                    //db.InsertTable(dt_device);
+                }
+
+                DataTable dt = db.GetEmptyDataTable("ZhiFuOrder");
+                DataRow dr = dt.NewRow();
+                dr["Guid"] = Guid.NewGuid();
+                dr["OrderDenno"] = OrderDenno;
+                dr["Lx"] = 0;
+                dt.Rows.Add(dr);
+                db.InsertTable(dt);
+
+                DataTable dt_gdg = db.GetEmptyDataTable("GpsDingDanGDGSale");
                 DataRow dr_gdg = dt_gdg.NewRow();
                 dr_gdg["GDGZhiFu"] = Guid.NewGuid();
                 dr_gdg["OrderDenno"] = OrderDenno;
@@ -2027,6 +2255,34 @@ public class Handler
         }
     }
 
+    [CSMethod("TJDDSale")]
+    public object TJDDSale(string OrderDenno)
+    {
+        try
+        {
+            string url = "http://chb.yk56.net/WebService/APP_TiJiaoDingDanSale.ashx";
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("UserName", SystemUser.CurrentUser.UserName);
+            parameters.Add("OrderDenno", OrderDenno);
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+
+            if (obj["sign"].ToString() == "1")
+                return new { sign = "true", msg = "添加成功！", GpsDingDanJinE = obj["GpsDingDanJinE"].ToString() };
+            else
+                return new { sign = "false", msg = obj["msg"].ToString() };
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
     [CSMethod("ZF")]
     public object ZF(string OrderDenno,string lx)
     {
@@ -2123,6 +2379,34 @@ public class Handler
         }
     }
 
+    [CSMethod("DelDDSale")]
+    public object DelDDSale(string OrderDenno)
+    {
+        try
+        {
+            string url = "http://chb.yk56.net/WebService/APP_ShanChuDingDanSale.ashx";
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("UserName", SystemUser.CurrentUser.UserName);
+            parameters.Add("OrderDenno", OrderDenno);
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+
+            if (obj["sign"].ToString() == "1")
+                return new { sign = "true", msg = "删除成功！" };
+            else
+                return new { sign = "false", msg = obj["msg"].ToString() };
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
     [CSMethod("DelTD")]
     public object DelTD(string OrderDenno)
     {
@@ -2157,6 +2441,34 @@ public class Handler
         try
         {
             string url = "http://chb.yk56.net/WebService/APP_ShanChuDingDanOne.ashx";
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("UserName", SystemUser.CurrentUser.UserName);
+            parameters.Add("GpsDingDanMingXiID", GpsDingDanMingXiID);
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+
+            if (obj["sign"].ToString() == "1")
+                return new { sign = "true", msg = "删除成功！" };
+            else
+                return new { sign = "false", msg = obj["msg"].ToString() };
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    [CSMethod("DeleteDDItemSale")]
+    public object DeleteDDItemSale(string GpsDingDanMingXiID)
+    {
+        try
+        {
+            string url = "http://chb.yk56.net/WebService/APP_ShanChuDingDanOneSale.ashx";
             Encoding encoding = Encoding.GetEncoding("utf-8");
             IDictionary<string, string> parameters = new Dictionary<string, string>();
             parameters.Add("UserName", SystemUser.CurrentUser.UserName);

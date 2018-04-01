@@ -35,6 +35,11 @@ public partial class Ali_url : System.Web.UI.Page
             m_values["body"] = "查货宝充值";
             m_values["subject"] = "查货宝充值";
         }
+        else if (lx == "2")
+        {
+            m_values["body"] = "查货宝购买";
+            m_values["subject"] = "查货宝购买";
+        }
         else
         {
             m_values["body"] = "查货宝押金";
