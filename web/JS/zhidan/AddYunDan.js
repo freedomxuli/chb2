@@ -477,7 +477,7 @@ Ext.onReady(function () {
                                                 CS('CZCLZ.Handler.SaveYunDan', function (retVal) {
                                                     if (retVal) {
                                                         Ext.Msg.alert("提示", "制单成功！", function () {
-                                                            FrameStack.popFrame();
+                                                            location.reload();
                                                         });
                                                     } else {
                                                         Ext.Msg.alert("提示", "制单失败！");
@@ -494,7 +494,7 @@ Ext.onReady(function () {
                                         CS('CZCLZ.Handler.SaveYunDan', function (retVal) {
                                             if (retVal) {
                                                 Ext.Msg.alert("提示", "制单成功！", function () {
-                                                    FrameStack.popFrame();
+                                                    location.reload();
                                                 });
                                             } else {
                                                 Ext.Msg.alert("提示", "制单失败！");
@@ -504,13 +504,13 @@ Ext.onReady(function () {
                                     }
                                 }
                             },
-                            {
-                                text: '返回',
-                                iconCls: 'back',
-                                handler: function () {
-                                    FrameStack.popFrame();
-                                }
-                            },
+                            //{
+                            //    text: '返回',
+                            //    iconCls: 'back',
+                            //    handler: function () {
+                            //        FrameStack.popFrame();
+                            //    }
+                            //},
                             {
                                 text: '导出模板',
                                 iconCls: 'download',

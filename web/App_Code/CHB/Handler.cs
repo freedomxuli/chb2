@@ -2140,7 +2140,7 @@ public class Handler
                 dt.Rows.Add(dr);
                 db.InsertTable(dt);
 
-                DataTable dt_gdg = db.GetEmptyDataTable("GpsDingDanGDGSale");
+                DataTable dt_gdg = db.GetEmptyDataTable("GpsDingDanSaleGDG");
                 DataRow dr_gdg = dt_gdg.NewRow();
                 dr_gdg["GDGZhiFu"] = Guid.NewGuid();
                 dr_gdg["OrderDenno"] = OrderDenno;

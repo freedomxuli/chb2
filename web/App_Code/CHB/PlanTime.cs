@@ -333,7 +333,7 @@ public class MyGpsDistanceJob : IJob
                 //dt_up.PrimaryKey = new DataColumn[] { dt_up.Columns["ID"] };
                 //DataTableTracker dtt_up = new DataTableTracker(dt_up);
 
-                string sql = "select * from YunDan where IsBangding = 1"; 
+                string sql = "select * from YunDan where IsBangding = 1";
                 DataTable dt_yundan = db.ExecuteDataTable(sql);
 
                 sql = "select * from YunDanDistance where YunDanDenno in (select YunDanDenno from YunDan where IsBangding = 1)";

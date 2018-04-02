@@ -199,7 +199,7 @@ Ext.define('zhifuWin', {
                             handler: function () {
                                 var win = new Ali();
                                 win.show(null, function () {
-                                    Ext.getCmp("AliFrame").update("<iframe frameborder='0' src='../../PayByAli/Ali_url.aspx?orderdenno=" + me.OrderDenno + "&fin_je=" + me.GpsDingDanJinE + "&lx=2' width='100%' height='100%'></iframe>");
+                                    Ext.getCmp("AliFrame").update("<iframe frameborder='0' src='../../PayByAli/Ali_url.aspx?orderdenno=" + me.OrderDenno + "&fin_je=0.01&lx=2' width='100%' height='100%'></iframe>");
                                     setTimeout(function () {
                                         Ext.getCmp("AliFrame").show();
                                         getSuccess2(me.OrderDenno);
@@ -280,7 +280,7 @@ Ext.define('EWM', {
                             text: '关闭',
                             iconCls: 'close',
                             handler: function () {
-                                DataBind();
+                                DataBind(1);
                                 window.clearInterval(StartSearch);
                                 me.close();
                             }
@@ -326,7 +326,7 @@ Ext.define('Ali', {
                             text: '关闭',
                             iconCls: 'close',
                             handler: function () {
-                                DataBind();
+                                DataBind(1);
                                 window.clearInterval(StartSearch);
                                 me.close();
                             }
@@ -410,7 +410,7 @@ Ext.define('GDG', {
                                     if (retVal) {
                                         Ext.Msg.alert("提示", "支付成功！", function () {
                                             Ext.getCmp("GDGWin").close();
-                                            DataBind();
+                                            DataBind(1);
                                         });
                                     }
                                 }, CS.onError, me.OrderDenno, Ext.getCmp("DGZZCompany").getValue(), Ext.getCmp("DGZH").getValue(), Ext.getCmp("DKPZH").getValue());
@@ -420,7 +420,7 @@ Ext.define('GDG', {
                             text: '关闭',
                             iconCls: 'close',
                             handler: function () {
-                                DataBind();
+                                DataBind(1);
                                 me.close();
                             }
                         }
@@ -476,7 +476,7 @@ function getSuccess(OrderDenno) {
         ACS('CZCLZ.Handler.StartSearch', function (retVal) {
             if (retVal) {
                 Ext.getCmp("WXEWM").close();
-                DataBind();
+                DataBind(1);
                 Ext.Msg.alert("提示", "支付成功！", function () {
                     window.clearInterval(StartSearch);
                 });
@@ -490,7 +490,7 @@ function getSuccess2(OrderDenno) {
         ACS('CZCLZ.Handler.StartSearch', function (retVal) {
             if (retVal) {
                 Ext.getCmp("AliYun").close();
-                DataBind();
+                DataBind(1);
                 Ext.Msg.alert("提示", "支付成功！", function () {
                     window.clearInterval(StartSearch);
                 });
