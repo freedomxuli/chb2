@@ -240,6 +240,17 @@ public class Handler
             {
                 dbc.BeginTransaction();
 
+
+                //获取起始站、到达站位置
+                string QiShiZhan_lat = "";
+                string QiShiZhan_lng = "";
+                string DaoDaZhan_lat = "";
+                string DaoDaZhan_lng = "";
+                string QiShiZhan = "";
+                string QiShiZhan_Text = "";
+                string DaoDaZhan = "";
+                string DaoDaZhan_Text = "";
+
                 bool isReturn = true;
 
                 string UserID = SystemUser.CurrentUser.UserID;
@@ -354,15 +365,6 @@ public class Handler
                             dt_location_new.Rows.Add(dr_location);
                             dbc.InsertTable(dt_location_new);
                         }
-                        //获取起始站、到达站位置
-                        string QiShiZhan_lat = "";
-                        string QiShiZhan_lng = "";
-                        string DaoDaZhan_lat = "";
-                        string DaoDaZhan_lng = "";
-                        string QiShiZhan = "";
-                        string QiShiZhan_Text = "";
-                        string DaoDaZhan = "";
-                        string DaoDaZhan_Text = "";
 
                         if (QiShiZhan_Province == QiShiZhan_City)
                         {
@@ -496,6 +498,23 @@ public class Handler
 
                 dbc.CommitTransaction();
 
+                if (IsSendMessage == "true")
+                {
+                    string url = "http://chb.yk56.net/WebService/APP_ZhiDanMessage.ashx";
+                    Encoding encoding = Encoding.GetEncoding("utf-8");
+                    IDictionary<string, string> parameters = new Dictionary<string, string>();
+                    parameters.Add("fileText", MessageTel.TrimEnd(','));
+                    parameters.Add("daodadi", DaoDaZhan_Text + DaoDaZhan_Qx);
+                    parameters.Add("company", SuoShuGongSi);
+                    parameters.Add("code", UserDenno.TrimEnd(' ').TrimStart(' '));
+                    HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+                    //打印返回值  
+                    Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+                    StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+                    string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+                    JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+                }
+
                 return isReturn;
             }
             catch (Exception ex)
@@ -536,6 +555,16 @@ public class Handler
             try
             {
                 dbc.BeginTransaction();
+
+                //获取起始站、到达站位置
+                string QiShiZhan_lat = "";
+                string QiShiZhan_lng = "";
+                string DaoDaZhan_lat = "";
+                string DaoDaZhan_lng = "";
+                string QiShiZhan = "";
+                string QiShiZhan_Text = "";
+                string DaoDaZhan = "";
+                string DaoDaZhan_Text = "";
 
                 //var cc = jsr1["Expect_Hour"];
                 //foreach (var k in jsr1)
@@ -656,15 +685,6 @@ public class Handler
                             dt_location_new.Rows.Add(dr_location);
                             dbc.InsertTable(dt_location_new);
                         }
-                        //获取起始站、到达站位置
-                        string QiShiZhan_lat = "";
-                        string QiShiZhan_lng = "";
-                        string DaoDaZhan_lat = "";
-                        string DaoDaZhan_lng = "";
-                        string QiShiZhan = "";
-                        string QiShiZhan_Text = "";
-                        string DaoDaZhan = "";
-                        string DaoDaZhan_Text = "";
 
                         if (QiShiZhan_Province == QiShiZhan_City)
                         {
@@ -815,6 +835,23 @@ public class Handler
                 #endregion
 
                 dbc.CommitTransaction();
+
+                if (IsSendMessage == "true")
+                {
+                    string url = "http://chb.yk56.net/WebService/APP_ZhiDanMessage.ashx";
+                    Encoding encoding = Encoding.GetEncoding("utf-8");
+                    IDictionary<string, string> parameters = new Dictionary<string, string>();
+                    parameters.Add("fileText", MessageTel.TrimEnd(','));
+                    parameters.Add("daodadi", DaoDaZhan_Text + DaoDaZhan_Qx);
+                    parameters.Add("company", SuoShuGongSi);
+                    parameters.Add("code", UserDenno.TrimEnd(' ').TrimStart(' '));
+                    HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+                    //打印返回值  
+                    Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+                    StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+                    string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+                    JObject obj = JsonConvert.DeserializeObject(html) as JObject;
+                }
 
                 return isReturn;
             }

@@ -785,6 +785,18 @@ function dataBind() {
                 Ext.getCmp("xtq").hide();
             Ext.getCmp("btq").add(btq_arr);
             Ext.getCmp("xtq").add(xtq_arr);
+
+            CS('CZCLZ.Handler.GetOldYunDan', function (retVal) {
+                if (retVal) {
+                    if (retVal.length > 0) {
+                        var daodazhan = retVal[0]["QiShiZhan"].split(" ");
+                        Ext.getCmp("QiShiZhan_Province").setValue(daodazhan[0]);
+                        Ext.getCmp("QiShiZhan_City").setValue(daodazhan[1]);
+                        Ext.getCmp("SuoShuGongSi").setValue(retVal[0]["SuoShuGongSi"]);
+                        Ext.getCmp("QiShiZhan_Qx").setValue(retVal[0]["QiShiZhan_QX"]);
+                    }
+                }
+            }, CS.onError)
         }
     }, CS.onError);
 }
