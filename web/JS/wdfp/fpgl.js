@@ -273,7 +273,7 @@ Ext.define('AddInvoice', {
                                 },
                                 {
                                     xtype: 'label',
-                                    html:'<div style="color:red;">勾选发票总金额少于1000元，邮费自理！</div>',
+                                    html: '<div style="color:red;">开票金额满1000元包邮，邮费由查货宝支付！</div>',
                                     columnWidth: 1,
                                     padding: 10
                                 }
@@ -287,7 +287,8 @@ Ext.define('AddInvoice', {
                             store: CZStore,
                             selModel: { selType: 'checkboxmodel' },
                             id: 'CZStore',
-                            autoScroll:true,
+                            scroll: true,
+                            height: document.documentElement.clientHeight - 260,
                             columns: [
                                 {
                                     xtype: 'datecolumn',

@@ -69,7 +69,7 @@ Ext.onReady(function () {
                     {
                         xtype: 'panel',
                         height: document.documentElement.clientHeight,
-                        columnWidth: 0.5,
+                        columnWidth: 0.6,
                         autoScroll:true,
                         layout: {
                             type: 'column'
@@ -103,7 +103,7 @@ Ext.onReady(function () {
                                     },
                                     {
                                         xtype: 'textfield',
-                                        columnWidth: 0.6,
+                                        columnWidth: 0.5,
                                         padding: '0 20 10 20',
                                         id: 'GpsDeviceID',
                                         readOnly: true,
@@ -114,7 +114,7 @@ Ext.onReady(function () {
                                         xtype: 'button',
                                         iconCls: 'close',
                                         text: '重置设备号',
-                                        columnWidth: 0.2,
+                                        columnWidth: 0.25,
                                         margin: '0 10 0 0',
                                         id: 'CZSBH',
                                         handler: function () {
@@ -126,8 +126,8 @@ Ext.onReady(function () {
                                     {
                                         xtype: 'button',
                                         iconCls: 'book',
-                                        text: '切换输入方式',
-                                        columnWidth: 0.2,
+                                        text: '切换至输入设备码',
+                                        columnWidth: 0.25,
                                         margin: '0 10 0 0',
                                         handler: function () {
                                             if (writechange == 1) {//当等于1时说明要切换成输入码，所以要删除hiddenid
@@ -140,6 +140,7 @@ Ext.onReady(function () {
                                                 Ext.getCmp("GpsDeviceID").focus(true, true);
                                                 Ext.getCmp("GpsDeviceID").emptyText = '请输入设备码';
                                                 Ext.getCmp("GpsDeviceID").applyEmptyText();
+                                                this.setText("切换至扫码设备码");
                                             } else {
                                                 Ext.getCmp("GpsDeviceID").setValue("");
                                                 writechange = 1;//赋值扫码
@@ -149,57 +150,64 @@ Ext.onReady(function () {
                                                 Ext.getCmp('HiddenID').focus(true, true);
                                                 Ext.getCmp("GpsDeviceID").emptyText = '请扫码设备码';
                                                 Ext.getCmp("GpsDeviceID").applyEmptyText();
-                                            }
-                                            
-                                        }
-                                    },
-                                    {
-                                        xtype: 'combobox',
-                                        columnWidth: 0.5,
-                                        padding: '0 10 10 20',
-                                        valueField: 'ID',
-                                        displayField: 'MC',
-                                        queryMode: 'local',
-                                        store: province,
-                                        id: 'QiShiZhan_Province',
-                                        fieldLabel: '出发地',
-                                        anyMatch: true,
-                                        typeAhead: true,
-                                        forceSelection:true,
-                                        listeners: {
-                                            change: function (data, newValue, oldValue, eOpts) {
-                                                city.loadData(newcity[newValue]);
+                                                this.setText("切换至输入设备码");
                                             }
                                         }
                                     },
                                     {
-                                        xtype: 'combobox',
-                                        columnWidth: 0.25,
-                                        padding: '0 10 10 0',
-                                        valueField: 'ID',
-                                        displayField: 'MC',
-                                        queryMode: 'local',
-                                        store: city,
-                                        id: 'QiShiZhan_City',
-                                        typeAhead: true,
-                                        forceSelection: true,
-                                        listeners: {
-                                            change: function (data, newValue, oldValue, eOpts) {
-                                                qx.loadData(newqx[newValue]);
+                                        xtype: 'container',
+                                        columnWidth: 1,
+                                        layout:'column',
+                                        items: [
+                                            {
+                                                xtype: 'combobox',
+                                                columnWidth: 0.5,
+                                                padding: '0 10 10 20',
+                                                valueField: 'ID',
+                                                displayField: 'MC',
+                                                queryMode: 'local',
+                                                store: province,
+                                                id: 'QiShiZhan_Province',
+                                                fieldLabel: '出发地',
+                                                anyMatch: true,
+                                                typeAhead: true,
+                                                forceSelection: true,
+                                                listeners: {
+                                                    change: function (data, newValue, oldValue, eOpts) {
+                                                        city.loadData(newcity[newValue]);
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                xtype: 'combobox',
+                                                columnWidth: 0.25,
+                                                padding: '0 10 10 0',
+                                                valueField: 'ID',
+                                                displayField: 'MC',
+                                                queryMode: 'local',
+                                                store: city,
+                                                id: 'QiShiZhan_City',
+                                                typeAhead: true,
+                                                forceSelection: true,
+                                                listeners: {
+                                                    change: function (data, newValue, oldValue, eOpts) {
+                                                        qx.loadData(newqx[newValue]);
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                xtype: 'combobox',
+                                                columnWidth: 0.25,
+                                                padding: '0 10 10 0',
+                                                valueField: 'ID',
+                                                displayField: 'MC',
+                                                queryMode: 'local',
+                                                store: qx,
+                                                id: 'QiShiZhan_Qx',
+                                                typeAhead: true,
+                                                forceSelection: true
                                             }
-                                        }
-                                    },
-                                    {
-                                        xtype: 'combobox',
-                                        columnWidth: 0.25,
-                                        padding: '0 10 10 0',
-                                        valueField: 'ID',
-                                        displayField: 'MC',
-                                        queryMode: 'local',
-                                        store: qx,
-                                        id: 'QiShiZhan_Qx',
-                                        typeAhead: true,
-                                        forceSelection: true
+                                        ]
                                     },
                                     {
                                         xtype: 'combobox',
@@ -283,32 +291,90 @@ Ext.onReady(function () {
                                         fieldLabel: '建单号'
                                     },
                                     {
-                                        xtype: 'numberfield',
-                                        columnWidth: 0.6,
-                                        padding: '0 10 10 20',
-                                        id: 'Expect_Hour',
-                                        allowBlank: false,
-                                        allowDecimals: false,
-                                        minValue: 1,
-                                        fieldLabel: '预计小时数'
+                                        xtype: 'container',
+                                        columnWidth: 1,
+                                        layout:'column',
+                                        items: [
+                                            {
+                                                xtype: 'numberfield',
+                                                columnWidth: 0.6,
+                                                padding: '0 10 10 20',
+                                                id: 'Expect_Hour',
+                                                allowDecimals: false,
+                                                minValue: 1,
+                                                fieldLabel: '预计到达时间（小时）'
+                                            },
+                                            {
+                                                xtype: 'checkboxfield',
+                                                columnWidth: 0.4,
+                                                padding: '5 10 10 20',
+                                                id: 'IsYJ',
+                                                checked: true
+                                            }
+                                        ]
                                     },
                                     {
-                                        xtype: 'checkboxfield',
-                                        columnWidth: 0.5,
-                                        padding: '0 20 10 20',
-                                        id: 'IsChuFaMessage',
-                                        checked: true,
-                                        fieldLabel: '出发提醒'
-                                    },
-                                    {
-                                        xtype: 'checkboxfield',
-                                        columnWidth: 0.5,
-                                        padding: '0 20 10 10',
-                                        id: 'IsDaoDaMessage',
-                                        labelWidth: 60,
-                                        checked: true,
-                                        fieldLabel: '到达提醒'
+                                        xtype: 'container',
+                                        columnWidth: 1,
+                                        layout:'column',
+                                        items: [
+                                            {
+                                                xtype: 'textfield',
+                                                columnWidth: 0.45,
+                                                padding: '0 10 10 20',
+                                                id: 'MessageTel',
+                                                emptyText: '请填入正确手机号',
+                                                fieldLabel: '推送短信',
+                                                regex: /^[1]\d{10}$/
+                                            },
+                                            {
+                                                xtype: 'textfield',
+                                                columnWidth: 0.25,
+                                                padding: '0 10 10 0',
+                                                emptyText: '请填入手机号，可为空',
+                                                id: 'MessageTel1',
+                                                regex: /^[1]\d{10}$/
+                                            },
+                                            {
+                                                xtype: 'textfield',
+                                                columnWidth: 0.25,
+                                                padding: '0 10 10 0',
+                                                emptyText: '请填入手机号，可为空',
+                                                id: 'MessageTel2',
+                                                regex: /^[1]\d{10}$/
+                                            },
+                                            {
+                                                xtype: 'checkboxfield',
+                                                columnWidth: 0.05,
+                                                padding: '0 10 10 0',
+                                                id: 'IsSendMessage',
+                                                checked: true
+                                            },
+                                            {
+                                                xtype: 'displayfield',
+                                                columnWidth: 1,
+                                                padding: '0 10 10 20',
+                                                value: '<p style="color:red;">推送短信说明：仅在出发、预警状态短信提醒；最多可填写三个手机号码；可取消勾选，关闭短信提醒</p>'
+                                            }
+                                        ]
                                     }
+                                    //{
+                                    //    xtype: 'checkboxfield',
+                                    //    columnWidth: 0.5,
+                                    //    padding: '0 20 10 20',
+                                    //    id: 'IsChuFaMessage',
+                                    //    checked: true,
+                                    //    fieldLabel: '出发提醒'
+                                    //},
+                                    //{
+                                    //    xtype: 'checkboxfield',
+                                    //    columnWidth: 0.5,
+                                    //    padding: '0 20 10 10',
+                                    //    id: 'IsDaoDaMessage',
+                                    //    labelWidth: 60,
+                                    //    checked: true,
+                                    //    fieldLabel: '到达提醒'
+                                    //}
                                 ]
                             },
                             {
@@ -466,10 +532,34 @@ Ext.onReady(function () {
                                         Ext.Msg.alert("提示", "扫描码或输入码必须填写一项！");
                                         return false;
                                     }
-                                    if (Ext.getCmp("Expect_Hour").getValue() == "" || Ext.getCmp("Expect_Hour").getValue() == null) {
-                                        Ext.Msg.alert("提示", "预计小时数为必填项！");
-                                        return false;
+
+                                    if (Ext.getCmp("IsYJ").getValue())
+                                    {
+                                        if (Ext.getCmp("Expect_Hour").getValue() == "" || Ext.getCmp("Expect_Hour").getValue() == null) {
+                                            Ext.Msg.alert("提示", "预计到达时间为必填项！");
+                                            return false;
+                                        }
                                     }
+
+                                    var MessageTel = "";
+                                    if (Ext.getCmp("IsSendMessage").getValue())
+                                    {
+                                        if (Ext.getCmp("MessageTel").getValue() == "" || Ext.getCmp("MessageTel").getValue() == null) {
+                                            Ext.Msg.alert("提示", "推送短信为必填项！");
+                                            return false;
+                                        }
+                                        if (Ext.getCmp("MessageTel").getValue() != "" && Ext.getCmp("MessageTel").getValue() != null)
+                                        {
+                                            MessageTel += Ext.getCmp("MessageTel").getValue()+",";
+                                        }
+                                        if (Ext.getCmp("MessageTel1").getValue() != "" && Ext.getCmp("MessageTel1").getValue() != null) {
+                                            MessageTel += Ext.getCmp("MessageTel1").getValue() + ",";
+                                        }
+                                        if (Ext.getCmp("MessageTel2").getValue() != "" && Ext.getCmp("MessageTel2").getValue() != null) {
+                                            MessageTel += Ext.getCmp("MessageTel2").getValue();
+                                        }
+                                    }
+                                    
                                     if (writechange == 2)
                                     {
                                         CS('CZCLZ.Handler.IsBangBind', function (ret) {
@@ -483,7 +573,7 @@ Ext.onReady(function () {
                                                         Ext.Msg.alert("提示", "制单失败！");
                                                         return false;
                                                     }
-                                                }, CS.onError, Ext.getCmp("QiShiZhan_Province").getValue(), Ext.getCmp("QiShiZhan_City").getValue(), Ext.getCmp("QiShiZhan_Qx").getValue(), Ext.getCmp("QiShiAddress").getValue(), Ext.getCmp("DaoDaZhan_Province").getValue(), Ext.getCmp("DaoDaZhan_City").getValue(), Ext.getCmp("DaoDaZhan_Qx").getValue(), Ext.getCmp("DaoDaAddress").getValue(), Ext.getCmp("SuoShuGongSi").getValue(), Ext.getCmp("UserDenno").getValue(), Ext.getCmp("Expect_Hour").getValue(), Ext.getCmp("SalePerson").getValue(), Ext.getCmp("Purchaser").getValue(), Ext.getCmp("PurchaserPerson").getValue(), Ext.getCmp("PurchaserTel").getValue(), Ext.getCmp("CarrierCompany").getValue(), Ext.getCmp("CarrierPerson").getValue(), Ext.getCmp("CarrierTel").getValue(), Ext.getCmp("IsChuFaMessage").getValue(), Ext.getCmp("IsDaoDaMessage").getValue(), Ext.getCmp("GpsDeviceID").getValue(), Ext.getCmp("YunDanRemark").getValue(), details_array);
+                                                }, CS.onError, Ext.getCmp("QiShiZhan_Province").getValue(), Ext.getCmp("QiShiZhan_City").getValue(), Ext.getCmp("QiShiZhan_Qx").getValue(), Ext.getCmp("QiShiAddress").getValue(), Ext.getCmp("DaoDaZhan_Province").getValue(), Ext.getCmp("DaoDaZhan_City").getValue(), Ext.getCmp("DaoDaZhan_Qx").getValue(), Ext.getCmp("DaoDaAddress").getValue(), Ext.getCmp("SuoShuGongSi").getValue(), Ext.getCmp("UserDenno").getValue(), Ext.getCmp("Expect_Hour").getValue(), Ext.getCmp("SalePerson").getValue(), Ext.getCmp("Purchaser").getValue(), Ext.getCmp("PurchaserPerson").getValue(), Ext.getCmp("PurchaserTel").getValue(), Ext.getCmp("CarrierCompany").getValue(), Ext.getCmp("CarrierPerson").getValue(), Ext.getCmp("CarrierTel").getValue(), Ext.getCmp("GpsDeviceID").getValue(), Ext.getCmp("YunDanRemark").getValue(), Ext.getCmp("IsYJ").getValue(), Ext.getCmp("IsSendMessage").getValue(), MessageTel, details_array);
                                             } else {
                                                 Ext.Msg.alert("提示", "输入码必须先解除绑定再制单！");
                                                 return false;
@@ -500,7 +590,7 @@ Ext.onReady(function () {
                                                 Ext.Msg.alert("提示", "制单失败！");
                                                 return false;
                                             }
-                                        }, CS.onError, Ext.getCmp("QiShiZhan_Province").getValue(), Ext.getCmp("QiShiZhan_City").getValue(), Ext.getCmp("QiShiZhan_Qx").getValue(), Ext.getCmp("QiShiAddress").getValue(), Ext.getCmp("DaoDaZhan_Province").getValue(), Ext.getCmp("DaoDaZhan_City").getValue(), Ext.getCmp("DaoDaZhan_Qx").getValue(), Ext.getCmp("DaoDaAddress").getValue(), Ext.getCmp("SuoShuGongSi").getValue(), Ext.getCmp("UserDenno").getValue(), Ext.getCmp("Expect_Hour").getValue(), Ext.getCmp("SalePerson").getValue(), Ext.getCmp("Purchaser").getValue(), Ext.getCmp("PurchaserPerson").getValue(), Ext.getCmp("PurchaserTel").getValue(), Ext.getCmp("CarrierCompany").getValue(), Ext.getCmp("CarrierPerson").getValue(), Ext.getCmp("CarrierTel").getValue(), Ext.getCmp("IsChuFaMessage").getValue(), Ext.getCmp("IsDaoDaMessage").getValue(), Ext.getCmp("GpsDeviceID").getValue(), Ext.getCmp("YunDanRemark").getValue(), details_array);
+                                        }, CS.onError, Ext.getCmp("QiShiZhan_Province").getValue(), Ext.getCmp("QiShiZhan_City").getValue(), Ext.getCmp("QiShiZhan_Qx").getValue(), Ext.getCmp("QiShiAddress").getValue(), Ext.getCmp("DaoDaZhan_Province").getValue(), Ext.getCmp("DaoDaZhan_City").getValue(), Ext.getCmp("DaoDaZhan_Qx").getValue(), Ext.getCmp("DaoDaAddress").getValue(), Ext.getCmp("SuoShuGongSi").getValue(), Ext.getCmp("UserDenno").getValue(), Ext.getCmp("Expect_Hour").getValue(), Ext.getCmp("SalePerson").getValue(), Ext.getCmp("Purchaser").getValue(), Ext.getCmp("PurchaserPerson").getValue(), Ext.getCmp("PurchaserTel").getValue(), Ext.getCmp("CarrierCompany").getValue(), Ext.getCmp("CarrierPerson").getValue(), Ext.getCmp("CarrierTel").getValue(), Ext.getCmp("GpsDeviceID").getValue(), Ext.getCmp("YunDanRemark").getValue(), Ext.getCmp("IsYJ").getValue(), Ext.getCmp("IsSendMessage").getValue(), MessageTel, details_array);
                                     }
                                 }
                             },
@@ -535,7 +625,7 @@ Ext.onReady(function () {
                         columnLines: 1,
                         border: 1,
                         height: document.documentElement.clientHeight,
-                        columnWidth: 0.5,
+                        columnWidth: 0.4,
                         autoScroll: true,
                         store: detailStore,
                         id: 'detailStore',
@@ -662,6 +752,20 @@ function cityBind() {
     }
     province.loadData(provincesData);
     province2.loadData(provincesData);
+
+    CS('CZCLZ.Handler.GetOldYunDan', function (retVal) {
+        if (retVal)
+        {
+            if (retVal.length > 0)
+            {
+                var daodazhan = retVal[0]["QiShiZhan"].split(" ");
+                Ext.getCmp("QiShiZhan_Province").setValue(daodazhan[0]);
+                Ext.getCmp("QiShiZhan_City").setValue(daodazhan[1]);
+                Ext.getCmp("SuoShuGongSi").setValue(retVal[0]["SuoShuGongSi"]);
+                Ext.getCmp("QiShiZhan_Qx").setValue(retVal[0]["QiShiZhan_QX"]);
+            }
+        }
+    },CS.onError)
 }
 
 Ext.define('sjWin', {

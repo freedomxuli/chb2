@@ -232,7 +232,7 @@ public class Handler
     }
 
     [CSMethod("SaveYunDan")]
-    public bool SaveYunDan(string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string QiShiAddress, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string DaoDaAddress, string SuoShuGongSi, string UserDenno, double Expect_Hour, string SalePerson, string Purchaser, string PurchaserPerson, string PurchaserTel, string CarrierCompany, string CarrierPerson, string CarrierTel, string IsChuFaMessage, string IsDaoDaMessage, string GpsDeviceID, string YunDanRemark, JSReader[] jsr)
+    public bool SaveYunDan(string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string QiShiAddress, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string DaoDaAddress, string SuoShuGongSi, string UserDenno, double Expect_Hour, string SalePerson, string Purchaser, string PurchaserPerson, string PurchaserTel, string CarrierCompany, string CarrierPerson, string CarrierTel, string GpsDeviceID, string YunDanRemark, string IsYJ, string IsSendMessage, string MessageTel, JSReader[] jsr)
     {
         using (var dbc = new DBConnection())
         {
@@ -450,14 +450,17 @@ public class Handler
                             dr_yundan["CarrierTel"] = CarrierTel;
                             dr_yundan["DaoDaAddress"] = DaoDaAddress;
                             dr_yundan["QiShiAddress"] = QiShiAddress;
-                            if (IsChuFaMessage == "false")
-                                dr_yundan["IsChuFaMessage"] = 0;
+                            dr_yundan["IsChuFaMessage"] = 1;
+                            dr_yundan["IsDaoDaMessage"] = 1;
+                            if (IsYJ == "false")
+                                dr_yundan["IsYJ"] = 0;
                             else
-                                dr_yundan["IsChuFaMessage"] = 1;
-                            if (IsDaoDaMessage == "false")
-                                dr_yundan["IsDaoDaMessage"] = 0;
+                                dr_yundan["IsYJ"] = 1;
+                            if (IsSendMessage == "false")
+                                dr_yundan["IsSendMessage"] = 0;
                             else
-                                dr_yundan["IsDaoDaMessage"] = 1;
+                                dr_yundan["IsSendMessage"] = 1;
+                            dr_yundan["MessageTel"] = MessageTel;
                             dr_yundan["QiShiZhan_QX"] = QiShiZhan_Qx;
                             dr_yundan["DaoDaZhan_QX"] = DaoDaZhan_Qx;
                             dr_yundan["Expect_Hour"] = Expect_Hour;
@@ -526,7 +529,7 @@ public class Handler
     }
 
     [CSMethod("SaveYunDanNew")]
-    public bool SaveYunDanNew(string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string SuoShuGongSi, string UserDenno, string GpsDeviceID, JSReader jsr1, JSReader[] jsr)
+    public bool SaveYunDanNew(string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string SuoShuGongSi, string UserDenno, string GpsDeviceID, string IsYJ, string IsSendMessage, string MessageTel, JSReader jsr1, JSReader[] jsr)
     {
         using (var dbc = new DBConnection())
         {
@@ -740,7 +743,15 @@ public class Handler
                             dr_yundan["DaoDaZhan_lng"] = DaoDaZhan_lng;
                             dr_yundan["IsChuFaMessage"] = 1;
                             dr_yundan["IsDaoDaMessage"] = 1;
-
+                            if (IsYJ == "false")
+                                dr_yundan["IsYJ"] = 0;
+                            else
+                                dr_yundan["IsYJ"] = 1;
+                            if (IsSendMessage == "false")
+                                dr_yundan["IsSendMessage"] = 0;
+                            else
+                                dr_yundan["IsSendMessage"] = 1;
+                            dr_yundan["MessageTel"] = MessageTel;
                             dr_yundan["QiShiZhan_QX"] = QiShiZhan_Qx;
                             dr_yundan["DaoDaZhan_QX"] = DaoDaZhan_Qx;
                             dr_yundan["Expect_Hour"] = 999999;
@@ -1654,6 +1665,27 @@ public class Handler
             {
                 throw ex;
             }
+        }
+    }
+
+    [CSMethod("GetOldYunDan")]
+    public DataTable GetOldYunDan()
+    {
+        try
+        {
+            using(var db = new DBConnection())
+            {
+                string userid = SystemUser.CurrentUser.UserID;
+                string sql = "select top 1 QiShiZhan,QiShiZhan_QX,SuoShuGongSi from YunDan where UserID = @UserID order by BangDingTime desc";
+                SqlCommand cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID", userid);
+                DataTable dt = db.ExecuteDataTable(cmd);
+                return dt;
+            }
+        }
+        catch (Exception ex)
+        {
+            throw ex;
         }
     }
 
