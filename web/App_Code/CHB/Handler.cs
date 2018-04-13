@@ -250,6 +250,7 @@ public class Handler
                 string QiShiZhan_Text = "";
                 string DaoDaZhan = "";
                 string DaoDaZhan_Text = "";
+                bool IsCanSale = GpsDeviceID.Substring(0, 4) == "2020" ? true : false;
 
                 bool isReturn = true;
 
@@ -277,7 +278,11 @@ public class Handler
                 {
                     if (Convert.ToInt32(dt_user.Rows[0]["UserRemainder"].ToString()) == 0)
                     {
-                        return false;
+                        throw new Exception("您的建单次数为0，请充值！");
+                    }
+                    if (IsCanSale)
+                    {
+                        throw new Exception("制单失败，请先购买该设备！");
                     }
                 }
 
@@ -565,6 +570,7 @@ public class Handler
                 string QiShiZhan_Text = "";
                 string DaoDaZhan = "";
                 string DaoDaZhan_Text = "";
+                bool IsCanSale = GpsDeviceID.Substring(0, 4) == "2020" ? true : false;
 
                 //var cc = jsr1["Expect_Hour"];
                 //foreach (var k in jsr1)
@@ -590,7 +596,11 @@ public class Handler
                 {
                     if (Convert.ToInt32(dt_user.Rows[0]["UserRemainder"].ToString()) == 0)
                     {
-                        return false;
+                        throw new Exception("您的建单次数为0，请充值！");
+                    }
+                    if (IsCanSale)
+                    {
+                        throw new Exception("制单失败，请先购买该设备！");
                     }
                 }
 
