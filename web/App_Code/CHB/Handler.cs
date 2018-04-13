@@ -2998,8 +2998,8 @@ public class Handler
         }
     }
 
-    [CSMethod("ShowAliByYJ")]
-    public bool ShowAliByYJ(string OrderDenno, decimal ChongZhiJinE, int ChongZhiCiShu, string ChongZhiRemark)
+    [CSMethod("ShowAliByCZ")]
+    public bool ShowAliByCZ(string OrderDenno, decimal ChongZhiJinE, int ChongZhiCiShu, string ChongZhiRemark)
     {
         using (var db = new DBConnection())
         {
