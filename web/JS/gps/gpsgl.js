@@ -5,7 +5,7 @@ var gpsStore = createSFW4Store({
     total: 1,
     currentPage: 1,
     fields: [
-        'GpsDeviceID', 'IsBangding'
+        'GpsDeviceID', 'IsBangding', 'LX'
     ],
     onPageChange: function (sto, nPage, sorters) {
         DataBind(nPage);
@@ -40,6 +40,14 @@ Ext.onReady(function () {
                                 sortable: false,
                                 menuDisabled: true,
                                 text: '设备标识'
+                            },
+                            {
+                                xtype: 'gridcolumn',
+                                dataIndex: 'LX',
+                                flex: 2,
+                                sortable: false,
+                                menuDisabled: true,
+                                text: '设备类型'
                             },
                             {
                                 xtype: 'gridcolumn',

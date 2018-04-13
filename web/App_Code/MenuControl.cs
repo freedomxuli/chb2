@@ -36,30 +36,27 @@ public class MenuControl
                    <Tab p='' Name='定位下载'>approot/r/page/ydcx/dwxz.html</Tab>
                 </Item>
             </Menu>
-            <Menu Name='我的GPS'>            
-                <Item Name='GPS管理'>
-                   <Tab p='' Name='GPS管理'>approot/r/page/gps/gpsgl.html</Tab>
+            <Menu Name='我的设备'>            
+                <Item Name='设备管理'>
+                   <Tab p='' Name='设备管理'>approot/r/page/gps/gpsgl.html</Tab>
                 </Item>
-               <Item Name='GPS订单新增'>
-                   <Tab p='' Name='GPS订单新增'>approot/r/page/gps/AddGpsDingdan.html</Tab>
+               <Item Name='设备租赁新增'>
+                   <Tab p='' Name='设备租赁新增'>approot/r/page/gps/AddGpsDingdan.html</Tab>
                 </Item>
-               <Item Name='GPS订单'>
-                   <Tab p='' Name='GPS订单'>approot/r/page/gps/gpsdd.html</Tab>
+               <Item Name='设备租赁订单'>
+                   <Tab p='' Name='设备租赁订单'>approot/r/page/gps/gpsdd.html</Tab>
                 </Item>
-               <Item Name='GPS退单新增'>
-                   <Tab p='' Name='GPS退单新增'>approot/r/page/gps/AddGpsTuidan.html</Tab>
+               <Item Name='设备退单新增'>
+                   <Tab p='' Name='设备退单新增'>approot/r/page/gps/AddGpsTuidan.html</Tab>
                 </Item>
-               <Item Name='GPS退单'>
-                   <Tab p='' Name='GPS退单'>approot/r/page/gps/gpstd.html</Tab>
+               <Item Name='设备租赁退单'>
+                   <Tab p='' Name='设备租赁退单'>approot/r/page/gps/gpstd.html</Tab>
                 </Item>
-                <Item Name='销售GPS列表'>
-                   <Tab p='' Name='销售GPS列表'>approot/r/page/gps/gpssale.html</Tab>
+                <Item Name='设备销售新增'>
+                   <Tab p='' Name='设备销售新增'>approot/r/page/gps/AddGpsDingdanSale.html</Tab>
                 </Item>
-                <Item Name='GPS销售订单新增'>
-                   <Tab p='' Name='GPS销售订单新增'>approot/r/page/gps/AddGpsDingdanSale.html</Tab>
-                </Item>
-                <Item Name='GPS销售订单'>
-                   <Tab p='' Name='GPS销售订单'>approot/r/page/gps/gpsddsale.html</Tab>
+                <Item Name='设备销售订单'>
+                   <Tab p='' Name='设备销售订单'>approot/r/page/gps/gpsddsale.html</Tab>
                 </Item>
             </Menu>
             <Menu Name='我的发票'>            
