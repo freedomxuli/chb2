@@ -1833,9 +1833,15 @@ public class Handler
                 cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
                 DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
                 dt.Columns.Add("IsBangding");
+                dt.Columns.Add("LX");
 
                 sql = "select YunDanDenno,GpsDeviceID from YunDan where IsBangding = 1";
                 DataTable dt_yun = db.ExecuteDataTable(sql);
+
+                sql = "select * from GpsDeviceSale a where UserID = @UserID";
+                cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                DataTable dt_sale = db.ExecuteDataTable(cmd);
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -1844,6 +1850,12 @@ public class Handler
                         dt.Rows[i]["IsBangding"] = "已绑定";
                     else
                         dt.Rows[i]["IsBangding"] = "未绑定";
+
+                    DataRow[] drs_sale = dt_sale.Select("GpsDeviceID = '" + dt.Rows[i]["GpsDeviceID"].ToString() + "'");
+                    if(drs_sale.Length > 0)
+                        dt.Rows[i]["LX"] = "售买类";
+                    else
+                        dt.Rows[i]["LX"] = "租赁类";
                 }
 
                 #region  插入操作表

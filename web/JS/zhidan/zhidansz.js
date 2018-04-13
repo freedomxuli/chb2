@@ -86,7 +86,7 @@ Ext.onReady(function () {
                                             {
                                                 xtype: 'button',
                                                 iconCls: 'application',
-                                                text: '新增必填和选填选项',
+                                                text: '新增必填选项',
                                                 handler: function () {
                                                     var win = new SelectionWin({ lb: 0 });
                                                     win.show(null, function () {
@@ -97,7 +97,7 @@ Ext.onReady(function () {
                                             {
                                                 xtype: 'button',
                                                 iconCls:'add',
-                                                text: '自定义必填和选填选项',
+                                                text: '自定义必填选项',
                                                 handler: function () {
                                                     var win = new AddSelection({ lb: 0 });
                                                     win.show(null, function () {
@@ -146,7 +146,7 @@ Ext.onReady(function () {
                                             {
                                                 xtype: 'button',
                                                 iconCls: 'application',
-                                                text: '新增必填和选填选项',
+                                                text: '新增选填选项',
                                                 handler: function () {
                                                     var win = new SelectionWin({ lb: 1 });
                                                     win.show(null, function () {
@@ -157,7 +157,7 @@ Ext.onReady(function () {
                                             {
                                                 xtype: 'button',
                                                 iconCls: 'add',
-                                                text: '自定义必填和选填选项',
+                                                text: '自定义选填选项',
                                                 handler: function () {
                                                     var win = new AddSelection({ lb: 1 });
                                                     win.show(null, function () {
