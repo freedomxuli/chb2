@@ -39,6 +39,10 @@ public class PlanTime : Registry
                 {
                     Schedule<MyJobByGps1>().ToRunNow().AndEvery(Convert.ToInt32(dt.Rows[i]["DeviceTime"].ToString())).Minutes();
                 }
+                else if (dt.Rows[i]["DeviceCode"].ToString() == "2020")
+                {
+                    Schedule<MyJobByGps1>().ToRunNow().AndEvery(Convert.ToInt32(dt.Rows[i]["DeviceTime"].ToString())).Minutes();
+                }
                 else if (dt.Rows[i]["DeviceCode"].ToString() == "8630")
                 {
                     
@@ -101,27 +105,31 @@ public class MyJobByGps1 : IJob
 
                 for (int i = 0; i < dt_yun.Rows.Count; i++)
                 {
-                    if (string.IsNullOrEmpty(dt_yun.Rows[i]["GpsDevicevid"].ToString()))
+                    Hashtable gpslocation = Gethttpresult("http://47.98.58.55:8998/gpsonline/GPSAPI", "method=loadLocation&DeviceID=" + dt_yun.Rows[i]["GpsDeviceID"] + "");
+                    if (gpslocation["success"].ToString().ToUpper() != "True".ToUpper())
                     {
-                        Hashtable gpsinfo = Gethttpresult("http://101.37.253.238:89/gpsonline/GPSAPI", "version=1&method=vLoginSystem&name=" + dt_yun.Rows[i]["GpsDeviceID"] + "&pwd=123456");
-                        if (gpsinfo["success"].ToString().ToUpper() != "True".ToUpper())
+                        if (string.IsNullOrEmpty(dt_yun.Rows[i]["GpsDevicevid"].ToString()))
+                        {
+                            Hashtable gpsinfo = Gethttpresult("http://101.37.253.238:89/gpsonline/GPSAPI", "version=1&method=vLoginSystem&name=" + dt_yun.Rows[i]["GpsDeviceID"] + "&pwd=123456");
+                            if (gpsinfo["success"].ToString().ToUpper() != "True".ToUpper())
+                            {
+                                continue;
+                            }
+                            gpsvid = gpsinfo["vid"].ToString();
+                            gpsvkey = gpsinfo["vKey"].ToString();
+                        }
+                        else
+                        {
+                            gpsvid = dt_yun.Rows[i]["GpsDevicevid"].ToString();
+                            gpsvkey = dt_yun.Rows[i]["GpsDevicevKey"].ToString();
+                        }
+
+                        gpslocation = Gethttpresult("http://101.37.253.238:89/gpsonline/GPSAPI", "version=1&method=loadLocation&vid=" + gpsvid + "&vKey=" + gpsvkey + "");
+
+                        if (gpslocation["success"].ToString().ToUpper() != "True".ToUpper())
                         {
                             continue;
                         }
-                        gpsvid = gpsinfo["vid"].ToString();
-                        gpsvkey = gpsinfo["vKey"].ToString();
-                    }
-                    else
-                    {
-                        gpsvid = dt_yun.Rows[i]["GpsDevicevid"].ToString();
-                        gpsvkey = dt_yun.Rows[i]["GpsDevicevKey"].ToString();
-                    }
-
-                    Hashtable gpslocation = Gethttpresult("http://101.37.253.238:89/gpsonline/GPSAPI", "version=1&method=loadLocation&vid=" + gpsvid + "&vKey=" + gpsvkey + "");
-
-                    if (gpslocation["success"].ToString().ToUpper() != "True".ToUpper())
-                    {
-                        continue;
                     }
 
                     Newtonsoft.Json.Linq.JArray ja = (Newtonsoft.Json.Linq.JArray)Newtonsoft.Json.JsonConvert.DeserializeObject(gpslocation["locs"].ToString());
