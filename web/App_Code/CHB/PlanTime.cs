@@ -39,10 +39,6 @@ public class PlanTime : Registry
                 {
                     Schedule<MyJobByGps1>().ToRunNow().AndEvery(Convert.ToInt32(dt.Rows[i]["DeviceTime"].ToString())).Minutes();
                 }
-                else if (dt.Rows[i]["DeviceCode"].ToString() == "2020")
-                {
-                    Schedule<MyJobByGps1>().ToRunNow().AndEvery(Convert.ToInt32(dt.Rows[i]["DeviceTime"].ToString())).Minutes();
-                }
                 else if (dt.Rows[i]["DeviceCode"].ToString() == "8630")
                 {
                     
