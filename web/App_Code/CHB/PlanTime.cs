@@ -85,7 +85,7 @@ public class MyJobByGps1 : IJob
                 string gpsvid = ""; 
                 string gpsvkey = "";
 
-                string sql = "select GpsDevicevid,GpsDevicevKey,GpsDeviceID,UserDenno,GpsDeviceID,UserID,YunDanDenno from YunDan where IsBangding = 1";
+                string sql = "select GpsDevicevid,GpsDevicevKey,GpsDeviceID,UserDenno,GpsDeviceID,UserID,YunDanDenno from YunDan where IsBangding = 1 order by BangDingTime desc";
                 DataTable dt_yun = db.ExecuteDataTable(sql);
 
                 sql = @"select a.GpsDeviceID,a.Gps_time from
@@ -101,7 +101,7 @@ public class MyJobByGps1 : IJob
 
                 for (int i = 0; i < dt_yun.Rows.Count; i++)
                 {
-                    Hashtable gpslocation = Gethttpresult("http://47.98.58.55:8998/gpsonline/GPSAPI", "method=loadLocation&DeviceID=" + dt_yun.Rows[i]["GpsDeviceID"] + "");
+                    Hashtable gpslocation = GethttpresultBybsj("http://47.98.58.55:8998/gpsonline/GPSAPI?method=loadLocation&DeviceID=" + dt_yun.Rows[i]["GpsDeviceID"] + "");
                     if (gpslocation["success"].ToString().ToUpper() != "True".ToUpper())
                     {
                         if (string.IsNullOrEmpty(dt_yun.Rows[i]["GpsDevicevid"].ToString()))
@@ -174,6 +174,7 @@ public class MyJobByGps1 : IJob
                         dt_location.Rows.Add(dr_location);
                     }
                 }
+                
                 if (dt_location.Rows.Count > 0)
                     db.InsertTable(dt_location);
                 if (dt_yun_up.Rows.Count > 0)
@@ -190,29 +191,106 @@ public class MyJobByGps1 : IJob
 
     public System.Collections.Hashtable Gethttpresult(string url, string data)
     {
-        WebRequest request = WebRequest.Create(url);
-        Encoding encode = Encoding.GetEncoding("utf-8");
-        request.Method = "POST";
-        Byte[] byteArray = encode.GetBytes(data);
-        request.ContentType = "application/x-www-form-urlencoded";
+        try
+        {
+            WebRequest request = WebRequest.Create(url);
+            Encoding encode = Encoding.GetEncoding("utf-8");
+            request.Method = "POST";
+            Byte[] byteArray = encode.GetBytes(data);
+            request.ContentType = "application/x-www-form-urlencoded";
 
-        request.ContentLength = byteArray.Length;
-        Stream dataStream = request.GetRequestStream();
-        dataStream.Write(byteArray, 0, byteArray.Length);
-        dataStream.Close();
-        WebResponse response = request.GetResponse();
+            request.ContentLength = byteArray.Length;
+            Stream dataStream = request.GetRequestStream();
+            dataStream.Write(byteArray, 0, byteArray.Length);
+            dataStream.Close();
+            WebResponse response = request.GetResponse();
 
-        dataStream = response.GetResponseStream();
-        StreamReader reader = new StreamReader(dataStream, encode);
-        String responseFromServer = reader.ReadToEnd();
-        string outStr = responseFromServer;
-        reader.Close();
-        dataStream.Close();
-        response.Close();
+            dataStream = response.GetResponseStream();
+            StreamReader reader = new StreamReader(dataStream, encode);
+            String responseFromServer = reader.ReadToEnd();
+            string outStr = responseFromServer;
+            reader.Close();
+            dataStream.Close();
+            response.Close();
 
-        Hashtable hashTable = JsonConvert.DeserializeObject<Hashtable>(outStr);
-        return hashTable;
+            Hashtable hashTable = JsonConvert.DeserializeObject<Hashtable>(outStr);
+            return hashTable;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
     }
+
+    public System.Collections.Hashtable GethttpresultBybsj(string url)
+    {
+        try
+        {
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            //parameters.Add("method", "loadLocation");
+            //parameters.Add("DeviceID", "19190002187");
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            string outStr = html;
+
+            Hashtable hashTable = JsonConvert.DeserializeObject<Hashtable>(outStr);
+            return hashTable;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    #region webservice请求方法
+    private static readonly string DefaultUserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; SV1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)";
+
+    private static bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
+    {
+        return true; //总是接受     
+    }
+
+    public static HttpWebResponse CreatePostHttpResponse(string url, IDictionary<string, string> parameters, Encoding charset)
+    {
+        HttpWebRequest request = null;
+        //HTTPSQ请求  
+        ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
+        request = WebRequest.Create(url) as HttpWebRequest;
+        request.ProtocolVersion = HttpVersion.Version10;
+        request.Method = "POST";
+        request.ContentType = "application/x-www-form-urlencoded";
+        request.UserAgent = DefaultUserAgent;
+        request.ProtocolVersion = HttpVersion.Version10;
+        //如果需要POST数据     
+        if (!(parameters == null || parameters.Count == 0))
+        {
+            StringBuilder buffer = new StringBuilder();
+            int i = 0;
+            foreach (string key in parameters.Keys)
+            {
+                if (i > 0)
+                {
+                    buffer.AppendFormat("&{0}={1}", key, parameters[key]);
+                }
+                else
+                {
+                    buffer.AppendFormat("{0}={1}", key, parameters[key]);
+                }
+                i++;
+            }
+            byte[] data = charset.GetBytes(buffer.ToString());
+            using (Stream stream = request.GetRequestStream())
+            {
+                stream.Write(data, 0, data.Length);
+            }
+        }
+        return request.GetResponse() as HttpWebResponse;
+    }
+    #endregion
 }
 
 public class MyJob : IJob

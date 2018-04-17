@@ -496,7 +496,7 @@ public class Handler
                 }
                 else
                 {
-                    Hashtable gpslocation = Gethttpresult("http://47.98.58.55:8998/gpsonline/GPSAPI", "method=loadLocation&DeviceID=" + GpsDeviceID + "");
+                    Hashtable gpslocation = GethttpresultBybsj("http://47.98.58.55:8998/gpsonline/GPSAPI?method=loadLocation&DeviceID=" + GpsDeviceID + "");
 
                     string newlng = "";
                     string newlat = "";
@@ -1018,7 +1018,7 @@ public class Handler
                 }
                 else
                 {
-                    Hashtable gpslocation = Gethttpresult("http://47.98.58.55:8998/gpsonline/GPSAPI", "method=loadLocation&DeviceID=" + GpsDeviceID + "");
+                    Hashtable gpslocation = GethttpresultBybsj("http://47.98.58.55:8998/gpsonline/GPSAPI?method=loadLocation&DeviceID=" + GpsDeviceID + "");
 
                     string newlng = "";
                     string newlat = "";
@@ -4679,7 +4679,7 @@ public class Handler
                             }
                             else
                             {
-                                Hashtable gpslocation = Gethttpresult("http://47.98.58.55:8998/gpsonline/GPSAPI", "method=loadLocation&DeviceID=" + GpsDeviceID + "");
+                                Hashtable gpslocation = GethttpresultBybsj("http://47.98.58.55:8998/gpsonline/GPSAPI?method=loadLocation&DeviceID=" + GpsDeviceID + "");
 
                                 string newlng = "";
                                 string newlat = "";
@@ -6555,6 +6555,30 @@ public class Handler
             return hashTable;
         }
 
+    }
+
+    public System.Collections.Hashtable GethttpresultBybsj(string url)
+    {
+        try
+        {
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            //parameters.Add("method", "loadLocation");
+            //parameters.Add("DeviceID", "19190002187");
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            string outStr = html;
+
+            Hashtable hashTable = JsonConvert.DeserializeObject<Hashtable>(outStr);
+            return hashTable;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
     }
 
     #region webservice请求方法
