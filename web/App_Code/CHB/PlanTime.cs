@@ -37,7 +37,7 @@ public class PlanTime : Registry
             {
                 if (dt.Rows[i]["DeviceCode"].ToString() == "1919")
                 {
-                    Schedule<MyJobByGps1>().ToRunNow().AndEvery(Convert.ToInt32(dt.Rows[i]["DeviceTime"].ToString())).Minutes();
+                    Schedule<MyJobByGps1>().ToRunNow().AndEvery(Convert.ToInt32(dt.Rows[i]["DeviceTime"])).Minutes();
                 }
                 else if (dt.Rows[i]["DeviceCode"].ToString() == "8630")
                 {
@@ -102,6 +102,7 @@ public class MyJobByGps1 : IJob
                 for (int i = 0; i < dt_yun.Rows.Count; i++)
                 {
                     Hashtable gpslocation = GethttpresultBybsj("http://47.98.58.55:8998/gpsonline/GPSAPI?method=loadLocation&DeviceID=" + dt_yun.Rows[i]["GpsDeviceID"] + "");
+                    //Hashtable gpslocation = Gethttpresult("http://47.98.58.55:8998/gpsonline/GPSAPI", "method=loadLocation&DeviceID=" + dt_yun.Rows[i]["GpsDeviceID"] + "");
                     if (gpslocation["success"].ToString().ToUpper() != "True".ToUpper())
                     {
                         if (string.IsNullOrEmpty(dt_yun.Rows[i]["GpsDevicevid"].ToString()))
@@ -226,7 +227,7 @@ public class MyJobByGps1 : IJob
     {
         try
         {
-            Encoding encoding = Encoding.GetEncoding("utf-8");
+            Encoding encoding = Encoding.GetEncoding("utf-8"); 
             IDictionary<string, string> parameters = new Dictionary<string, string>();
             //parameters.Add("method", "loadLocation");
             //parameters.Add("DeviceID", "19190002187");
@@ -235,6 +236,8 @@ public class MyJobByGps1 : IJob
             Stream stream = response.GetResponseStream();   //获取响应的字符串流  
             StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
             string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            sr.Close();
+            stream.Close();
             string outStr = html;
 
             Hashtable hashTable = JsonConvert.DeserializeObject<Hashtable>(outStr);
@@ -264,7 +267,6 @@ public class MyJobByGps1 : IJob
         request.Method = "POST";
         request.ContentType = "application/x-www-form-urlencoded";
         request.UserAgent = DefaultUserAgent;
-        request.ProtocolVersion = HttpVersion.Version10;
         //如果需要POST数据     
         if (!(parameters == null || parameters.Count == 0))
         {
