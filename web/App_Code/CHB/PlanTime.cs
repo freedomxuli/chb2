@@ -37,7 +37,7 @@ public class PlanTime : Registry
             {
                 if (dt.Rows[i]["DeviceCode"].ToString() == "1919")
                 {
-                    Schedule<MyJobByGps1>().ToRunNow().AndEvery(Convert.ToInt32(dt.Rows[i]["DeviceTime"])).Minutes();
+                    Schedule<MyJobByGps1>().ToRunNow().AndEvery(Convert.ToInt32(dt.Rows[i]["DeviceTime"].ToString())).Minutes();
                 }
                 else if (dt.Rows[i]["DeviceCode"].ToString() == "8630")
                 {
@@ -82,9 +82,6 @@ public class MyJobByGps1 : IJob
             {
                 db.BeginTransaction();
 
-                string gpsvid = ""; 
-                string gpsvkey = "";
-
                 string sql = "select GpsDevicevid,GpsDevicevKey,GpsDeviceID,UserDenno,GpsDeviceID,UserID,YunDanDenno from YunDan where IsBangding = 1 order by BangDingTime desc";
                 DataTable dt_yun = db.ExecuteDataTable(sql);
 
@@ -101,6 +98,9 @@ public class MyJobByGps1 : IJob
 
                 for (int i = 0; i < dt_yun.Rows.Count; i++)
                 {
+                    string gpsvid = "";
+                    string gpsvkey = "";
+
                     Hashtable gpslocation = GethttpresultBybsj("http://47.98.58.55:8998/gpsonline/GPSAPI?method=loadLocation&DeviceID=" + dt_yun.Rows[i]["GpsDeviceID"] + "");
                     //Hashtable gpslocation = Gethttpresult("http://47.98.58.55:8998/gpsonline/GPSAPI", "method=loadLocation&DeviceID=" + dt_yun.Rows[i]["GpsDeviceID"] + "");
                     if (gpslocation["success"].ToString().ToUpper() != "True".ToUpper())
@@ -267,6 +267,7 @@ public class MyJobByGps1 : IJob
         request.Method = "POST";
         request.ContentType = "application/x-www-form-urlencoded";
         request.UserAgent = DefaultUserAgent;
+        request.Timeout = -1;
         //如果需要POST数据     
         if (!(parameters == null || parameters.Count == 0))
         {
