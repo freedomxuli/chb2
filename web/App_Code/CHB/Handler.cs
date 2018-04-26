@@ -357,7 +357,7 @@ public class Handler
                         cmd.Parameters.Add("@Gps_time", gpstm);
                         cmd.Parameters.Add("@GpsDeviceID", GpsDeviceID);
                         DataTable dt_locations = dbc.ExecuteDataTable(cmd);
-                        if (dt_locations.Rows.Count > 0)
+                        if (dt_locations.Rows.Count == 0)
                         {
                             DataTable dt_location_new = dbc.GetEmptyDataTable("GpsLocation");
                             DataRow dr_location = dt_location_new.NewRow();
@@ -536,7 +536,7 @@ public class Handler
                         cmd.Parameters.Add("@Gps_time", gpstm);
                         cmd.Parameters.Add("@GpsDeviceID", GpsDeviceID);
                         DataTable dt_locations = dbc.ExecuteDataTable(cmd);
-                        if (dt_locations.Rows.Count > 0)
+                        if (dt_locations.Rows.Count == 0)
                         {
                             DataTable dt_location_new = dbc.GetEmptyDataTable("GpsLocation");
                             DataRow dr_location = dt_location_new.NewRow();
@@ -861,7 +861,7 @@ public class Handler
                         cmd.Parameters.Add("@Gps_time", gpstm);
                         cmd.Parameters.Add("@GpsDeviceID", GpsDeviceID);
                         DataTable dt_locations = dbc.ExecuteDataTable(cmd);
-                        if (dt_locations.Rows.Count > 0)
+                        if (dt_locations.Rows.Count == 0)
                         {
                             DataTable dt_location_new = dbc.GetEmptyDataTable("GpsLocation");
                             DataRow dr_location = dt_location_new.NewRow();
@@ -1058,7 +1058,7 @@ public class Handler
                         cmd.Parameters.Add("@Gps_time", gpstm);
                         cmd.Parameters.Add("@GpsDeviceID", GpsDeviceID);
                         DataTable dt_locations = dbc.ExecuteDataTable(cmd);
-                        if (dt_locations.Rows.Count > 0)
+                        if (dt_locations.Rows.Count == 0)
                         {
                             DataTable dt_location_new = dbc.GetEmptyDataTable("GpsLocation");
                             DataRow dr_location = dt_location_new.NewRow();
