@@ -62,14 +62,26 @@ public class InterFaceHandler : IHttpHandler {
             case "WoDeYunDanByAll":
                 str = WoDeYunDanByAll(context);
                 break;
+            case "WoDeYunDanByAllByPage":
+                str = WoDeYunDanByAllByPage(context);
+                break;
             case "WoDeYunDanByGZ":
                 str = WoDeYunDanByGZ(context);
+                break;
+            case "WoDeYunDanByGZByPage":
+                str = WoDeYunDanByGZByPage(context);
                 break;
             case "WoDeYunDanByHis":
                 str = WoDeYunDanByHis(context);
                 break;
+            case "WoDeYunDanByHisByPage":
+                str = WoDeYunDanByHisByPage(context);
+                break;
             case "WoDeYunDanByYJ":
                 str = WoDeYunDanByYJ(context);
+                break;
+            case "WoDeYunDanByYJByPage":
+                str = WoDeYunDanByYJByPage(context);
                 break;
             case "ZiYouChaDan":
                 str = ZiYouChaDan(context);
@@ -596,6 +608,54 @@ public class InterFaceHandler : IHttpHandler {
         return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
     }
 
+    /// <summary>
+    /// 分页
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public string WoDeYunDanByAllByPage(HttpContext context)
+    {
+        Newtonsoft.Json.Linq.JObject hash = new Newtonsoft.Json.Linq.JObject();
+        hash["sign"] = "0";
+        hash["msg"] = "搜索我的运单失败！";
+
+        try
+        {
+            System.Text.Encoding utf8 = System.Text.Encoding.UTF8;
+            string UserName = context.Request["UserName"];
+            string CurrentPage = context.Request["CurrentPage"];
+            string PageSize = context.Request["PageSize"];
+            UserName = HttpUtility.UrlDecode(UserName.ToUpper(), utf8);
+
+            Handler App_Handler = new Handler();
+            System.Data.DataTable dt = App_Handler.WoDeYunDanByAllByPage(UserName, context.Request["UserDenno"], CurrentPage, PageSize);
+            int AllCount = App_Handler.WoDeYunDanByAllByNum(UserName, context.Request["UserDenno"]);
+            if (dt.Rows.Count > 0)
+            {
+                Newtonsoft.Json.Linq.JArray jary = new Newtonsoft.Json.Linq.JArray();
+                jary = Newtonsoft.Json.JsonConvert.DeserializeObject(Newtonsoft.Json.JsonConvert.SerializeObject(dt)) as Newtonsoft.Json.Linq.JArray;
+
+                hash["sign"] = "1";
+                hash["msg"] = "搜索我的运单成功！";
+                hash["yundanlist"] = jary;
+                hash["allcount"] = AllCount;
+            }
+            else
+            {
+                hash["sign"] = "2";
+                hash["msg"] = "我的运单为空";
+            }
+        }
+        catch (Exception ex)
+        {
+            hash["sign"] = "0";
+            hash["msg"] = "搜索我的运单失败，错误:" + ex.Message;
+        }
+
+
+        return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
+    }
+
     public string WoDeYunDanByGZ(HttpContext context)
     {
         Newtonsoft.Json.Linq.JObject hash = new Newtonsoft.Json.Linq.JObject();
@@ -618,6 +678,54 @@ public class InterFaceHandler : IHttpHandler {
                 hash["sign"] = "1";
                 hash["msg"] = "搜索我的运单成功！";
                 hash["yundanlist"] = jary;
+            }
+            else
+            {
+                hash["sign"] = "2";
+                hash["msg"] = "我的运单为空";
+            }
+        }
+        catch (Exception ex)
+        {
+            hash["sign"] = "0";
+            hash["msg"] = "搜索我的运单失败，错误:" + ex.Message;
+        }
+
+
+        return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
+    }
+
+    /// <summary>
+    /// 分页
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public string WoDeYunDanByGZByPage(HttpContext context)
+    {
+        Newtonsoft.Json.Linq.JObject hash = new Newtonsoft.Json.Linq.JObject();
+        hash["sign"] = "0";
+        hash["msg"] = "搜索我的运单失败！";
+
+        try
+        {
+            System.Text.Encoding utf8 = System.Text.Encoding.UTF8;
+            string UserName = context.Request["UserName"];
+            string CurrentPage = context.Request["CurrentPage"];
+            string PageSize = context.Request["PageSize"];
+            UserName = HttpUtility.UrlDecode(UserName.ToUpper(), utf8);
+
+            Handler App_Handler = new Handler();
+            System.Data.DataTable dt = App_Handler.WoDeYunDanByGZByPage(UserName, context.Request["UserDenno"], CurrentPage, PageSize);
+            int AllCount = App_Handler.WoDeYunDanByGZByNum(UserName, context.Request["UserDenno"]);
+            if (dt.Rows.Count > 0)
+            {
+                Newtonsoft.Json.Linq.JArray jary = new Newtonsoft.Json.Linq.JArray();
+                jary = Newtonsoft.Json.JsonConvert.DeserializeObject(Newtonsoft.Json.JsonConvert.SerializeObject(dt)) as Newtonsoft.Json.Linq.JArray;
+
+                hash["sign"] = "1";
+                hash["msg"] = "搜索我的运单成功！";
+                hash["yundanlist"] = jary;
+                hash["allcount"] = AllCount;
             }
             else
             {
@@ -674,6 +782,54 @@ public class InterFaceHandler : IHttpHandler {
         return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
     }
 
+    /// <summary>
+    /// 分页
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public string WoDeYunDanByHisByPage(HttpContext context)
+    {
+        Newtonsoft.Json.Linq.JObject hash = new Newtonsoft.Json.Linq.JObject();
+        hash["sign"] = "0";
+        hash["msg"] = "搜索我的运单失败！";
+
+        try
+        {
+            System.Text.Encoding utf8 = System.Text.Encoding.UTF8;
+            string UserName = context.Request["UserName"];
+            string CurrentPage = context.Request["CurrentPage"];
+            string PageSize = context.Request["PageSize"];
+            UserName = HttpUtility.UrlDecode(UserName.ToUpper(), utf8);
+
+            Handler App_Handler = new Handler();
+            System.Data.DataTable dt = App_Handler.WoDeYunDanByHisByPage(UserName, context.Request["UserDenno"], CurrentPage, PageSize);
+            int AllCount = App_Handler.WoDeYunDanByHisByNum(UserName, context.Request["UserDenno"]);
+            if (dt.Rows.Count > 0)
+            {
+                Newtonsoft.Json.Linq.JArray jary = new Newtonsoft.Json.Linq.JArray();
+                jary = Newtonsoft.Json.JsonConvert.DeserializeObject(Newtonsoft.Json.JsonConvert.SerializeObject(dt)) as Newtonsoft.Json.Linq.JArray;
+
+                hash["sign"] = "1";
+                hash["msg"] = "搜索我的运单成功！";
+                hash["yundanlist"] = jary;
+                hash["allcount"] = AllCount;
+            }
+            else
+            {
+                hash["sign"] = "2";
+                hash["msg"] = "我的运单为空";
+            }
+        }
+        catch (Exception ex)
+        {
+            hash["sign"] = "0";
+            hash["msg"] = "搜索我的运单失败，错误:" + ex.Message;
+        }
+
+
+        return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
+    }
+
     public string WoDeYunDanByYJ(HttpContext context)
     {
         Newtonsoft.Json.Linq.JObject hash = new Newtonsoft.Json.Linq.JObject();
@@ -696,6 +852,55 @@ public class InterFaceHandler : IHttpHandler {
                 hash["sign"] = "1";
                 hash["msg"] = "搜索我的运单成功！";
                 hash["yundanlist"] = jary;
+            }
+            else
+            {
+                hash["sign"] = "2";
+                hash["msg"] = "我的运单为空";
+            }
+        }
+        catch (Exception ex)
+        {
+            hash["sign"] = "0";
+            hash["msg"] = "搜索我的运单失败，错误:" + ex.Message;
+        }
+
+
+        return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
+    }
+
+
+    /// <summary>
+    /// 分页
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public string WoDeYunDanByYJByPage(HttpContext context)
+    {
+        Newtonsoft.Json.Linq.JObject hash = new Newtonsoft.Json.Linq.JObject();
+        hash["sign"] = "0";
+        hash["msg"] = "搜索我的运单失败！";
+
+        try
+        {
+            System.Text.Encoding utf8 = System.Text.Encoding.UTF8;
+            string UserName = context.Request["UserName"];
+            string CurrentPage = context.Request["CurrentPage"];
+            string PageSize = context.Request["PageSize"];
+            UserName = HttpUtility.UrlDecode(UserName.ToUpper(), utf8);
+
+            Handler App_Handler = new Handler();
+            System.Data.DataTable dt = App_Handler.WoDeYunDanByYJByPage(UserName, context.Request["UserDenno"], CurrentPage, PageSize);
+            int AllCount = App_Handler.WoDeYunDanByYJByNum(UserName, context.Request["UserDenno"]);
+            if (dt.Rows.Count > 0)
+            {
+                Newtonsoft.Json.Linq.JArray jary = new Newtonsoft.Json.Linq.JArray();
+                jary = Newtonsoft.Json.JsonConvert.DeserializeObject(Newtonsoft.Json.JsonConvert.SerializeObject(dt)) as Newtonsoft.Json.Linq.JArray;
+
+                hash["sign"] = "1";
+                hash["msg"] = "搜索我的运单成功！";
+                hash["yundanlist"] = jary;
+                hash["allcount"] = AllCount;
             }
             else
             {
