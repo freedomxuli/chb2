@@ -41,7 +41,7 @@ public class PlanTime : Registry
                 }
                 else if (dt.Rows[i]["DeviceCode"].ToString() == "8630")
                 {
-                    
+                    Schedule<MyJobByGps2>().ToRunNow().AndEvery(Convert.ToInt32(dt.Rows[i]["DeviceTime"].ToString())).Minutes();
                 }
             }
         }
@@ -296,6 +296,210 @@ public class MyJobByGps1 : IJob
     #endregion
 }
 
+public class MyJobByGps2 : IJob
+{
+    void IJob.Execute()
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                db.BeginTransaction();
+
+                string sql = "select GpsDevicevid,GpsDevicevKey,GpsDeviceID,UserDenno,GpsDeviceID,UserID,YunDanDenno from YunDan where IsBangding = 1 and GpsDeviceID like '8630%' order by BangDingTime desc";
+                DataTable dt_yun = db.ExecuteDataTable(sql);
+
+                sql = @"select a.GpsDeviceID,a.Gps_time from
+                        (
+	                        select GpsDeviceID,Gps_time,row_number() over (partition by GpsDeviceID order by Gps_time desc) rn from GpsLocation2 a 
+	                        where exists(select 1 from YunDan where IsBangding = 1 and GpsDeviceID like '8630%' and GpsDeviceID = a.GpsDeviceID)
+                        ) a where a.rn = 1";
+                DataTable dt_gps_time = db.ExecuteDataTable(sql);
+
+                DataTable dt_location = db.GetEmptyDataTable("GpsLocation2");
+
+                for (int i = 0; i < dt_yun.Rows.Count; i++)
+                {
+                    string gpsvid = "";
+                    string gpsvkey = "";
+
+                    Hashtable gpslocation = GethttpresultBybsj("http://47.98.58.55:8998/gpsonline/GPSAPI?method=loadLocation&DeviceID=" + dt_yun.Rows[i]["GpsDeviceID"] + "");
+                    //Hashtable gpslocation = Gethttpresult("http://47.98.58.55:8998/gpsonline/GPSAPI", "method=loadLocation&DeviceID=" + dt_yun.Rows[i]["GpsDeviceID"] + "");
+                    if (gpslocation["success"].ToString().ToUpper() != "True".ToUpper())
+                    {
+                        if (string.IsNullOrEmpty(dt_yun.Rows[i]["GpsDevicevid"].ToString()))
+                        {
+                            Hashtable gpsinfo = Gethttpresult("http://101.37.253.238:89/gpsonline/GPSAPI", "version=1&method=vLoginSystem&name=" + dt_yun.Rows[i]["GpsDeviceID"] + "&pwd=123456");
+                            if (gpsinfo["success"].ToString().ToUpper() != "True".ToUpper())
+                            {
+                                continue;
+                            }
+                            gpsvid = gpsinfo["vid"].ToString();
+                            gpsvkey = gpsinfo["vKey"].ToString();
+                        }
+                        else
+                        {
+                            gpsvid = dt_yun.Rows[i]["GpsDevicevid"].ToString();
+                            gpsvkey = dt_yun.Rows[i]["GpsDevicevKey"].ToString();
+                        }
+
+                        gpslocation = Gethttpresult("http://101.37.253.238:89/gpsonline/GPSAPI", "version=1&method=loadLocation&vid=" + gpsvid + "&vKey=" + gpsvkey + "");
+
+                        if (gpslocation["success"].ToString().ToUpper() != "True".ToUpper())
+                        {
+                            continue;
+                        }
+                    }
+
+                    Newtonsoft.Json.Linq.JArray ja = (Newtonsoft.Json.Linq.JArray)Newtonsoft.Json.JsonConvert.DeserializeObject(gpslocation["locs"].ToString());
+
+                    string newgpstime = ja.First()["gpstime"].ToString();
+                    //newgpstime = newgpstime.Substring(0, newgpstime.Length - 2);
+                    string newlng = ja.First()["lng"].ToString();
+                    //newlng = newlng.Substring(0, newlng.Length - 2);
+                    string newlat = ja.First()["lat"].ToString();
+                    //newlat = newlat.Substring(0, newlat.Length - 2);
+                    string newinfo = ja.First()["info"].ToString();
+                    //newinfo = newinfo.Substring(0, newinfo.Length - 2);
+                    //DateTime gpstm =  DateTime.Parse("1970-01-01 00:00:00");
+                    long time_JAVA_Long = long.Parse(newgpstime);// 1207969641193;//java长整型日期，毫秒为单位          
+                    DateTime dt_1970 = new DateTime(1970, 1, 1, 0, 0, 0);
+                    long tricks_1970 = dt_1970.Ticks;//1970年1月1日刻度      
+                    long time_tricks = tricks_1970 + time_JAVA_Long * 10000;//日志日期刻度  
+                    DateTime gpstm = new DateTime(time_tricks).AddHours(8);//转化为DateTime
+
+                    DataRow[] drs = dt_gps_time.Select("Gps_time = '" + gpstm + "' and GpsDeviceID = '" + dt_yun.Rows[i]["GpsDeviceID"] + "'");
+                    if (drs.Count() == 0)
+                    {
+                        DataRow dr_location = dt_location.NewRow();
+                        dr_location["GpsDeviceID"] = dt_yun.Rows[i]["GpsDeviceID"];
+                        dr_location["Gps_lat"] = newlat;
+                        dr_location["Gps_lng"] = newlng;
+                        dr_location["Gps_time"] = gpstm;
+                        dr_location["Gps_info"] = newinfo;
+                        dr_location["GpsRemark"] = "自动定位";
+                        dt_location.Rows.Add(dr_location);
+                    }
+                }
+
+                if (dt_location.Rows.Count > 0)
+                    db.InsertTable(dt_location);
+
+                db.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                db.RoolbackTransaction();
+            }
+        }
+    }
+
+    public System.Collections.Hashtable Gethttpresult(string url, string data)
+    {
+        try
+        {
+            WebRequest request = WebRequest.Create(url);
+            Encoding encode = Encoding.GetEncoding("utf-8");
+            request.Method = "POST";
+            Byte[] byteArray = encode.GetBytes(data);
+            request.ContentType = "application/x-www-form-urlencoded";
+
+            request.ContentLength = byteArray.Length;
+            Stream dataStream = request.GetRequestStream();
+            dataStream.Write(byteArray, 0, byteArray.Length);
+            dataStream.Close();
+            WebResponse response = request.GetResponse();
+
+            dataStream = response.GetResponseStream();
+            StreamReader reader = new StreamReader(dataStream, encode);
+            String responseFromServer = reader.ReadToEnd();
+            string outStr = responseFromServer;
+            reader.Close();
+            dataStream.Close();
+            response.Close();
+
+            Hashtable hashTable = JsonConvert.DeserializeObject<Hashtable>(outStr);
+            return hashTable;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    public System.Collections.Hashtable GethttpresultBybsj(string url)
+    {
+        try
+        {
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            //parameters.Add("method", "loadLocation");
+            //parameters.Add("DeviceID", "19190002187");
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            sr.Close();
+            stream.Close();
+            string outStr = html;
+
+            Hashtable hashTable = JsonConvert.DeserializeObject<Hashtable>(outStr);
+            return hashTable;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    #region webservice请求方法
+    private static readonly string DefaultUserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; SV1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)";
+
+    private static bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
+    {
+        return true; //总是接受     
+    }
+
+    public static HttpWebResponse CreatePostHttpResponse(string url, IDictionary<string, string> parameters, Encoding charset)
+    {
+        HttpWebRequest request = null;
+        //HTTPSQ请求  
+        ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
+        request = WebRequest.Create(url) as HttpWebRequest;
+        request.ProtocolVersion = HttpVersion.Version10;
+        request.Method = "POST";
+        request.ContentType = "application/x-www-form-urlencoded";
+        request.UserAgent = DefaultUserAgent;
+        request.Timeout = -1;
+        //如果需要POST数据     
+        if (!(parameters == null || parameters.Count == 0))
+        {
+            StringBuilder buffer = new StringBuilder();
+            int i = 0;
+            foreach (string key in parameters.Keys)
+            {
+                if (i > 0)
+                {
+                    buffer.AppendFormat("&{0}={1}", key, parameters[key]);
+                }
+                else
+                {
+                    buffer.AppendFormat("{0}={1}", key, parameters[key]);
+                }
+                i++;
+            }
+            byte[] data = charset.GetBytes(buffer.ToString());
+            using (Stream stream = request.GetRequestStream())
+            {
+                stream.Write(data, 0, data.Length);
+            }
+        }
+        return request.GetResponse() as HttpWebResponse;
+    }
+    #endregion
+}
+
 public class MyJob : IJob
 {
 
@@ -414,9 +618,8 @@ public class MyGpsDistanceJob : IJob
                 db.BeginTransaction();
 
                 DataTable dt_new = db.GetEmptyDataTable("YunDanDistance");
-                //DataTable dt_up = db.GetEmptyDataTable("YunDanDistance");
-                //dt_up.PrimaryKey = new DataColumn[] { dt_up.Columns["ID"] };
-                //DataTableTracker dtt_up = new DataTableTracker(dt_up);
+                DataTable dt_up = db.GetEmptyDataTable("YunDanDistance");
+                DataTableTracker dtt_up = new DataTableTracker(dt_up);
 
                 string sql = "select * from YunDan where IsBangding = 1";
                 DataTable dt_yundan = db.ExecuteDataTable(sql);
@@ -434,25 +637,29 @@ public class MyGpsDistanceJob : IJob
                             Hashtable ht = Route.getMapRoute(dt_yundan.Rows[i]["Gps_lastlng"].ToString() + "," + dt_yundan.Rows[i]["Gps_lastlat"].ToString(), dt_yundan.Rows[i]["DaoDaZhan_lng"].ToString() + "," + dt_yundan.Rows[i]["DaoDaZhan_lat"].ToString());
                             if (ht["distance"] != null && !string.IsNullOrEmpty(ht["distance"].ToString()) && ht["duration"] != null && !string.IsNullOrEmpty(ht["duration"].ToString()))
                             {
-                                sql = @"update YunDanDistance set Gps_lastlat = '" + dt_yundan.Rows[i]["Gps_lastlat"].ToString() + @"',Gps_lastlng = '" + dt_yundan.Rows[i]["Gps_lastlng"].ToString() + @"',
-                                    Gps_lasttime = '" + dt_yundan.Rows[i]["Gps_lasttime"].ToString() + @"',Gps_distance = '" + (Convert.ToDecimal(ht["distance"]) / 1000).ToString("F2") + @"',
-                                    Gps_duration = '" + (Convert.ToDecimal(ht["duration"]) / 60).ToString("F2") + @"' where ID = '" + drs[0]["ID"].ToString() + @"'";
-                                db.ExecuteNonQuery(sql);
+//                                sql = @"update YunDanDistance set Gps_lastlat = '" + dt_yundan.Rows[i]["Gps_lastlat"].ToString() + @"',Gps_lastlng = '" + dt_yundan.Rows[i]["Gps_lastlng"].ToString() + @"',
+//                                    Gps_lasttime = '" + dt_yundan.Rows[i]["Gps_lasttime"].ToString() + @"',Gps_distance = '" + (Convert.ToDecimal(ht["distance"]) / 1000).ToString("F2") + @"',
+//                                    Gps_duration = '" + (Convert.ToDecimal(ht["duration"]) / 60).ToString("F2") + @"' where ID = '" + drs[0]["ID"].ToString() + @"'";
+//                                db.ExecuteNonQuery(sql);
+                                DataRow dr = dt_up.NewRow();
+                                dr["ID"] = drs[0]["ID"].ToString();
+                                dr["YunDanDenno"] = dt_yundan.Rows[i]["YunDanDenno"];
+                                dr["UserDenno"] = dt_yundan.Rows[i]["UserDenno"];
+                                dr["UserID"] = dt_yundan.Rows[i]["UserID"];
+                                dr["GpsDeviceID"] = dt_yundan.Rows[i]["GpsDeviceID"];
+                                dr["Gps_lastlat"] = dt_yundan.Rows[i]["Gps_lastlat"];
+                                dr["Gps_lastlng"] = dt_yundan.Rows[i]["Gps_lastlng"];
+                                dr["Gps_lasttime"] = dt_yundan.Rows[i]["Gps_lasttime"];
+                                if (ht["distance"] != null && !string.IsNullOrEmpty(ht["distance"].ToString()))
+                                    dr["Gps_distance"] = (Convert.ToDecimal(ht["distance"]) / 1000).ToString("F2");
+                                else
+                                    dr["Gps_distance"] = ht["distance"];
+                                if (ht["duration"] != null && !string.IsNullOrEmpty(ht["duration"].ToString()))
+                                    dr["Gps_duration"] = (Convert.ToDecimal(ht["duration"]) / 60).ToString("F2");
+                                else
+                                    dr["Gps_duration"] = ht["duration"];
+                                dt_up.Rows.Add(dr);
                             }
-                            //DataRow dr = dt_up.NewRow();
-                            //dr["ID"] = drs[0]["ID"].ToString();
-                            //dr["Gps_lastlat"] = dt_yundan.Rows[i]["Gps_lastlat"].ToString();
-                            //dr["Gps_lastlng"] = dt_yundan.Rows[i]["Gps_lastlng"].ToString();
-                            //dr["Gps_lasttime"] = dt_yundan.Rows[i]["Gps_lasttime"].ToString();
-                            //if (ht["distance"] != null && !string.IsNullOrEmpty(ht["distance"].ToString()))
-                            //    dr["Gps_distance"] = (Convert.ToDecimal(ht["distance"]) / 1000).ToString("F2");
-                            //else
-                            //    dr["Gps_distance"] = ht["distance"];
-                            //if (ht["duration"] != null && !string.IsNullOrEmpty(ht["duration"].ToString()))
-                            //    dr["Gps_duration"] = (Convert.ToDecimal(ht["duration"]) / 60).ToString("F2");
-                            //else
-                            //    dr["Gps_duration"] = ht["duration"];
-                            //dt_up.Rows.Add(dr);
                         }
                     }
                     else
@@ -484,8 +691,8 @@ public class MyGpsDistanceJob : IJob
                 if (dt_new.Rows.Count > 0)
                     db.InsertTable(dt_new);
 
-                //if (dt_up.Rows.Count > 0)
-                //    db.UpdateTable(dt_up, dtt_up);
+                if (dt_up.Rows.Count > 0)
+                    db.UpdateTable2(dt_up, dtt_up);
 
                 db.CommitTransaction();
             }
@@ -498,8 +705,6 @@ public class MyGpsDistanceJob : IJob
 
     }
 }
-
-
 
 public class MyOtherJob : IJob
 {

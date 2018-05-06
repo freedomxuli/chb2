@@ -19,6 +19,7 @@ using WxPayAPI;
 using System.Collections;
 using SmartFramework4v2.Web.Common.JSON;
 using Aspose.Cells;
+using System.Text.RegularExpressions;
 
 /// <summary>
 /// Handler 的摘要说明
@@ -1395,6 +1396,151 @@ public class Handler
         }
     }
 
+    [CSMethod("SearchMyYunDanByGJ")]
+    public object SearchMyYunDanByGJ(int CurrentPage, int PageSize, string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string SuoShuGongSi, string GpsDeviceID, string UserDenno, string IsBangding, int isyj)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                int cp = CurrentPage;
+                int ac = 0;
+
+                string conn = "";
+
+                string QiShiZhan = "";
+                string DaoDaZhan = "";
+
+                if (!string.IsNullOrEmpty(QiShiZhan_Province))
+                {
+                    QiShiZhan += QiShiZhan_Province;
+                }
+                if (!string.IsNullOrEmpty(QiShiZhan_City))
+                {
+                    if (QiShiZhan_Province != QiShiZhan_City)
+                        QiShiZhan += " " + QiShiZhan_City;
+                }
+                if (!string.IsNullOrEmpty(QiShiZhan_Qx))
+                {
+                    conn += " and QiShiZhan_QX like @QiShiZhan_QX";
+                }
+                if (!string.IsNullOrEmpty(QiShiZhan))
+                {
+                    conn += " and QiShiZhan like @QiShiZhan";
+                }
+                if (!string.IsNullOrEmpty(DaoDaZhan_Province))
+                {
+                    DaoDaZhan += DaoDaZhan_Province;
+                }
+                if (!string.IsNullOrEmpty(DaoDaZhan_City))
+                {
+                    if (DaoDaZhan_Province != DaoDaZhan_City)
+                        DaoDaZhan += " " + DaoDaZhan_City;
+                }
+
+                if (!string.IsNullOrEmpty(DaoDaZhan_Qx))
+                {
+                    conn += " and DaoDaZhan_QX like @DaoDaZhan_QX";
+                }
+                if (!string.IsNullOrEmpty(DaoDaZhan))
+                {
+                    conn += " and DaoDaZhan like @DaoDaZhan";
+                }
+                if (!string.IsNullOrEmpty(SuoShuGongSi))
+                {
+                    conn += " and SuoShuGongSi like @SuoShuGongSi";
+                }
+                if (isyj == 1)
+                {
+                    conn += " and IsBangding = 1";
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(IsBangding))
+                    {
+                        conn += " and IsBangding = " + IsBangding;
+                    }
+                }
+                if (!string.IsNullOrEmpty(UserDenno))
+                    conn += " and UserDenno like @UserDenno";
+
+                if (!string.IsNullOrEmpty(GpsDeviceID))
+                    conn += " and GpsDeviceID = @GpsDeviceID";
+
+                string sql = "select * from YunDan where UserID = @UserID and GpsDeviceID like '8630%' " + conn + " order by BangDingTime desc";
+                if (isyj == 1)
+                {
+                    sql = @"select a.* from YunDan a 
+                          inner join (
+	                          select DATEDIFF(mi,dateadd(SS,duration,getdate()),dateadd(HH,a.Expect_Hour,a.BangDingTime)) TimeCZ,a.YunDanDenno from YunDan a
+	                          inner join (select *,cast(Gps_duration as decimal) duration from YunDanDistance where Gps_duration is not null) b on a.YunDanDenno = b.YunDanDenno
+	                          where a.Expect_Hour is not null and a.UserID = @UserID and a.IsBangding = 1 
+                          ) b on a.YunDanDenno = b.YunDanDenno
+                          where a.UserID = @UserID and a.IsBangding = 1 and TimeCZ < 0" + conn + " and a.YunDanDenno not in (select YunDanDenno from YunDanIsArrive) order by BangDingTime desc";
+                }
+                SqlCommand cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                if (!string.IsNullOrEmpty(UserDenno))
+                    cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno + "%");
+                if (!string.IsNullOrEmpty(GpsDeviceID))
+                    cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID);
+                if (!string.IsNullOrEmpty(QiShiZhan))
+                    cmd.Parameters.AddWithValue("@QiShiZhan", "%" + QiShiZhan + "%");
+                if (!string.IsNullOrEmpty(DaoDaZhan))
+                    cmd.Parameters.AddWithValue("@DaoDaZhan", "%" + DaoDaZhan + "%");
+                if (!string.IsNullOrEmpty(SuoShuGongSi))
+                    cmd.Parameters.AddWithValue("@SuoShuGongSi", "%" + SuoShuGongSi + "%");
+                if (!string.IsNullOrEmpty(QiShiZhan_Qx))
+                    cmd.Parameters.AddWithValue("@QiShiZhan_QX", "%" + QiShiZhan_Qx + "%");
+                if (!string.IsNullOrEmpty(DaoDaZhan_Qx))
+                    cmd.Parameters.AddWithValue("@DaoDaZhan_QX", "%" + DaoDaZhan_Qx + "%");
+                DataTable dt = db.GetPagedDataTable(cmd, PageSize, ref cp, out ac);
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    sql = "select * from YunDanDistance where YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'";
+                    DataTable dt_distance = db.ExecuteDataTable(sql);
+                    if (dt_distance.Rows.Count > 0)
+                    {
+                        if (!string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_distance"].ToString()) && !string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_duration"].ToString()))
+                        {
+                            dt.Rows[i]["Gps_distance"] = dt_distance.Rows[0]["Gps_distance"].ToString() + "公里";
+
+                            int hour = 0;
+                            int minute = 0;
+                            if (Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) / 60) == 0)
+                                dt.Rows[i]["Gps_duration"] = Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()).ToString("F0") + "分钟";
+                            else
+                            {
+                                hour = Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) / 60);
+                                minute = Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) % 60);
+                                dt.Rows[i]["Gps_duration"] = hour + "小时" + minute + "分钟";
+                            }
+                        }
+                    }
+                }
+
+                #region  插入操作表
+                DataTable dt_caozuo = db.GetEmptyDataTable("CaoZuoJiLu");
+                DataRow dr = dt_caozuo.NewRow();
+                dr["UserID"] = SystemUser.CurrentUser.UserID;
+                dr["CaoZuoLeiXing"] = "我的运单";
+                dr["CaoZuoNeiRong"] = "web登录我的运单查询，搜索单号：" + UserDenno;
+                dr["CaoZuoTime"] = DateTime.Now;
+                dr["CaoZuoRemark"] = "";
+                dt_caozuo.Rows.Add(dr);
+                db.InsertTable(dt_caozuo);
+                #endregion
+
+                return new { dt = dt, cp = cp, ac = ac };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+
     [CSMethod("SearchMyYunDanByZT")]
     public object SearchMyYunDanByZT(int CurrentPage, int PageSize, string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string SuoShuGongSi, string GpsDeviceID, string UserDenno, string StartTime, string EndTime, string Purchaser, string CarrierCompany)
     {
@@ -1505,10 +1651,36 @@ public class Handler
                 dt.Columns.Add("Expect_ArriveTime");
                 dt.Columns.Add("Actual_ArriveTime");
 
+                sql = "select * from YunDanDistance where YunDanDenno in (select YunDanDenno from YunDan where UserID = @UserID and IsBangding = 1" + conn + ")";
+                cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                if (!string.IsNullOrEmpty(UserDenno))
+                    cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno.Replace(" ", "") + "%");
+                if (!string.IsNullOrEmpty(GpsDeviceID))
+                    cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID.Replace(" ", ""));
+                if (!string.IsNullOrEmpty(QiShiZhan))
+                    cmd.Parameters.AddWithValue("@QiShiZhan", "%" + QiShiZhan + "%");
+                if (!string.IsNullOrEmpty(DaoDaZhan))
+                    cmd.Parameters.AddWithValue("@DaoDaZhan", "%" + DaoDaZhan + "%");
+                if (!string.IsNullOrEmpty(SuoShuGongSi))
+                    cmd.Parameters.AddWithValue("@SuoShuGongSi", "%" + SuoShuGongSi.Replace(" ", "") + "%");
+                if (!string.IsNullOrEmpty(QiShiZhan_Qx))
+                    cmd.Parameters.AddWithValue("@QiShiZhan_QX", "%" + QiShiZhan_Qx + "%");
+                if (!string.IsNullOrEmpty(DaoDaZhan_Qx))
+                    cmd.Parameters.AddWithValue("@DaoDaZhan_QX", "%" + DaoDaZhan_Qx + "%");
+                if (!string.IsNullOrEmpty(StartTime) && !string.IsNullOrEmpty(EndTime))
+                {
+                    cmd.Parameters.AddWithValue("@StartTime", Convert.ToDateTime(StartTime));
+                    cmd.Parameters.AddWithValue("@EndTime", Convert.ToDateTime(EndTime));
+                }
+                if (!string.IsNullOrEmpty(Purchaser))
+                    cmd.Parameters.AddWithValue("@Purchaser", "%" + Purchaser.Replace(" ", "") + "%");
+                if (!string.IsNullOrEmpty(CarrierCompany))
+                    cmd.Parameters.AddWithValue("@CarrierCompany", "%" + CarrierCompany.Replace(" ", "") + "%");
+                DataTable dt_distance = db.ExecuteDataTable(cmd);
+
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    sql = "select * from YunDanDistance where YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'";
-                    DataTable dt_distance = db.ExecuteDataTable(sql);
                     if (dt_distance.Rows.Count > 0)
                     {
                         if (!string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_distance"].ToString()) && !string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_duration"].ToString()))
@@ -1666,10 +1838,42 @@ public class Handler
                 dt.Columns.Add("Expect_ArriveTime");
                 dt.Columns.Add("Actual_ArriveTime");
 
+                sql = @"select * from YunDanDistance where YunDanDenno in (select a.YunDanDenno from YunDan a 
+                        inner join (
+                	        select DATEDIFF(mi,dateadd(SS,duration,getdate()),dateadd(HH,a.Expect_Hour,a.BangDingTime)) TimeCZ,a.YunDanDenno from YunDan a
+                	        inner join (select *,cast(Gps_duration as decimal) duration from YunDanDistance where Gps_duration is not null) b on a.YunDanDenno = b.YunDanDenno
+                	        where a.Expect_Hour is not null and a.UserID = @UserID and a.IsBangding = 1 
+                        ) b on a.YunDanDenno = b.YunDanDenno
+                        where a.UserID = @UserID and a.IsBangding = 1 and TimeCZ < 0" + conn + " and a.YunDanDenno not in (select YunDanDenno from YunDanIsArrive))";
+                cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                if (!string.IsNullOrEmpty(UserDenno))
+                    cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno.Replace(" ", "") + "%");
+                if (!string.IsNullOrEmpty(GpsDeviceID))
+                    cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID.Replace(" ", ""));
+                if (!string.IsNullOrEmpty(QiShiZhan))
+                    cmd.Parameters.AddWithValue("@QiShiZhan", "%" + QiShiZhan + "%");
+                if (!string.IsNullOrEmpty(DaoDaZhan))
+                    cmd.Parameters.AddWithValue("@DaoDaZhan", "%" + DaoDaZhan + "%");
+                if (!string.IsNullOrEmpty(SuoShuGongSi))
+                    cmd.Parameters.AddWithValue("@SuoShuGongSi", "%" + SuoShuGongSi.Replace(" ", "") + "%");
+                if (!string.IsNullOrEmpty(QiShiZhan_Qx))
+                    cmd.Parameters.AddWithValue("@QiShiZhan_QX", "%" + QiShiZhan_Qx + "%");
+                if (!string.IsNullOrEmpty(DaoDaZhan_Qx))
+                    cmd.Parameters.AddWithValue("@DaoDaZhan_QX", "%" + DaoDaZhan_Qx + "%");
+                if (!string.IsNullOrEmpty(StartTime) && !string.IsNullOrEmpty(EndTime))
+                {
+                    cmd.Parameters.AddWithValue("@StartTime", Convert.ToDateTime(StartTime));
+                    cmd.Parameters.AddWithValue("@EndTime", Convert.ToDateTime(EndTime));
+                }
+                if (!string.IsNullOrEmpty(Purchaser))
+                    cmd.Parameters.AddWithValue("@Purchaser", "%" + Purchaser.Replace(" ", "") + "%");
+                if (!string.IsNullOrEmpty(CarrierCompany))
+                    cmd.Parameters.AddWithValue("@CarrierCompany", "%" + CarrierCompany.Replace(" ", "") + "%");
+                DataTable dt_distance = db.ExecuteDataTable(cmd);
+
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    sql = "select * from YunDanDistance where YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'";
-                    DataTable dt_distance = db.ExecuteDataTable(sql);
                     if (dt_distance.Rows.Count > 0)
                     {
                         if (!string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_distance"].ToString()) && !string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_duration"].ToString()))
@@ -1831,10 +2035,37 @@ public class Handler
                 dt.Columns.Add("Expect_ArriveTime");
                 dt.Columns.Add("Actual_ArriveTime");
 
+
+                sql = "select * from YunDanDistance where YunDanDenno in (select YunDanDenno from YunDan where UserID = @UserID and IsBangding = 0" + conn + ")";
+                cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
+                if (!string.IsNullOrEmpty(UserDenno))
+                    cmd.Parameters.AddWithValue("@UserDenno", "%" + UserDenno.Replace(" ", "") + "%");
+                if (!string.IsNullOrEmpty(GpsDeviceID))
+                    cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID.Replace(" ", ""));
+                if (!string.IsNullOrEmpty(QiShiZhan))
+                    cmd.Parameters.AddWithValue("@QiShiZhan", "%" + QiShiZhan + "%");
+                if (!string.IsNullOrEmpty(DaoDaZhan))
+                    cmd.Parameters.AddWithValue("@DaoDaZhan", "%" + DaoDaZhan + "%");
+                if (!string.IsNullOrEmpty(SuoShuGongSi))
+                    cmd.Parameters.AddWithValue("@SuoShuGongSi", "%" + SuoShuGongSi.Replace(" ", "") + "%");
+                if (!string.IsNullOrEmpty(QiShiZhan_Qx))
+                    cmd.Parameters.AddWithValue("@QiShiZhan_QX", "%" + QiShiZhan_Qx + "%");
+                if (!string.IsNullOrEmpty(DaoDaZhan_Qx))
+                    cmd.Parameters.AddWithValue("@DaoDaZhan_QX", "%" + DaoDaZhan_Qx + "%");
+                if (!string.IsNullOrEmpty(StartTime) && !string.IsNullOrEmpty(EndTime))
+                {
+                    cmd.Parameters.AddWithValue("@StartTime", Convert.ToDateTime(StartTime));
+                    cmd.Parameters.AddWithValue("@EndTime", Convert.ToDateTime(EndTime));
+                }
+                if (!string.IsNullOrEmpty(Purchaser))
+                    cmd.Parameters.AddWithValue("@Purchaser", "%" + Purchaser.Replace(" ", "") + "%");
+                if (!string.IsNullOrEmpty(CarrierCompany))
+                    cmd.Parameters.AddWithValue("@CarrierCompany", "%" + CarrierCompany.Replace(" ", "") + "%");
+                DataTable dt_distance = db.ExecuteDataTable(cmd);
+
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    sql = "select * from YunDanDistance where YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'";
-                    DataTable dt_distance = db.ExecuteDataTable(sql);
                     if (dt_distance.Rows.Count > 0)
                     {
                         if (!string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_distance"].ToString()) && !string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_duration"].ToString()))
@@ -3726,7 +3957,9 @@ public class Handler
     {
         using (var db = new DBConnection())
         {
-            string sql = "select * from ChongZhi where UserID = @UserID and ZhiFuZhuangTai = 1 and ChongZhiID not in (select a.ChongZhiID from InvoiceMxModel a left join InvoiceModel b on a.InvoiceId = b.InvoiceId where b.UserId = @UserID)";
+            string sql = @"select CAST(ChongZhiID AS varchar) ChongZhiID,ChongZhiJinE,ChongZhiTime,ChongZhiRemark,0 as LX from ChongZhi where UserID = @UserID and ZhiFuZhuangTai = 1 and ChongZhiID not in (select a.ChongZhiID from InvoiceMxModel a left join InvoiceModel b on a.InvoiceId = b.InvoiceId where b.UserId = @UserID and a.ChongZhiID > 0)
+                           UNION ALL
+                           select GpsDingDanDenno as ChongZhiID,GpsDingDanJinE as ChongZhiJinE,GpsDingDanZhiFuShiJian as ChongZhiTime,'销售订单' as ChongZhiRemark,1 as LX from GpsDingDanSale where UserID = @UserID and GpsDingDanZhiFuZhuangTai = 1 and GpsDingDanDenno not in (select a.SaleID from InvoiceMxModel a left join InvoiceModel b on a.InvoiceId = b.InvoiceId where b.UserId = @UserID and a.SaleID is not null)";
             SqlCommand cmd = db.CreateCommand(sql);
             cmd.Parameters.Add("@UserID", SystemUser.CurrentUser.UserID);
             DataTable dt = db.ExecuteDataTable(cmd);
@@ -3742,7 +3975,9 @@ public class Handler
             string sql = "select UserID from [dbo].[User] where UserName = '" + UserName + "'";
             DataTable dt_user = db.ExecuteDataTable(sql);
 
-            sql = "select * from ChongZhi where UserID = @UserID and ZhiFuZhuangTai = 1 and ChongZhiID not in (select a.ChongZhiID from InvoiceMxModel a left join InvoiceModel b on a.InvoiceId = b.InvoiceId where b.UserId = @UserID)";
+            sql = @"select CAST(ChongZhiID AS varchar) ChongZhiID,ChongZhiJinE,ChongZhiTime,ChongZhiRemark,0 as LX from ChongZhi where UserID = @UserID and ZhiFuZhuangTai = 1 and ChongZhiID not in (select a.ChongZhiID from InvoiceMxModel a left join InvoiceModel b on a.InvoiceId = b.InvoiceId where b.UserId = @UserID and a.ChongZhiID > 0)
+                    UNION ALL
+                    select GpsDingDanDenno as ChongZhiID,GpsDingDanJinE as ChongZhiJinE,GpsDingDanZhiFuShiJian as ChongZhiTime,'销售订单' as ChongZhiRemark,1 as LX from GpsDingDanSale where UserID = @UserID and GpsDingDanZhiFuZhuangTai = 1 and GpsDingDanDenno not in (select a.SaleID from InvoiceMxModel a left join InvoiceModel b on a.InvoiceId = b.InvoiceId where b.UserId = @UserID and a.SaleID is not null)";
             SqlCommand cmd = db.CreateCommand(sql);
             cmd.Parameters.Add("@UserID", dt_user.Rows[0]["UserID"].ToString());
             DataTable dt = db.ExecuteDataTable(cmd);
@@ -3751,7 +3986,7 @@ public class Handler
     }
 
     [CSMethod("AddInvoice")]
-    public bool AddInvoice(string InvoiceTitle, string InvoiceZZJGDM, string InvoicePerson, string InvoiceMobile, string InvoiceAddress, string je, string ChongZhiIDs)
+    public bool AddInvoice(string InvoiceTitle, string InvoiceZZJGDM, string InvoicePerson, string InvoiceMobile, string InvoiceAddress, string je, string ChongZhiIDs, string SaleIDs)
     {
         using (var db = new DBConnection())
         {
@@ -3782,13 +4017,25 @@ public class Handler
                     dt_mx.Rows.Add(dr_mx);
                 }
             }
+            string[] ids2 = SaleIDs.Split(',');
+            for (int i = 0; i < ids2.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(ids2[i]))
+                {
+                    DataRow dr_mx = dt_mx.NewRow();
+                    dr_mx["InvoiceMxId"] = Guid.NewGuid();
+                    dr_mx["InvoiceId"] = dr["InvoiceId"];
+                    dr_mx["SaleID"] = ids2[i];
+                    dt_mx.Rows.Add(dr_mx);
+                }
+            }
             db.InsertTable(dt_mx);
             return true;
         }
     }
 
     [CSMethod("AddInvoiceByMobile")]
-    public bool AddInvoiceByMobile(string UserName, string InvoiceTitle, string InvoiceZZJGDM, string InvoicePerson, string InvoiceMobile, string InvoiceAddress, string je, string ChongZhiIDs)
+    public bool AddInvoiceByMobile(string UserName, string InvoiceTitle, string InvoiceZZJGDM, string InvoicePerson, string InvoiceMobile, string InvoiceAddress, string je, string ChongZhiIDs,string SaleIDs)
     {
         using (var db = new DBConnection())
         {
@@ -3822,6 +4069,18 @@ public class Handler
                         dr_mx["InvoiceMxId"] = Guid.NewGuid();
                         dr_mx["InvoiceId"] = dr["InvoiceId"];
                         dr_mx["ChongZhiID"] = ids[i];
+                        dt_mx.Rows.Add(dr_mx);
+                    }
+                }
+                string[] ids2 = Regex.Replace(SaleIDs, "[^a-zA-Z0-9-,]", string.Empty).Split(',');
+                for (int i = 0; i < ids2.Length; i++)
+                {
+                    if (!string.IsNullOrEmpty(ids2[i]))
+                    {
+                        DataRow dr_mx = dt_mx.NewRow();
+                        dr_mx["InvoiceMxId"] = Guid.NewGuid();
+                        dr_mx["InvoiceId"] = dr["InvoiceId"];
+                        dr_mx["SaleID"] = ids2[i];
                         dt_mx.Rows.Add(dr_mx);
                     }
                 }
@@ -6981,6 +7240,15 @@ public class Handler
             cmd.Parameters.AddWithValue("@UserID", userid);
             DataTable dt = db.ExecuteDataTable(cmd);
             return dt;
+        }
+    }
+
+    [CSMethod("GJMap")]
+    public bool GJMap(string UserID, string YunDanDenno)
+    {
+        using (var db = new DBConnection())
+        {
+            return true;
         }
     }
 

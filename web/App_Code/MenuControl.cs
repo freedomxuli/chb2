@@ -35,6 +35,9 @@ public class MenuControl
                <Item Name='定位下载'>
                    <Tab p='' Name='定位下载'>approot/r/page/ydcx/dwxz.html</Tab>
                 </Item>
+               <Item Name='轨迹查询'>
+                   <Tab p='' Name='轨迹查询'>approot/r/page/ydcx/gjcx.html</Tab>
+                </Item>
             </Menu>
             <Menu Name='我的设备'>            
                 <Item Name='设备管理'>

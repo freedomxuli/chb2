@@ -14,7 +14,7 @@ var InvoiceStore = createSFW4Store({
 
 var CZStore = Ext.create('Ext.data.Store', {
     fields: [
-        'ChongZhiID', 'ChongZhiJinE', 'ChongZhiTime', 'ChongZhiRemark'
+        'ChongZhiID', 'ChongZhiJinE', 'ChongZhiTime', 'ChongZhiRemark', 'LX',
     ]
 });
 
@@ -323,6 +323,15 @@ Ext.define('AddInvoice', {
                                     menuDisabled: true,
                                     hidden:true,
                                     text: '充值ID'
+                                },
+                                {
+                                    xtype: 'gridcolumn',
+                                    dataIndex: 'LX',
+                                    flex: 1,
+                                    sortable: false,
+                                    menuDisabled: true,
+                                    hidden: true,
+                                    text: '类型'
                                 }
                             ]
                         }
@@ -356,13 +365,18 @@ Ext.define('AddInvoice', {
                                 }
                                 var selectedData = Ext.getCmp('CZStore').getSelectionModel().getSelection();
                                 var str = "";
+                                var str2 = "";
                                 var je = 0;
                                 for (var i = 0; i < selectedData.length; i++)
                                 {
-                                    str += selectedData[i].data.ChongZhiID + ",";
+                                    console.log(selectedData[i].data.ChongZhiID);
+                                    if (selectedData[i].data.LX == "0")
+                                        str += selectedData[i].data.ChongZhiID + ",";
+                                    else
+                                        str2 += selectedData[i].data.ChongZhiID + ",";
                                     je += parseFloat(selectedData[i].data.ChongZhiJinE);
                                 }
-                                if (str == "")
+                                if (str == ""&&str2 == "")
                                 {
                                     Ext.Msg.alert("提示", "请选择充值记录！");
                                     return false;
@@ -374,7 +388,7 @@ Ext.define('AddInvoice', {
                                             DataBind(1);
                                         });
                                     }
-                                }, CS.onError, Ext.getCmp('InvoiceTitle').getValue(), Ext.getCmp('InvoiceZZJGDM').getValue(), Ext.getCmp('InvoicePerson').getValue(), Ext.getCmp('InvoiceMobile').getValue(), Ext.getCmp('InvoiceAddress').getValue(), je, str);
+                                }, CS.onError, Ext.getCmp('InvoiceTitle').getValue(), Ext.getCmp('InvoiceZZJGDM').getValue(), Ext.getCmp('InvoicePerson').getValue(), Ext.getCmp('InvoiceMobile').getValue(), Ext.getCmp('InvoiceAddress').getValue(), je, str, str2);
                             }
                         },
                         {

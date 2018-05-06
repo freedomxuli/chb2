@@ -275,7 +275,7 @@ public class InterFaceHandler : IHttpHandler {
         try
         {
             Handler App_Handler = new Handler();
-            bool flag = App_Handler.AddInvoiceByMobile(context.Request["UserName"], context.Request["InvoiceTitle"], context.Request["InvoiceZZJGDM"], context.Request["InvoicePerson"], context.Request["InvoiceMobile"], context.Request["InvoiceAddress"], context.Request["je"], context.Request["ChongZhiIDs"]);
+            bool flag = App_Handler.AddInvoiceByMobile(context.Request["UserName"], context.Request["InvoiceTitle"], context.Request["InvoiceZZJGDM"], context.Request["InvoicePerson"], context.Request["InvoiceMobile"], context.Request["InvoiceAddress"], context.Request["je"], context.Request["ChongZhiIDs"], context.Request["SaleIDs"]);
 
             if (flag)
             {
