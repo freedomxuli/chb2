@@ -53,61 +53,60 @@
                 center: [116.397428, 39.90923],
                 zoom: 17
             });
-            marker = new AMap.Marker({
-                map: map,
-                position: [116.397428, 39.90923],
-                icon: "http://webapi.amap.com/images/car.png",
-                offset: new AMap.Pixel(-26, -13),
-                autoRotation: true
-            });
-            var lngX = 116.397428, latY = 39.90923;
-            lineArr.push([lngX, latY]);
-            for (var i = 1; i < 4; i++) {
-                lngX = lngX + Math.random() * 0.05;
-                if (i % 2) {
-                    latY = latY + Math.random() * 0.0001;
-                } else {
-                    latY = latY + Math.random() * 0.06;
+
+            if (retVal.length > 0)
+            {
+                var centerdot = Math.floor(retVal.length/2);
+                marker = new AMap.Marker({
+                    map: map,
+                    position: [retVal[0]["Gps_lng"], retVal[0]["Gps_lat"]],
+                    icon: "http://webapi.amap.com/images/car.png",
+                    offset: new AMap.Pixel(-26, -13),
+                    zoom: 12,
+                    autoRotation: true
+                });
+                var lineArr = [];
+                for (var i = 0; i < retVal.length; i++) {
+                    lineArr.push([retVal[i]["Gps_lng"], retVal[i]["Gps_lat"]]);
                 }
-                lineArr.push([lngX, latY]);
+
+                // 绘制轨迹
+                var polyline = new AMap.Polyline({
+                    map: map,
+                    path: lineArr,
+                    strokeColor: "#00A",  //线颜色
+                    // strokeOpacity: 1,     //线透明度
+                    strokeWeight: 3,      //线宽
+                    // strokeStyle: "solid"  //线样式
+                });
+                var passedPolyline = new AMap.Polyline({
+                    map: map,
+                    // path: lineArr,
+                    strokeColor: "#F00",  //线颜色
+                    // strokeOpacity: 1,     //线透明度
+                    strokeWeight: 3,      //线宽
+                    // strokeStyle: "solid"  //线样式
+                });
+
+
+                marker.on('moving', function (e) {
+                    passedPolyline.setPath(e.passedPath);
+                })
+                map.setFitView();
+
+                AMap.event.addDomListener(document.getElementById('start'), 'click', function () {
+                    marker.moveAlong(lineArr, 500);
+                }, false);
+                AMap.event.addDomListener(document.getElementById('pause'), 'click', function () {
+                    marker.pauseMove();
+                }, false);
+                AMap.event.addDomListener(document.getElementById('resume'), 'click', function () {
+                    marker.resumeMove();
+                }, false);
+                AMap.event.addDomListener(document.getElementById('stop'), 'click', function () {
+                    marker.stopMove();
+                }, false);
             }
-
-            // 绘制轨迹
-            var polyline = new AMap.Polyline({
-                map: map,
-                path: lineArr,
-                strokeColor: "#00A",  //线颜色
-                // strokeOpacity: 1,     //线透明度
-                strokeWeight: 3,      //线宽
-                // strokeStyle: "solid"  //线样式
-            });
-            var passedPolyline = new AMap.Polyline({
-                map: map,
-                // path: lineArr,
-                strokeColor: "#F00",  //线颜色
-                // strokeOpacity: 1,     //线透明度
-                strokeWeight: 3,      //线宽
-                // strokeStyle: "solid"  //线样式
-            });
-
-
-            marker.on('moving', function (e) {
-                passedPolyline.setPath(e.passedPath);
-            })
-            map.setFitView();
-
-            AMap.event.addDomListener(document.getElementById('start'), 'click', function () {
-                marker.moveAlong(lineArr, 500);
-            }, false);
-            AMap.event.addDomListener(document.getElementById('pause'), 'click', function () {
-                marker.pauseMove();
-            }, false);
-            AMap.event.addDomListener(document.getElementById('resume'), 'click', function () {
-                marker.resumeMove();
-            }, false);
-            AMap.event.addDomListener(document.getElementById('stop'), 'click', function () {
-                marker.stopMove();
-            }, false);
         }
     }, CS.onError, GetRequest().UserID, GetRequest().YunDanDenno)
     

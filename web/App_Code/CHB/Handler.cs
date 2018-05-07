@@ -7244,11 +7244,34 @@ public class Handler
     }
 
     [CSMethod("GJMap")]
-    public bool GJMap(string UserID, string YunDanDenno)
+    public DataTable GJMap(string UserID, string YunDanDenno)
     {
         using (var db = new DBConnection())
         {
-            return true;
+            //UserID = "a96f579e-0ae1-4d32-b56a-ecdb794f08de";
+            //YunDanDenno = "20180502185448487";
+            string sql_yun = "select GpsDeviceID,IsBangding,BangDingTime,JieBangTime from YunDan where YunDanDenno = @YunDanDenno and UserID = @UserID";
+            SqlCommand cmd = db.CreateCommand(sql_yun);
+            cmd.Parameters.AddWithValue("@YunDanDenno", YunDanDenno);
+            cmd.Parameters.AddWithValue("@UserID", UserID);
+            DataTable dt_yun = db.ExecuteDataTable(cmd);
+
+            string conn = "";
+            if (dt_yun.Rows[0]["IsBangding"].ToString() == "False")
+            {
+                conn += " and Gps_time <= @JieBangTime";
+            }
+
+            string sql = "select Gps_lng,Gps_lat from GpsLocation2 where GpsDeviceID = @GpsDeviceID and Gps_time >= @BangDingTime " + conn + " order by GpsLocationID";
+            SqlCommand cmd2 = db.CreateCommand(sql);
+            cmd2.Parameters.AddWithValue("@GpsDeviceID", dt_yun.Rows[0]["GpsDeviceID"].ToString());
+            cmd2.Parameters.AddWithValue("@BangDingTime", Convert.ToDateTime(dt_yun.Rows[0]["BangDingTime"].ToString()));
+            if (dt_yun.Rows[0]["IsBangding"].ToString() == "False")
+            {
+                cmd2.Parameters.AddWithValue("@JieBangTime", Convert.ToDateTime(dt_yun.Rows[0]["JieBangTime"].ToString()));
+            }
+            DataTable dt_location = db.ExecuteDataTable(cmd2);
+            return dt_location;
         }
     }
 
