@@ -911,6 +911,8 @@ Ext.define('sjWin', {
                                             Ext.Msg.alert("提示", "预计小时数不能为空！");
                                             return;
                                         }
+                                        Ext.getCmp("MessageTel").setValue(retVal.dt[0]["MessageTel"]);
+                                        Ext.getCmp("QiShiAddress").setValue(retVal.dt[0]["QiShiAddress"]);
                                         Ext.getCmp("QiShiAddress").setValue(retVal.dt[0]["QiShiAddress"]);
                                         Ext.getCmp("DaoDaAddress").setValue(retVal.dt[0]["DaoDaAddress"]);
                                         Ext.getCmp("SalePerson").setValue(retVal.dt[0]["SalePerson"]);
@@ -922,23 +924,23 @@ Ext.define('sjWin', {
                                         Ext.getCmp("PurchaserPerson").setValue(retVal.dt[0]["PurchaserPerson"]);
                                         Ext.getCmp("PurchaserTel").setValue(retVal.dt[0]["PurchaserTel"]);
 
-                                        if (retVal.dt_mx.length > 0)
-                                        {
-                                            for (var i = 0; i < retVal.dt_mx.length; i++)
-                                            {
-                                                xuhao++;
-                                                var add_record = [{
-                                                    'ID': xuhao,
-                                                    'GoodsName': retVal.dt_mx[i]["GoodsName"],
-                                                    'GoodsPack': retVal.dt_mx[i]["GoodsPack"],
-                                                    'GoodsNum': retVal.dt_mx[i]["GoodsNum"],
-                                                    'GoodsWeight': retVal.dt_mx[i]["GoodsWeight"],
-                                                    'GoodsVolume': retVal.dt_mx[i]["GoodsVolume"]
-                                                }];
+                                        //if (retVal.dt_mx.length > 0)
+                                        //{
+                                        //    for (var i = 0; i < retVal.dt_mx.length; i++)
+                                        //    {
+                                        //        xuhao++;
+                                        //        var add_record = [{
+                                        //            'ID': xuhao,
+                                        //            'GoodsName': retVal.dt_mx[i]["GoodsName"],
+                                        //            'GoodsPack': retVal.dt_mx[i]["GoodsPack"],
+                                        //            'GoodsNum': retVal.dt_mx[i]["GoodsNum"],
+                                        //            'GoodsWeight': retVal.dt_mx[i]["GoodsWeight"],
+                                        //            'GoodsVolume': retVal.dt_mx[i]["GoodsVolume"]
+                                        //        }];
 
-                                                detailStore.add(add_record);
-                                            }
-                                        }
+                                        //        detailStore.add(add_record);
+                                        //    }
+                                        //}
                                         me.up('window').close();
                                     }
                                 }, function (err) {

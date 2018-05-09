@@ -980,32 +980,13 @@ Ext.define('sjWin', {
                                             Ext.Msg.alert("提示", "预计小时数不能为空！");
                                             return;
                                         }
-                                        Ext.getCmp("QiShiAddress").setValue(retVal.dt[0]["QiShiAddress"]);
-                                        Ext.getCmp("DaoDaAddress").setValue(retVal.dt[0]["DaoDaAddress"]);
-                                        Ext.getCmp("SalePerson").setValue(retVal.dt[0]["SalePerson"]);
-                                        Ext.getCmp("YunDanRemark").setValue(retVal.dt[0]["YunDanRemark"]);
-                                        Ext.getCmp("CarrierCompany").setValue(retVal.dt[0]["CarrierCompany"]);
-                                        Ext.getCmp("CarrierPerson").setValue(retVal.dt[0]["CarrierPerson"]);
-                                        Ext.getCmp("CarrierTel").setValue(retVal.dt[0]["CarrierTel"]);
-                                        Ext.getCmp("Purchaser").setValue(retVal.dt[0]["Purchaser"]);
-                                        Ext.getCmp("PurchaserPerson").setValue(retVal.dt[0]["PurchaserPerson"]);
-                                        Ext.getCmp("PurchaserTel").setValue(retVal.dt[0]["PurchaserTel"]);
+                                        Ext.getCmp("MessageTel").setValue(retVal.dt[0]["MessageTel"]);
 
-                                        if (retVal.dt_mx.length > 0) {
-                                            for (var i = 0; i < retVal.dt_mx.length; i++) {
-                                                xuhao++;
-                                                var add_record = [{
-                                                    'ID': xuhao,
-                                                    'GoodsName': retVal.dt_mx[i]["GoodsName"],
-                                                    'GoodsPack': retVal.dt_mx[i]["GoodsPack"],
-                                                    'GoodsNum': retVal.dt_mx[i]["GoodsNum"],
-                                                    'GoodsWeight': retVal.dt_mx[i]["GoodsWeight"],
-                                                    'GoodsVolume': retVal.dt_mx[i]["GoodsVolume"]
-                                                }];
-
-                                                detailStore.add(add_record);
-                                            }
+                                        for (var i = 0; i < retVal.dt_column.length; i++)
+                                        {
+                                            Ext.getCmp(retVal.dt_column[i]["MC"]).setValue(retVal.dt[0][retVal.dt_column[i]["MC"]]);
                                         }
+
                                         me.up('window').close();
                                     }
                                 }, function (err) {

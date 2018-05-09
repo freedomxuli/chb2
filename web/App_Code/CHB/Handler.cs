@@ -4196,98 +4196,234 @@ public class Handler
 
                 int firstRow = 0;
 
-                DataTable dataTable = cells.ExportDataTableAsString(firstRow, 0, cells.MaxRow + 1, 6);
+                //DataTable dataTable = cells.ExportDataTableAsString(firstRow, 0, cells.MaxRow + 1, 6);
+                DataTable dataTable = cells.ExportDataTableAsString(0, 0, 100, 100);
+                DataTable dt_new = new DataTable();
+                dt_new.Columns.Add("MC");
+                dt_new.Columns.Add("VAL");
 
-                //判断商品是否商品库中商品
-                //判断导入的商品中商品ID是否重复
-                DataTable dt = new DataTable();
-                dt.Columns.Add("GpsDeviceIDByHand");
-                dt.Columns.Add("QiShiZhan_Province");
-                dt.Columns.Add("QiShiZhan_City");
-                dt.Columns.Add("QiShiZhan_Qx");
-                dt.Columns.Add("DaoDaZhan_Province");
-                dt.Columns.Add("DaoDaZhan_City");
-                dt.Columns.Add("DaoDaZhan_Qx");
-                dt.Columns.Add("SuoShuGongSi");
-                dt.Columns.Add("UserDenno");
-                dt.Columns.Add("Expect_Hour");
-                dt.Columns.Add("QiShiAddress");
-                dt.Columns.Add("DaoDaAddress");
-                dt.Columns.Add("SalePerson");
-                dt.Columns.Add("YunDanRemark");
-                dt.Columns.Add("CarrierCompany");
-                dt.Columns.Add("CarrierPerson");
-                dt.Columns.Add("CarrierTel");
-                dt.Columns.Add("Purchaser");
-                dt.Columns.Add("PurchaserPerson");
-                dt.Columns.Add("PurchaserTel");
-
-                DataTable dt_mx = new DataTable();
-                dt_mx.Columns.Add("GoodsName");
-                dt_mx.Columns.Add("GoodsPack");
-                dt_mx.Columns.Add("GoodsNum");
-                dt_mx.Columns.Add("GoodsWeight");
-                dt_mx.Columns.Add("GoodsVolume");
-
-                DataRow dr = dt.NewRow();
-                for (int i = 0; i < dataTable.Rows.Count; i++)
+                List<string> val_list = new List<string>();
+                for (var i = 0; i < 100; i++)
                 {
-                    
-                    if(i == 0)
-                        dr["GpsDeviceIDByHand"] = dataTable.Rows[0][1].ToString().Replace(" ", "");
-                    if (i == 1)
-                        dr["QiShiZhan_Province"] = dataTable.Rows[1][1].ToString().Replace(" ", "");
-                    if (i == 2)
-                        dr["QiShiZhan_City"] = dataTable.Rows[2][1].ToString().Replace(" ", "");
-                    if (i == 3)
-                        dr["QiShiZhan_Qx"] = dataTable.Rows[3][1].ToString().Replace(" ", "");
-                    if (i == 4)
-                        dr["DaoDaZhan_Province"] = dataTable.Rows[4][1].ToString().Replace(" ", "");
-                    if (i == 5)
-                        dr["DaoDaZhan_City"] = dataTable.Rows[5][1].ToString().Replace(" ", "");
-                    if (i == 6)
-                        dr["DaoDaZhan_Qx"] = dataTable.Rows[6][1].ToString().Replace(" ", "");
-                    if (i == 7)
-                        dr["SuoShuGongSi"] = dataTable.Rows[7][1].ToString().Replace(" ", "");
-                    if (i == 8)
-                        dr["UserDenno"] = dataTable.Rows[8][1].ToString().Replace(" ", "");
-                    if (i == 9)
-                        dr["Expect_Hour"] = dataTable.Rows[9][1].ToString().Replace(" ", "");
-                    if (i == 10)
-                        dr["QiShiAddress"] = dataTable.Rows[10][1].ToString().Replace(" ", "");
-                    if (i == 11)
-                        dr["DaoDaAddress"] = dataTable.Rows[11][1].ToString().Replace(" ", "");
-                    if (i == 12)
-                        dr["SalePerson"] = dataTable.Rows[12][1].ToString().Replace(" ", "");
-                    if (i == 13)
-                        dr["YunDanRemark"] = dataTable.Rows[13][1].ToString().Replace(" ", "");
-                    if (i == 14)
-                        dr["CarrierCompany"] = dataTable.Rows[14][1].ToString().Replace(" ", "");
-                    if (i == 15)
-                        dr["CarrierPerson"] = dataTable.Rows[15][1].ToString().Replace(" ", "");
-                    if (i == 16)
-                        dr["CarrierTel"] = dataTable.Rows[16][1].ToString().Replace(" ", "");
-                    if (i == 17)
-                        dr["Purchaser"] = dataTable.Rows[17][1].ToString().Replace(" ", "");
-                    if (i == 18)
-                        dr["PurchaserPerson"] = dataTable.Rows[18][1].ToString().Replace(" ", "");
-                    if (i == 19)
-                        dr["PurchaserTel"] = dataTable.Rows[19][1].ToString().Replace(" ", "");
-                    if (i > 20)
+                    for (var j = 0; j < 100; j++)
                     {
-                        DataRow dr_mx = dt_mx.NewRow();
-                        dr_mx["GoodsName"] = dataTable.Rows[i][0].ToString().Replace(" ", "");
-                        dr_mx["GoodsPack"] = dataTable.Rows[i][1].ToString().Replace(" ", "");
-                        dr_mx["GoodsNum"] = dataTable.Rows[i][2].ToString().Replace(" ", "");
-                        dr_mx["GoodsWeight"] = dataTable.Rows[i][3].ToString().Replace(" ", "");
-                        dr_mx["GoodsVolume"] = dataTable.Rows[i][4].ToString().Replace(" ", "");
-                        dt_mx.Rows.Add(dr_mx);
+                        if(!string.IsNullOrEmpty(dataTable.Rows[i][j].ToString().Replace(" ","")) && j < 99)
+                        {
+                            val_list.Add(dataTable.Rows[i][j].ToString().Replace(" ", ""));
+                        }
                     }
                 }
-                dt.Rows.Add(dr);
+                for (var i = 0; i < val_list.Count() - 1; i++)
+                {
+                    DataRow dr2 = dt_new.NewRow();
+                    dr2["MC"] = val_list[i];
+                    dr2["VAL"] = val_list[i + 1];
+                    dt_new.Rows.Add(dr2);
+                }
+                string sql_sel = "select count(*) num from DingDanSetModel where UserID = @UserID";
+                SqlCommand cmd_sel = dbc.CreateCommand(sql_sel);
+                cmd_sel.Parameters.Add("@UserID",userid);
+                int count = Convert.ToInt32(dbc.ExecuteScalar(cmd_sel).ToString());
+
+                DataTable dt = new DataTable();
+
+                DataTable dt_column = new DataTable();
+                dt_column.Columns.Add("MC");
+
+                if (count == 0)
+                {
+                    dt.Columns.Add("GpsDeviceID");
+                    dt.Columns.Add("QiShiZhan_Province");
+                    dt.Columns.Add("QiShiZhan_City");
+                    dt.Columns.Add("QiShiZhan_Qx");
+                    dt.Columns.Add("DaoDaZhan_Province");
+                    dt.Columns.Add("DaoDaZhan_City");
+                    dt.Columns.Add("DaoDaZhan_Qx");
+                    dt.Columns.Add("SuoShuGongSi");
+                    dt.Columns.Add("UserDenno");
+                    dt.Columns.Add("Expect_Hour");
+                    dt.Columns.Add("MessageTel");
+                    dt.Columns.Add("QiShiAddress");
+                    dt.Columns.Add("DaoDaAddress");
+                    dt.Columns.Add("SalePerson");
+                    dt.Columns.Add("YunDanRemark");
+                    dt.Columns.Add("CarrierCompany");
+                    dt.Columns.Add("CarrierPerson");
+                    dt.Columns.Add("CarrierTel");
+                    dt.Columns.Add("Purchaser");
+                    dt.Columns.Add("PurchaserPerson");
+                    dt.Columns.Add("PurchaserTel");
+
+                    DataRow dr = dt.NewRow();
+
+                    for (int i = 0; i < dt_new.Rows.Count; i++)
+                    {
+                        switch (dt_new.Rows[i]["MC"].ToString())
+                        {
+                            case "设备码":
+                                dr["GpsDeviceID"] = dt_new.Rows[i]["VAL"].ToString();
+                                break;
+                            case "出发地省份":
+                                dr["QiShiZhan_Province"] = dt_new.Rows[i]["VAL"].ToString();
+                                break;
+                            case "出发地城市":
+                                dr["QiShiZhan_City"] = dt_new.Rows[i]["VAL"].ToString();
+                                break;
+                            case "出发地区县":
+                                dr["QiShiZhan_Qx"] = dt_new.Rows[i]["VAL"].ToString();
+                                break;
+                            case "到达地省份":
+                                dr["DaoDaZhan_Province"] = dt_new.Rows[i]["VAL"].ToString();
+                                break;
+                            case "到达地城市":
+                                dr["DaoDaZhan_City"] = dt_new.Rows[i]["VAL"].ToString();
+                                break;
+                            case "到达地区县":
+                                dr["DaoDaZhan_Qx"] = dt_new.Rows[i]["VAL"].ToString();
+                                break;
+                            case "建单公司":
+                                dr["SuoShuGongSi"] = dt_new.Rows[i]["VAL"].ToString();
+                                break;
+                            case "建单号":
+                                dr["UserDenno"] = dt_new.Rows[i]["VAL"].ToString();
+                                break;
+                            case "预计到达时间":
+                                dr["Expect_Hour"] = dt_new.Rows[i]["VAL"].ToString();
+                                break;
+                            case "推送短信":
+                                dr["MessageTel"] = dt_new.Rows[i]["VAL"].ToString();
+                                break;
+                            case "出发地详细地址":
+                                dr["QiShiAddress"] = dt_new.Rows[i]["VAL"].ToString();
+                                break;
+                            case "到达地详细地址":
+                                dr["DaoDaAddress"] = dt_new.Rows[i]["VAL"].ToString();
+                                break;
+                            case "销售员":
+                                dr["SalePerson"] = dt_new.Rows[i]["VAL"].ToString();
+                                break;
+                            case "货物信息备注":
+                                dr["YunDanRemark"] = dt_new.Rows[i]["VAL"].ToString();
+                                break;
+                            case "承运公司":
+                                dr["CarrierCompany"] = dt_new.Rows[i]["VAL"].ToString();
+                                break;
+                            case "负责人":
+                                dr["CarrierPerson"] = dt_new.Rows[i]["VAL"].ToString();
+                                break;
+                            case "负责人联系方式":
+                                dr["CarrierTel"] = dt_new.Rows[i]["VAL"].ToString();
+                                break;
+                            case "收货单位":
+                                dr["Purchaser"] = dt_new.Rows[i]["VAL"].ToString();
+                                break;
+                            case "收货人":
+                                dr["PurchaserPerson"] = dt_new.Rows[i]["VAL"].ToString();
+                                break;
+                            case "收货人联系方式":
+                                dr["PurchaserTel"] = dt_new.Rows[i]["VAL"].ToString();
+                                break;
+                        }
+                    }
+
+                    dt.Rows.Add(dr);
+                }
+                else
+                {
+                    dt.Columns.Add("GpsDeviceID");
+                    dt.Columns.Add("QiShiZhan_Province");
+                    dt.Columns.Add("QiShiZhan_City");
+                    dt.Columns.Add("QiShiZhan_Qx");
+                    dt.Columns.Add("DaoDaZhan_Province");
+                    dt.Columns.Add("DaoDaZhan_City");
+                    dt.Columns.Add("DaoDaZhan_Qx");
+                    dt.Columns.Add("SuoShuGongSi");
+                    dt.Columns.Add("UserDenno");
+                    dt.Columns.Add("Expect_Hour");
+                    dt.Columns.Add("MessageTel");
+
+                    string sql_user = "select * from DingDanSetList where UserID = @UserID";
+                    SqlCommand cmd_user = dbc.CreateCommand(sql_user);
+                    cmd_user.Parameters.Add("@UserID", userid);
+                    DataTable dt_user = dbc.ExecuteDataTable(cmd_user);
+
+                    for (var i = 0; i < dt_user.Rows.Count; i++)
+                    { 
+                        if(string.IsNullOrEmpty(dt_user.Rows[i]["DingDanSetListBS"].ToString()))
+                            dt.Columns.Add("div" + dt_user.Rows[i]["DingDanSetListPX"].ToString());
+                        else
+                            dt.Columns.Add(dt_user.Rows[i]["DingDanSetListBS"].ToString());
+                    }
+
+                    for (var i = 0; i < dt_user.Rows.Count; i++)
+                    {
+                        DataRow dr_column = dt_column.NewRow();
+                        if (string.IsNullOrEmpty(dt_user.Rows[i]["DingDanSetListBS"].ToString()))
+                            dr_column["MC"] = "div" + dt_user.Rows[i]["DingDanSetListPX"].ToString();
+                        else
+                            dr_column["MC"] = dt_user.Rows[i]["DingDanSetListBS"].ToString();
+                        dt_column.Rows.Add(dr_column);
+                    }
+
+
+                    DataRow dr = dt.NewRow();
+
+                    for (int i = 0; i < dt_new.Rows.Count; i++)
+                    {
+                        DataRow[] drs = dt_user.Select("DingDanSetListMC = '" + dt_new.Rows[i]["MC"].ToString() + "'");
+                        if (drs.Length > 0)
+                        {
+                            if (string.IsNullOrEmpty(drs[0]["DingDanSetListBS"].ToString()))
+                                dr["div" + drs[0]["DingDanSetListPX"].ToString()] = dt_new.Rows[i]["VAL"].ToString();
+                            else
+                                dr[drs[0]["DingDanSetListBS"].ToString()] = dt_new.Rows[i]["VAL"].ToString();
+                        }
+                        else
+                        {
+                            switch (dt_new.Rows[i]["MC"].ToString())
+                            {
+                                case "设备码":
+                                    dr["GpsDeviceID"] = dt_new.Rows[i]["VAL"].ToString();
+                                    break;
+                                case "出发地省份":
+                                    dr["QiShiZhan_Province"] = dt_new.Rows[i]["VAL"].ToString();
+                                    break;
+                                case "出发地城市":
+                                    dr["QiShiZhan_City"] = dt_new.Rows[i]["VAL"].ToString();
+                                    break;
+                                case "出发地区县":
+                                    dr["QiShiZhan_Qx"] = dt_new.Rows[i]["VAL"].ToString();
+                                    break;
+                                case "到达地省份":
+                                    dr["DaoDaZhan_Province"] = dt_new.Rows[i]["VAL"].ToString();
+                                    break;
+                                case "到达地城市":
+                                    dr["DaoDaZhan_City"] = dt_new.Rows[i]["VAL"].ToString();
+                                    break;
+                                case "到达地区县":
+                                    dr["DaoDaZhan_Qx"] = dt_new.Rows[i]["VAL"].ToString();
+                                    break;
+                                case "建单公司":
+                                    dr["SuoShuGongSi"] = dt_new.Rows[i]["VAL"].ToString();
+                                    break;
+                                case "建单号":
+                                    dr["UserDenno"] = dt_new.Rows[i]["VAL"].ToString();
+                                    break;
+                                case "预计到达时间":
+                                    dr["Expect_Hour"] = dt_new.Rows[i]["VAL"].ToString();
+                                    break;
+                                case "推送短信":
+                                    dr["MessageTel"] = dt_new.Rows[i]["VAL"].ToString();
+                                    break;
+                            }
+                        }
+                    }
+
+                    dt.Rows.Add(dr);
+                }
 
                 dbc.CommitTransaction();
-                return new { dt = dt,dt_mx = dt_mx };
+                return new { dt = dt, dt_column = dt_column };
             }
             catch (Exception ex)
             {
