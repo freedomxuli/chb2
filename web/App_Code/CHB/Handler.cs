@@ -251,7 +251,7 @@ public class Handler
                 string QiShiZhan_Text = "";
                 string DaoDaZhan = "";
                 string DaoDaZhan_Text = "";
-                bool IsCanSale = GpsDeviceID.Substring(0, 4) == "2020" ? true : false;
+                bool IsCanSale = (GpsDeviceID.Substring(0, 4) == "2020" || GpsDeviceID.Substring(0, 4) == "8630") ? true : false;
 
                 bool isReturn = true;
 
@@ -750,7 +750,7 @@ public class Handler
                 string QiShiZhan_Text = "";
                 string DaoDaZhan = "";
                 string DaoDaZhan_Text = "";
-                bool IsCanSale = GpsDeviceID.Substring(0, 4) == "2020" ? true : false;
+                bool IsCanSale = (GpsDeviceID.Substring(0, 4) == "2020" || GpsDeviceID.Substring(0, 4) == "8630") ? true : false;
 
                 //var cc = jsr1["Expect_Hour"];
                 //foreach (var k in jsr1)
