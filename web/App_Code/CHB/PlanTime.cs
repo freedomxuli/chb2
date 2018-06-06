@@ -16,6 +16,8 @@ using SmartFramework4v2.Data;
 using System.Collections;
 using System.IO;
 using Newtonsoft.Json;
+using System.Net.Sockets;
+using System.Web.Script.Serialization;
 
 /// <summary>
 /// PlanTime 的摘要说明
@@ -28,6 +30,8 @@ public class PlanTime : Registry
         // 立即执行每两秒一次的计划任务。（指定一个时间间隔运行，根据自己需求，可以是秒、分、时、天、月、年等。）
         Schedule<MyJob>().ToRunNow().AndEvery(10).Minutes();
         Schedule<MyGpsDistanceJob>().ToRunNow().AndEvery(10).Minutes();
+        Schedule<MyJobByGps3>().ToRunNow().AndEvery(30).Minutes();
+        Schedule<MyJobByGps4>().ToRunNow().AndEvery(30).Minutes();
         
         using (var db = new DBConnection())
         {
@@ -37,7 +41,7 @@ public class PlanTime : Registry
             {
                 if (dt.Rows[i]["DeviceCode"].ToString() == "1919")
                 {
-                    Schedule<MyJobByGps1>().ToRunNow().AndEvery(Convert.ToInt32(dt.Rows[i]["DeviceTime"].ToString())).Minutes();
+                    Schedule<MyJobByGps1>().ToRunNow().AndEvery(10).Minutes();
                 }
                 else if (dt.Rows[i]["DeviceCode"].ToString() == "8630")
                 {
@@ -498,6 +502,410 @@ public class MyJobByGps2 : IJob
         return request.GetResponse() as HttpWebResponse;
     }
     #endregion
+}
+
+public class MyJobByGps3 : IJob
+{
+    void IJob.Execute()
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                string sql = "select GpsDeviceID,CarNumber,SuoShuGongSi from YunDan where IsBangding = 1 and UserID = '4ddd6496-f031-4f4a-a50b-10742ff70462' order by BangDingTime desc";
+                DataTable dt_yun = db.ExecuteDataTable(sql);
+
+                if (dt_yun.Rows.Count > 0)
+                {
+                    InsertData(dt_yun,0);
+                }
+            }
+            catch (Exception ex)
+            {
+                
+            }
+        }
+    }
+
+    #region webservice请求方法
+    private static readonly string DefaultUserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; SV1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)";
+
+    private static bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
+    {
+        return true; //总是接受     
+    }
+
+    public static HttpWebResponse CreatePostHttpResponse(string url, IDictionary<string, string> parameters, Encoding charset)
+    {
+        HttpWebRequest request = null;
+        //HTTPSQ请求  
+        ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
+        request = WebRequest.Create(url) as HttpWebRequest;
+        request.ProtocolVersion = HttpVersion.Version10;
+        request.Method = "POST";
+        request.ContentType = "application/x-www-form-urlencoded";
+        request.UserAgent = DefaultUserAgent;
+        request.Timeout = -1;
+        //如果需要POST数据     
+        if (!(parameters == null || parameters.Count == 0))
+        {
+            StringBuilder buffer = new StringBuilder();
+            int i = 0;
+            foreach (string key in parameters.Keys)
+            {
+                if (i > 0)
+                {
+                    buffer.AppendFormat("&{0}={1}", key, parameters[key]);
+                }
+                else
+                {
+                    buffer.AppendFormat("{0}={1}", key, parameters[key]);
+                }
+                i++;
+            }
+            byte[] data = charset.GetBytes(buffer.ToString());
+            using (Stream stream = request.GetRequestStream())
+            {
+                stream.Write(data, 0, data.Length);
+            }
+        }
+        return request.GetResponse() as HttpWebResponse;
+    }
+    #endregion
+
+    public System.Collections.Hashtable GethttpresultBybsj(string url)
+    {
+        try
+        {
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            //parameters.Add("method", "loadLocation");
+            //parameters.Add("DeviceID", "19190002187");
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            sr.Close();
+            stream.Close();
+            string outStr = html;
+
+            Hashtable hashTable = JsonConvert.DeserializeObject<Hashtable>(outStr);
+            return hashTable;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    public void InsertData(DataTable dt,int num)
+    {
+        if (dt.Rows.Count - 1 > num)
+        {
+            Hashtable gpslocation = GethttpresultBybsj("http://47.98.58.55:8998/gpsonline/GPSAPI?method=loadLocation&DeviceID=" + dt.Rows[num]["GpsDeviceID"] + "");
+
+            if (gpslocation["success"].ToString().ToUpper() == "True".ToUpper())
+            {
+                Newtonsoft.Json.Linq.JArray ja = (Newtonsoft.Json.Linq.JArray)Newtonsoft.Json.JsonConvert.DeserializeObject(gpslocation["locs"].ToString());
+
+                string newgpstime = ja.First()["gpstime"].ToString();
+                //newgpstime = newgpstime.Substring(0, newgpstime.Length - 2);
+                string newlng = ja.First()["lng"].ToString();
+                //newlng = newlng.Substring(0, newlng.Length - 2);
+                string newlat = ja.First()["lat"].ToString();
+                //newlat = newlat.Substring(0, newlat.Length - 2);
+                string newinfo = ja.First()["info"].ToString();
+                //newinfo = newinfo.Substring(0, newinfo.Length - 2);
+                //DateTime gpstm =  DateTime.Parse("1970-01-01 00:00:00");
+                long time_JAVA_Long = long.Parse(newgpstime);// 1207969641193;//java长整型日期，毫秒为单位          
+                DateTime dt_1970 = new DateTime(1970, 1, 1, 0, 0, 0);
+                long tricks_1970 = dt_1970.Ticks;//1970年1月1日刻度      
+                long time_tricks = tricks_1970 + time_JAVA_Long * 10000;//日志日期刻度  
+                DateTime gpstm = new DateTime(time_tricks).AddHours(8);//转化为DateTime
+
+                Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                IPAddress ipa = IPAddress.Parse("210.12.209.156");
+                try
+                {
+                    s.Connect(ipa, 9004);
+
+                }
+                catch (Exception ex)
+                {
+                    s.Close();
+                    throw ex;
+                }
+                try
+                {
+                    if (s.Connected == true)
+                    {
+                        DateTime dtStart = TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970, 1, 1));
+                        TimeSpan toNow = DateTime.Now.Subtract(dtStart);
+                        long timeStamp = toNow.Ticks;
+                        timeStamp = long.Parse(timeStamp.ToString().Substring(0, timeStamp.ToString().Length - 4));
+                        string str = "";
+                        ArrayList eventList = new ArrayList();
+                        Hashtable ht_data = new Hashtable();
+                        ht_data.Add("deptName", dt.Rows[num]["SuoShuGongSi"].ToString().TrimEnd(' ').TrimStart(' '));//所属单位
+                        ht_data.Add("longitude", newlng);
+                        ht_data.Add("latitude", newlat);
+                        ht_data.Add("positionDes", newinfo);
+                        ht_data.Add("plateNumber", dt.Rows[num]["CarNumber"].ToString());
+                        ht_data.Add("direction", ja.First()["direct"].ToString());
+                        ht_data.Add("mileage", ja.First()["totalDis"].ToString());
+                        ht_data.Add("speed", ja.First()["speed"].ToString());
+                        ht_data.Add("positioningTime", ja.First()["gpstime"].ToString());
+                        ht_data.Add("status", ja.First()["state"].ToString());
+                        ht_data.Add("addstatus", ja.First()["state"].ToString());
+                        eventList.Add(ht_data);
+
+                        Hashtable ht = new Hashtable();
+                        ht.Add("source", "03");//定位信息来源系统
+                        ht.Add("time", DateTime.Now.ToString());
+                        ht.Add("sysId", "10013");
+                        ht.Add("data", eventList);
+                        JavaScriptSerializer ser = new JavaScriptSerializer();
+                        str = ser.Serialize(ht);
+
+                        byte[] content = Encoding.UTF8.GetBytes(str);
+                        //BitArray content_array = new BitArray(content);
+                        ByteBuffer buffer = ByteBuffer.Allocate(content.Length + 8);
+                        buffer.WriteShort((short)97);
+                        buffer.WriteShort((short)0);
+                        buffer.WriteInt(content.Length);
+                        buffer.WriteBytes(content);
+                        s.Send(buffer.ToArray());
+
+                        byte[] result = new byte[1024];
+                        try
+                        {
+                            int receiveLength = s.Receive(result);
+                            string res = Encoding.UTF8.GetString(result, 0, receiveLength);
+                            int a = 0;
+                        }
+                        catch (Exception ex)
+                        {
+                            s.Close();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    s.Close();
+                    //throw ex;
+                }
+            }
+            
+            InsertData(dt, num + 1);
+        }
+    }
+}
+
+public class MyJobByGps4 : IJob
+{
+    void IJob.Execute()
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+                string sql = "select GpsDeviceID,CarNumber,SuoShuGongSi,BangDingTime,Expect_Hour from YunDan where IsBangding = 1 and UserID = '4ddd6496-f031-4f4a-a50b-10742ff70462' order by BangDingTime desc";
+                DataTable dt_yun = db.ExecuteDataTable(sql);
+
+                if (dt_yun.Rows.Count > 0)
+                {
+                    InsertData(dt_yun, 0);
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+    }
+
+    #region webservice请求方法
+    private static readonly string DefaultUserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; SV1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)";
+
+    private static bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
+    {
+        return true; //总是接受     
+    }
+
+    public static HttpWebResponse CreatePostHttpResponse(string url, IDictionary<string, string> parameters, Encoding charset)
+    {
+        HttpWebRequest request = null;
+        //HTTPSQ请求  
+        ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
+        request = WebRequest.Create(url) as HttpWebRequest;
+        request.ProtocolVersion = HttpVersion.Version10;
+        request.Method = "POST";
+        request.ContentType = "application/x-www-form-urlencoded";
+        request.UserAgent = DefaultUserAgent;
+        request.Timeout = -1;
+        //如果需要POST数据     
+        if (!(parameters == null || parameters.Count == 0))
+        {
+            StringBuilder buffer = new StringBuilder();
+            int i = 0;
+            foreach (string key in parameters.Keys)
+            {
+                if (i > 0)
+                {
+                    buffer.AppendFormat("&{0}={1}", key, parameters[key]);
+                }
+                else
+                {
+                    buffer.AppendFormat("{0}={1}", key, parameters[key]);
+                }
+                i++;
+            }
+            byte[] data = charset.GetBytes(buffer.ToString());
+            using (Stream stream = request.GetRequestStream())
+            {
+                stream.Write(data, 0, data.Length);
+            }
+        }
+        return request.GetResponse() as HttpWebResponse;
+    }
+    #endregion
+
+    public System.Collections.Hashtable GethttpresultBybsj(string url)
+    {
+        try
+        {
+            Encoding encoding = Encoding.GetEncoding("utf-8");
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            //parameters.Add("method", "loadLocation");
+            //parameters.Add("DeviceID", "19190002187");
+            HttpWebResponse response = CreatePostHttpResponse(url, parameters, encoding);
+            //打印返回值  
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流  
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流  
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html  
+            sr.Close();
+            stream.Close();
+            string outStr = html;
+
+            Hashtable hashTable = JsonConvert.DeserializeObject<Hashtable>(outStr);
+            return hashTable;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    public void InsertData(DataTable dt, int num)
+    {
+        if (dt.Rows.Count - 1 > num)
+        {
+            if (!string.IsNullOrEmpty(dt.Rows[num]["Expect_Hour"].ToString()))
+            {
+                if (DateTime.Now > Convert.ToDateTime(dt.Rows[num]["BangDingTime"].ToString()).AddHours(Convert.ToDouble(dt.Rows[num]["Expect_Hour"].ToString())))
+                {
+                    Hashtable gpslocation = GethttpresultBybsj("http://47.98.58.55:8998/gpsonline/GPSAPI?method=loadLocation&DeviceID=" + dt.Rows[num]["GpsDeviceID"] + "");
+
+                    if (gpslocation["success"].ToString().ToUpper() == "True".ToUpper())
+                    {
+                        Newtonsoft.Json.Linq.JArray ja = (Newtonsoft.Json.Linq.JArray)Newtonsoft.Json.JsonConvert.DeserializeObject(gpslocation["locs"].ToString());
+
+                        string newgpstime = ja.First()["gpstime"].ToString();
+                        //newgpstime = newgpstime.Substring(0, newgpstime.Length - 2);
+                        string newlng = ja.First()["lng"].ToString();
+                        //newlng = newlng.Substring(0, newlng.Length - 2);
+                        string newlat = ja.First()["lat"].ToString();
+                        //newlat = newlat.Substring(0, newlat.Length - 2);
+                        string newinfo = ja.First()["info"].ToString();
+                        //newinfo = newinfo.Substring(0, newinfo.Length - 2);
+                        //DateTime gpstm =  DateTime.Parse("1970-01-01 00:00:00");
+                        long time_JAVA_Long = long.Parse(newgpstime);// 1207969641193;//java长整型日期，毫秒为单位          
+                        DateTime dt_1970 = new DateTime(1970, 1, 1, 0, 0, 0);
+                        long tricks_1970 = dt_1970.Ticks;//1970年1月1日刻度      
+                        long time_tricks = tricks_1970 + time_JAVA_Long * 10000;//日志日期刻度  
+                        DateTime gpstm = new DateTime(time_tricks).AddHours(8);//转化为DateTime
+
+                        Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                        IPAddress ipa = IPAddress.Parse("210.12.209.156");
+                        try
+                        {
+                            s.Connect(ipa, 9004);
+
+                        }
+                        catch (Exception ex)
+                        {
+                            s.Close();
+                            throw ex;
+                        }
+                        try
+                        {
+                            if (s.Connected == true)
+                            {
+                                DateTime dtStart = TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970, 1, 1));
+                                TimeSpan toNow = DateTime.Now.Subtract(dtStart);
+                                long timeStamp = toNow.Ticks;
+                                timeStamp = long.Parse(timeStamp.ToString().Substring(0, timeStamp.ToString().Length - 4));
+                                string str = "";
+                                ArrayList eventList = new ArrayList();
+                                Hashtable ht_data = new Hashtable();
+                                ht_data.Add("positionDes", newinfo);
+                                ht_data.Add("alarmInfoNo", "1");
+                                ht_data.Add("deptName", dt.Rows[num]["SuoShuGongSi"].ToString().TrimEnd(' ').TrimStart(' '));//所属单位
+                                ht_data.Add("alarmType", "到达超时");
+                                ht_data.Add("startTime", ja.First()["gpstime"].ToString());
+                                ht_data.Add("endTime", ja.First()["gpstime"].ToString());
+                                ht_data.Add("alarmSpeed", ja.First()["speed"].ToString());
+                                ht_data.Add("plateNumber", dt.Rows[num]["CarNumber"].ToString());
+                                ht_data.Add("alarmInfo", "到达超时");
+                                ht_data.Add("latitude", newlat);
+                                ht_data.Add("longitude", newlng);
+                                ht_data.Add("address", newinfo);
+                                ht_data.Add("positioningTime", timeStamp);
+                                eventList.Add(ht_data);
+
+                                Hashtable ht = new Hashtable();
+                                ht.Add("source", "03");//定位信息来源系统
+                                ht.Add("time", DateTime.Now.ToString());
+                                ht.Add("sysId", "10013");
+                                ht.Add("data", eventList);
+                                JavaScriptSerializer ser = new JavaScriptSerializer();
+                                str = ser.Serialize(ht);
+
+                                byte[] content = Encoding.UTF8.GetBytes(str);
+                                //BitArray content_array = new BitArray(content);
+                                ByteBuffer buffer = ByteBuffer.Allocate(content.Length + 8);
+                                buffer.WriteShort((short)97);
+                                buffer.WriteShort((short)0);
+                                buffer.WriteInt(content.Length);
+                                buffer.WriteBytes(content);
+                                s.Send(buffer.ToArray());
+
+                                byte[] result = new byte[1024];
+                                try
+                                {
+                                    int receiveLength = s.Receive(result);
+                                    string res = Encoding.UTF8.GetString(result, 0, receiveLength);
+                                    int a = 0;
+                                }
+                                catch (Exception ex)
+                                {
+                                    s.Close();
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            s.Close();
+                            //throw ex;
+                        }
+                    }
+
+                    InsertData(dt, num + 1);
+                }
+            }
+        }
+    }
 }
 
 public class MyJob : IJob

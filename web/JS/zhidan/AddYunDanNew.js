@@ -478,11 +478,9 @@ Ext.onReady(function () {
                                     //    return false;
                                     //}
 
-                                    if (Ext.getCmp("IsYJ").getValue()) {
-                                        if (Ext.getCmp("Expect_Hour").getValue() == "" || Ext.getCmp("Expect_Hour").getValue() == null) {
-                                            Ext.Msg.alert("提示", "预计到达时间为必填项！");
-                                            return false;
-                                        }
+                                    if (Ext.getCmp("Expect_Hour").getValue() == "" || Ext.getCmp("Expect_Hour").getValue() == null) {
+                                        Ext.Msg.alert("提示", "预计到达时间为必填项！");
+                                        return false;
                                     }
 
                                     var MessageTel = "";
@@ -542,7 +540,7 @@ Ext.onReady(function () {
                                                                 Ext.Msg.alert("提示", "制单失败！");
                                                                 return false;
                                                             }
-                                                        }, CS.onError, Ext.getCmp("QiShiZhan_Province").getValue(), Ext.getCmp("QiShiZhan_City").getValue(), Ext.getCmp("QiShiZhan_Qx").getValue(), Ext.getCmp("DaoDaZhan_Province").getValue(), Ext.getCmp("DaoDaZhan_City").getValue(), Ext.getCmp("DaoDaZhan_Qx").getValue(), Ext.getCmp("SuoShuGongSi").getValue(), Ext.getCmp("UserDenno").getValue(), Ext.getCmp("GpsDeviceID").getValue(), Ext.getCmp("IsYJ").getValue(), Ext.getCmp("IsSendMessage").getValue(), MessageTel, obj_new, details_array);
+                                                        }, CS.onError, Ext.getCmp("QiShiZhan_Province").getValue(), Ext.getCmp("QiShiZhan_City").getValue(), Ext.getCmp("QiShiZhan_Qx").getValue(), Ext.getCmp("DaoDaZhan_Province").getValue(), Ext.getCmp("DaoDaZhan_City").getValue(), Ext.getCmp("DaoDaZhan_Qx").getValue(), Ext.getCmp("SuoShuGongSi").getValue(), Ext.getCmp("UserDenno").getValue(), Ext.getCmp("GpsDeviceID").getValue(), Ext.getCmp("IsYJ").getValue(), Ext.getCmp("IsSendMessage").getValue(),Ext.getCmp("Expect_Hour").getValue(), MessageTel, obj_new, details_array);
                                                     } else {
                                                         Ext.Msg.alert("提示", "输入码必须先解除绑定再制单！");
                                                         return false;
@@ -558,7 +556,7 @@ Ext.onReady(function () {
                                                         Ext.Msg.alert("提示", "制单失败！");
                                                         return false;
                                                     }
-                                                }, CS.onError, Ext.getCmp("QiShiZhan_Province").getValue(), Ext.getCmp("QiShiZhan_City").getValue(), Ext.getCmp("QiShiZhan_Qx").getValue(), Ext.getCmp("DaoDaZhan_Province").getValue(), Ext.getCmp("DaoDaZhan_City").getValue(), Ext.getCmp("DaoDaZhan_Qx").getValue(), Ext.getCmp("SuoShuGongSi").getValue(), Ext.getCmp("UserDenno").getValue(), Ext.getCmp("GpsDeviceID").getValue(), Ext.getCmp("IsYJ").getValue(), Ext.getCmp("IsSendMessage").getValue(), MessageTel, obj_new, details_array);
+                                                }, CS.onError, Ext.getCmp("QiShiZhan_Province").getValue(), Ext.getCmp("QiShiZhan_City").getValue(), Ext.getCmp("QiShiZhan_Qx").getValue(), Ext.getCmp("DaoDaZhan_Province").getValue(), Ext.getCmp("DaoDaZhan_City").getValue(), Ext.getCmp("DaoDaZhan_Qx").getValue(), Ext.getCmp("SuoShuGongSi").getValue(), Ext.getCmp("UserDenno").getValue(), Ext.getCmp("GpsDeviceID").getValue(), Ext.getCmp("IsYJ").getValue(), Ext.getCmp("IsSendMessage").getValue(),Ext.getCmp("Expect_Hour").getValue(), MessageTel, obj_new, details_array);
                                             }
                                         } else {
 
@@ -566,7 +564,7 @@ Ext.onReady(function () {
                                     },CS.onError)
                                     
                                 }
-                            }
+                            },
                             //{
                             //    text: '返回',
                             //    iconCls: 'back',
@@ -574,23 +572,23 @@ Ext.onReady(function () {
                             //        FrameStack.popFrame();
                             //    }
                             //}
-                            //{
-                            //    text: '导出模板',
-                            //    iconCls: 'download',
-                            //    handler: function () {
-                            //        //FrameStack.popFrame();
-                            //        DownloadFile("CZCLZ.Handler.DownLoadMb", "制单模板.xlsx", "");
-                            //    }
-                            //},
-                            //{
-                            //    text: '导入模板',
-                            //    iconCls: 'upload',
-                            //    handler: function () {
-                            //        //FrameStack.popFrame();
-                            //        var win = new sjWin();
-                            //        win.show();
-                            //    }
-                            //}
+                            {
+                                text: '导出模板',
+                                iconCls: 'download',
+                                handler: function () {
+                                    //FrameStack.popFrame();
+                                    DownloadFile("CZCLZ.Handler.DownLoadMb", "制单模板.xlsx", "");
+                                }
+                            },
+                            {
+                                text: '导入模板',
+                                iconCls: 'upload',
+                                handler: function () {
+                                    //FrameStack.popFrame();
+                                    var win = new sjWin();
+                                    win.show();
+                                }
+                            }
                         ]
                     },
                     {
@@ -981,11 +979,6 @@ Ext.define('sjWin', {
                                             return;
                                         }
                                         Ext.getCmp("MessageTel").setValue(retVal.dt[0]["MessageTel"]);
-
-                                        for (var i = 0; i < retVal.dt_column.length; i++)
-                                        {
-                                            Ext.getCmp(retVal.dt_column[i]["MC"]).setValue(retVal.dt[0][retVal.dt_column[i]["MC"]]);
-                                        }
 
                                         me.up('window').close();
                                     }

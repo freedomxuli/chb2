@@ -602,7 +602,7 @@ Ext.onReady(function () {
                             //    }
                             //},
                             {
-                                text: '导出模板',
+                                text: '导出参考模板',
                                 iconCls: 'download',
                                 handler: function () {
                                     //FrameStack.popFrame();

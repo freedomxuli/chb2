@@ -1,0 +1,128 @@
+2017-11-03 21:09:23.439 ERROR Handler: The Pay result is error : 312312
+2017-11-03 21:12:48.667 ERROR Handler: The Pay result is error : 312312
+2017-11-03 21:12:51.954 INFO WxPayAPI.NativePay: Native pay mode 2 url is producing...
+2017-11-03 21:12:51.956 DEBUG WxPayApi: UnfiedOrder request : <xml><appid><![CDATA[wxaaa949fd84f8f7e5]]></appid><body><![CDATA[单次充值，充值：5单。共计：50.000元]]></body><mch_id><![CDATA[1487908482]]></mch_id><nonce_str><![CDATA[73657f78e1d04cc3b51f5d6243a5f2f7]]></nonce_str><notify_url><![CDATA[http://test.zhisuroom.com/Pay/wxPayHandler.aspx]]></notify_url><out_trade_no><![CDATA[14879084822017110321125143]]></out_trade_no><product_id><![CDATA[0120171103211251882]]></product_id><sign><![CDATA[84C924A565D206E4F3ED749E7AFF18AF]]></sign><spbill_create_ip><![CDATA[8.8.8.8]]></spbill_create_ip><total_fee>1</total_fee><trade_type><![CDATA[NATIVE]]></trade_type></xml>
+2017-11-03 21:12:52.168 DEBUG WxPayApi: UnfiedOrder response : <xml><return_code><![CDATA[SUCCESS]]></return_code>
+<return_msg><![CDATA[OK]]></return_msg>
+<appid><![CDATA[wxaaa949fd84f8f7e5]]></appid>
+<mch_id><![CDATA[1487908482]]></mch_id>
+<nonce_str><![CDATA[07c7nqIl98ikAkA0]]></nonce_str>
+<sign><![CDATA[7CACF0FE9A0FEA5FB166CED0CBBFAE3B]]></sign>
+<result_code><![CDATA[SUCCESS]]></result_code>
+<prepay_id><![CDATA[wx20171103211311e3f172de940512702555]]></prepay_id>
+<trade_type><![CDATA[NATIVE]]></trade_type>
+<code_url><![CDATA[weixin://wxpay/bizpayurl?pr=19OUFbF]]></code_url>
+</xml>
+2017-11-03 21:12:52.169 INFO WxPayAPI.NativePay: Get native pay mode 2 url : weixin://wxpay/bizpayurl?pr=19OUFbF
+2017-11-03 21:26:02.662 INFO WxPayAPI.NativePay: Native pay mode 2 url is producing...
+2017-11-03 21:26:02.665 DEBUG WxPayApi: UnfiedOrder request : <xml><appid><![CDATA[wxaaa949fd84f8f7e5]]></appid><body><![CDATA[单次充值，充值：5单。共计：50.000元]]></body><mch_id><![CDATA[1487908482]]></mch_id><nonce_str><![CDATA[5a2ba291a3e646048b69106072ef1e75]]></nonce_str><notify_url><![CDATA[http://test.zhisuroom.com/Pay/wxPayHandler.aspx]]></notify_url><out_trade_no><![CDATA[0120171103212602594]]></out_trade_no><product_id><![CDATA[0120171103212602594]]></product_id><sign><![CDATA[FC66FEF5E70DA632DCAD4D0942421B28]]></sign><spbill_create_ip><![CDATA[8.8.8.8]]></spbill_create_ip><total_fee>1</total_fee><trade_type><![CDATA[NATIVE]]></trade_type></xml>
+2017-11-03 21:26:02.872 DEBUG WxPayApi: UnfiedOrder response : <xml><return_code><![CDATA[SUCCESS]]></return_code>
+<return_msg><![CDATA[OK]]></return_msg>
+<appid><![CDATA[wxaaa949fd84f8f7e5]]></appid>
+<mch_id><![CDATA[1487908482]]></mch_id>
+<nonce_str><![CDATA[OkutJJbRD8GWX7ZP]]></nonce_str>
+<sign><![CDATA[4F60EBA429B0F4E2C12884627080631B]]></sign>
+<result_code><![CDATA[SUCCESS]]></result_code>
+<prepay_id><![CDATA[wx20171103212622c96acec0590661820637]]></prepay_id>
+<trade_type><![CDATA[NATIVE]]></trade_type>
+<code_url><![CDATA[weixin://wxpay/bizpayurl?pr=ATLBhZ1]]></code_url>
+</xml>
+2017-11-03 21:26:02.873 INFO WxPayAPI.NativePay: Get native pay mode 2 url : weixin://wxpay/bizpayurl?pr=ATLBhZ1
+2017-11-03 22:48:26.351 INFO WxPayAPI.NativePay: Native pay mode 2 url is producing...
+2017-11-03 22:48:27.863 DEBUG WxPayApi: UnfiedOrder request : <xml><appid><![CDATA[wxaaa949fd84f8f7e5]]></appid><body><![CDATA[web内用户押金，押金方式：微信；押金单号：0220171103224759869；押金金额：100。]]></body><mch_id><![CDATA[1487908482]]></mch_id><nonce_str><![CDATA[0a1b8f10bda74cdc80af05c45a514a2f]]></nonce_str><notify_url><![CDATA[http://test.zhisuroom.com/Pay/wxPayHandler.aspx]]></notify_url><out_trade_no><![CDATA[0220171103224759869]]></out_trade_no><product_id><![CDATA[0220171103224759869]]></product_id><sign><![CDATA[3FAC0B96AA00874D2C43C002AA7C1143]]></sign><spbill_create_ip><![CDATA[8.8.8.8]]></spbill_create_ip><total_fee>1</total_fee><trade_type><![CDATA[NATIVE]]></trade_type></xml>
+2017-11-03 22:48:28.087 DEBUG WxPayApi: UnfiedOrder response : <xml><return_code><![CDATA[SUCCESS]]></return_code>
+<return_msg><![CDATA[OK]]></return_msg>
+<appid><![CDATA[wxaaa949fd84f8f7e5]]></appid>
+<mch_id><![CDATA[1487908482]]></mch_id>
+<nonce_str><![CDATA[0s85IC1t9RxbnMFi]]></nonce_str>
+<sign><![CDATA[0F183D96B838C79515691F2CF55A2CDC]]></sign>
+<result_code><![CDATA[SUCCESS]]></result_code>
+<prepay_id><![CDATA[wx201711032248477f405cf32b0961691188]]></prepay_id>
+<trade_type><![CDATA[NATIVE]]></trade_type>
+<code_url><![CDATA[weixin://wxpay/bizpayurl?pr=lmeEjDA]]></code_url>
+</xml>
+2017-11-03 22:48:28.088 INFO WxPayAPI.NativePay: Get native pay mode 2 url : weixin://wxpay/bizpayurl?pr=lmeEjDA
+2017-11-03 22:53:19.057 INFO WxPayAPI.NativePay: Native pay mode 2 url is producing...
+2017-11-03 22:53:22.514 DEBUG WxPayApi: UnfiedOrder request : <xml><appid><![CDATA[wxaaa949fd84f8f7e5]]></appid><body><![CDATA[web内用户押金，押金方式：微信；押金单号：0220171103225331756；押金金额：100。]]></body><mch_id><![CDATA[1487908482]]></mch_id><nonce_str><![CDATA[fc80a05b40e24a1cbcf0b6758d588b8d]]></nonce_str><notify_url><![CDATA[http://test.zhisuroom.com/Pay/wxPayHandler.aspx]]></notify_url><out_trade_no><![CDATA[0220171103225331756]]></out_trade_no><product_id><![CDATA[0220171103225331756]]></product_id><sign><![CDATA[86B1F04E82B4F078768ECC3A457E0C05]]></sign><spbill_create_ip><![CDATA[8.8.8.8]]></spbill_create_ip><total_fee>1</total_fee><trade_type><![CDATA[NATIVE]]></trade_type></xml>
+2017-11-03 22:53:22.723 DEBUG WxPayApi: UnfiedOrder response : <xml><return_code><![CDATA[SUCCESS]]></return_code>
+<return_msg><![CDATA[OK]]></return_msg>
+<appid><![CDATA[wxaaa949fd84f8f7e5]]></appid>
+<mch_id><![CDATA[1487908482]]></mch_id>
+<nonce_str><![CDATA[H2jPxPyPMDkcDH4g]]></nonce_str>
+<sign><![CDATA[D69318882FAC22650E4DFA845CCB5B4C]]></sign>
+<result_code><![CDATA[SUCCESS]]></result_code>
+<prepay_id><![CDATA[wx201711032253427c47e5b2fd0170992804]]></prepay_id>
+<trade_type><![CDATA[NATIVE]]></trade_type>
+<code_url><![CDATA[weixin://wxpay/bizpayurl?pr=RrHflZn]]></code_url>
+</xml>
+2017-11-03 22:53:22.723 INFO WxPayAPI.NativePay: Get native pay mode 2 url : weixin://wxpay/bizpayurl?pr=RrHflZn
+2017-11-03 22:54:14.171 INFO WxPayAPI.NativePay: Native pay mode 2 url is producing...
+2017-11-03 22:54:14.171 DEBUG WxPayApi: UnfiedOrder request : <xml><appid><![CDATA[wxaaa949fd84f8f7e5]]></appid><body><![CDATA[web内用户押金，押金方式：微信；押金单号：0220171103225427791；押金金额：100。]]></body><mch_id><![CDATA[1487908482]]></mch_id><nonce_str><![CDATA[749a51318be948318d85cb8565a5fe6a]]></nonce_str><notify_url><![CDATA[http://test.zhisuroom.com/Pay/wxPayHandler.aspx]]></notify_url><out_trade_no><![CDATA[0220171103225427791]]></out_trade_no><product_id><![CDATA[0220171103225427791]]></product_id><sign><![CDATA[FBE53533C12C77032AA032FDC8F59344]]></sign><spbill_create_ip><![CDATA[8.8.8.8]]></spbill_create_ip><total_fee>1</total_fee><trade_type><![CDATA[NATIVE]]></trade_type></xml>
+2017-11-03 22:54:14.366 DEBUG WxPayApi: UnfiedOrder response : <xml><return_code><![CDATA[SUCCESS]]></return_code>
+<return_msg><![CDATA[OK]]></return_msg>
+<appid><![CDATA[wxaaa949fd84f8f7e5]]></appid>
+<mch_id><![CDATA[1487908482]]></mch_id>
+<nonce_str><![CDATA[JpYw3XpPS6XM28e6]]></nonce_str>
+<sign><![CDATA[12AFDDAF896B0164E673D2FDFDD89217]]></sign>
+<result_code><![CDATA[SUCCESS]]></result_code>
+<prepay_id><![CDATA[wx20171103225433069f95fdea0352854394]]></prepay_id>
+<trade_type><![CDATA[NATIVE]]></trade_type>
+<code_url><![CDATA[weixin://wxpay/bizpayurl?pr=o7uo32G]]></code_url>
+</xml>
+2017-11-03 22:54:14.366 INFO WxPayAPI.NativePay: Get native pay mode 2 url : weixin://wxpay/bizpayurl?pr=o7uo32G
+2017-11-03 22:56:13.877 INFO WxPayAPI.NativePay: Native pay mode 2 url is producing...
+2017-11-03 22:56:13.877 DEBUG WxPayApi: UnfiedOrder request : <xml><appid><![CDATA[wxaaa949fd84f8f7e5]]></appid><body><![CDATA[web内用户押金，押金方式：微信；押金单号：0220171103225628324；押金金额：100。]]></body><mch_id><![CDATA[1487908482]]></mch_id><nonce_str><![CDATA[f4997d12aba04fb6a6b9d6b72181846b]]></nonce_str><notify_url><![CDATA[http://test.zhisuroom.com/Pay/wxPayHandler.aspx]]></notify_url><out_trade_no><![CDATA[0220171103225628324]]></out_trade_no><product_id><![CDATA[0220171103225628324]]></product_id><sign><![CDATA[5E3B3880D76DA8A99A6F40941483CB21]]></sign><spbill_create_ip><![CDATA[8.8.8.8]]></spbill_create_ip><total_fee>1</total_fee><trade_type><![CDATA[NATIVE]]></trade_type></xml>
+2017-11-03 22:56:14.067 DEBUG WxPayApi: UnfiedOrder response : <xml><return_code><![CDATA[SUCCESS]]></return_code>
+<return_msg><![CDATA[OK]]></return_msg>
+<appid><![CDATA[wxaaa949fd84f8f7e5]]></appid>
+<mch_id><![CDATA[1487908482]]></mch_id>
+<nonce_str><![CDATA[kxIMFxOCkv0dMvoc]]></nonce_str>
+<sign><![CDATA[3C7206BD52E9C594F9833926F0C34551]]></sign>
+<result_code><![CDATA[SUCCESS]]></result_code>
+<prepay_id><![CDATA[wx201711032256334ca7bac04b0510805480]]></prepay_id>
+<trade_type><![CDATA[NATIVE]]></trade_type>
+<code_url><![CDATA[weixin://wxpay/bizpayurl?pr=zPQjfNr]]></code_url>
+</xml>
+2017-11-03 22:56:14.068 INFO WxPayAPI.NativePay: Get native pay mode 2 url : weixin://wxpay/bizpayurl?pr=zPQjfNr
+2017-11-03 22:57:36.845 INFO WxPayAPI.NativePay: Native pay mode 2 url is producing...
+2017-11-03 22:57:36.846 DEBUG WxPayApi: UnfiedOrder request : <xml><appid><![CDATA[wxaaa949fd84f8f7e5]]></appid><body><![CDATA[web内用户押金，押金方式：微信；押金单号：0220171103225745936；押金金额：100。]]></body><mch_id><![CDATA[1487908482]]></mch_id><nonce_str><![CDATA[06984b6862fb4c179b0f8de84343eef3]]></nonce_str><notify_url><![CDATA[http://test.zhisuroom.com/Pay/wxPayHandler.aspx]]></notify_url><out_trade_no><![CDATA[0220171103225745936]]></out_trade_no><product_id><![CDATA[0220171103225745936]]></product_id><sign><![CDATA[225560869A1C645AF6378F5A6149DB04]]></sign><spbill_create_ip><![CDATA[8.8.8.8]]></spbill_create_ip><total_fee>1</total_fee><trade_type><![CDATA[NATIVE]]></trade_type></xml>
+2017-11-03 22:57:37.023 DEBUG WxPayApi: UnfiedOrder response : <xml><return_code><![CDATA[SUCCESS]]></return_code>
+<return_msg><![CDATA[OK]]></return_msg>
+<appid><![CDATA[wxaaa949fd84f8f7e5]]></appid>
+<mch_id><![CDATA[1487908482]]></mch_id>
+<nonce_str><![CDATA[sFkMGWjBvC4Vc7KY]]></nonce_str>
+<sign><![CDATA[E4569A2B5DB0B58FADA0EA538FFBFA5F]]></sign>
+<result_code><![CDATA[SUCCESS]]></result_code>
+<prepay_id><![CDATA[wx2017110322575698260938d70417624584]]></prepay_id>
+<trade_type><![CDATA[NATIVE]]></trade_type>
+<code_url><![CDATA[weixin://wxpay/bizpayurl?pr=4LzGv40]]></code_url>
+</xml>
+2017-11-03 22:57:37.024 INFO WxPayAPI.NativePay: Get native pay mode 2 url : weixin://wxpay/bizpayurl?pr=4LzGv40
+2017-11-03 22:59:37.577 INFO WxPayAPI.NativePay: Native pay mode 2 url is producing...
+2017-11-03 22:59:37.577 DEBUG WxPayApi: UnfiedOrder request : <xml><appid><![CDATA[wxaaa949fd84f8f7e5]]></appid><body><![CDATA[web内用户押金，押金方式：微信；押金单号：0220171103225951950；押金金额：100。]]></body><mch_id><![CDATA[1487908482]]></mch_id><nonce_str><![CDATA[10b66b2fccf340fd89e4a42d55ee98da]]></nonce_str><notify_url><![CDATA[http://test.zhisuroom.com/Pay/wxPayHandler.aspx]]></notify_url><out_trade_no><![CDATA[0220171103225951950]]></out_trade_no><product_id><![CDATA[0220171103225951950]]></product_id><sign><![CDATA[6713AFD0BC4F9D4C54317C3ABDDF1DAB]]></sign><spbill_create_ip><![CDATA[8.8.8.8]]></spbill_create_ip><total_fee>1</total_fee><trade_type><![CDATA[NATIVE]]></trade_type></xml>
+2017-11-03 22:59:37.778 DEBUG WxPayApi: UnfiedOrder response : <xml><return_code><![CDATA[SUCCESS]]></return_code>
+<return_msg><![CDATA[OK]]></return_msg>
+<appid><![CDATA[wxaaa949fd84f8f7e5]]></appid>
+<mch_id><![CDATA[1487908482]]></mch_id>
+<nonce_str><![CDATA[Wuk3RYUJeUry74eK]]></nonce_str>
+<sign><![CDATA[81556C52579541B57F32C1F1482CBC55]]></sign>
+<result_code><![CDATA[SUCCESS]]></result_code>
+<prepay_id><![CDATA[wx20171103225957f259ca100e0165055156]]></prepay_id>
+<trade_type><![CDATA[NATIVE]]></trade_type>
+<code_url><![CDATA[weixin://wxpay/bizpayurl?pr=n7B2FUM]]></code_url>
+</xml>
+2017-11-03 22:59:37.778 INFO WxPayAPI.NativePay: Get native pay mode 2 url : weixin://wxpay/bizpayurl?pr=n7B2FUM
+2017-11-03 23:07:58.603 INFO WxPayAPI.NativePay: Native pay mode 2 url is producing...
+2017-11-03 23:07:58.604 DEBUG WxPayApi: UnfiedOrder request : <xml><appid><![CDATA[wxaaa949fd84f8f7e5]]></appid><body><![CDATA[web内用户押金，押金方式：微信；押金单号：0220171103230038114；押金金额：100。]]></body><mch_id><![CDATA[1487908482]]></mch_id><nonce_str><![CDATA[a2eb693dca6e4ccd9a96949234076c13]]></nonce_str><notify_url><![CDATA[http://test.zhisuroom.com/Pay/wxPayHandler.aspx]]></notify_url><out_trade_no><![CDATA[0220171103230038114]]></out_trade_no><product_id><![CDATA[0220171103230038114]]></product_id><sign><![CDATA[4721A8FB93F10A3CD0ED15F26DC1498F]]></sign><spbill_create_ip><![CDATA[8.8.8.8]]></spbill_create_ip><total_fee>1</total_fee><trade_type><![CDATA[NATIVE]]></trade_type></xml>
+2017-11-03 23:07:58.817 DEBUG WxPayApi: UnfiedOrder response : <xml><return_code><![CDATA[SUCCESS]]></return_code>
+<return_msg><![CDATA[OK]]></return_msg>
+<appid><![CDATA[wxaaa949fd84f8f7e5]]></appid>
+<mch_id><![CDATA[1487908482]]></mch_id>
+<nonce_str><![CDATA[4AnQZwwdtaqETsn6]]></nonce_str>
+<sign><![CDATA[179CBC855268BC798DC2EEF577739EF3]]></sign>
+<result_code><![CDATA[SUCCESS]]></result_code>
+<prepay_id><![CDATA[wx201711032308182d32fb3af20868280585]]></prepay_id>
+<trade_type><![CDATA[NATIVE]]></trade_type>
+<code_url><![CDATA[weixin://wxpay/bizpayurl?pr=1TErZk5]]></code_url>
+</xml>
+2017-11-03 23:07:58.818 INFO WxPayAPI.NativePay: Get native pay mode 2 url : weixin://wxpay/bizpayurl?pr=1TErZk5

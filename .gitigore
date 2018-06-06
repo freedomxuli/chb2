@@ -1,0 +1,8 @@
+# git ignore file
+/web/Bin/
+*.sln
+*.suo
+*.db
+/web/erweima/
+/web/temp/
+*.publishproj

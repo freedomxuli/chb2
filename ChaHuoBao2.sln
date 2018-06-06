@@ -4,7 +4,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "web", "web\", "{29522DB1-9E08-41F7-89ED-29500E23F4A9}"
 	ProjectSection(WebsiteProperties) = preProject
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
-		ProjectReferences = "{dd9de1b6-79a4-44b9-a326-b14a65a1407d}|SmartFramework4v2.Cache.dll;{2A39343D-9F8D-4CB3-98BC-BF1A5D88AD1F}|SmartFramework4v2.Data.dll;{7461419B-3FB4-4CEC-8033-37B3D2A53D95}|SmartFramework4v2.Log.dll;{c9925492-e4ed-4edd-b2b1-02d32c46d02d}|SmartFramework4v2.Web.dll;"
+		ProjectReferences = ""
 		Debug.AspNetCompiler.VirtualPath = "/web"
 		Debug.AspNetCompiler.PhysicalPath = "web\"
 		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\web\"
@@ -19,17 +19,9 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "web", "web\", "{29522DB1-9E
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "21452"
+		VWDPort = "11840"
 		DefaultWebSiteLanguage = "Visual C#"
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartFramework4v2.Cache", "..\LibraryNew\SmartFramework4v2\SmartFramework4v2.Cache\SmartFramework4v2.Cache.csproj", "{DD9DE1B6-79A4-44B9-A326-B14A65A1407D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartFramework4v2.Data", "..\LibraryNew\SmartFramework4v2\SmartFramework4v2.Data\SmartFramework4v2.Data.csproj", "{2A39343D-9F8D-4CB3-98BC-BF1A5D88AD1F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartFramework4v2.Log", "..\LibraryNew\SmartFramework4v2\SmartFramework4v2.Log\SmartFramework4v2.Log.csproj", "{7461419B-3FB4-4CEC-8033-37B3D2A53D95}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartFramework4v2.Web", "..\LibraryNew\SmartFramework4v2\SmartFramework4v2.Web\SmartFramework4v2.Web.csproj", "{C9925492-E4ED-4EDD-B2B1-02D32C46D02D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,44 +42,6 @@ Global
 		{29522DB1-9E08-41F7-89ED-29500E23F4A9}.Release|Any CPU.Build.0 = Debug|Any CPU
 		{29522DB1-9E08-41F7-89ED-29500E23F4A9}.Release|x64.ActiveCfg = Debug|Any CPU
 		{29522DB1-9E08-41F7-89ED-29500E23F4A9}.Release|x86.ActiveCfg = Debug|Any CPU
-		{DD9DE1B6-79A4-44B9-A326-B14A65A1407D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DD9DE1B6-79A4-44B9-A326-B14A65A1407D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DD9DE1B6-79A4-44B9-A326-B14A65A1407D}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{DD9DE1B6-79A4-44B9-A326-B14A65A1407D}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{DD9DE1B6-79A4-44B9-A326-B14A65A1407D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DD9DE1B6-79A4-44B9-A326-B14A65A1407D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DD9DE1B6-79A4-44B9-A326-B14A65A1407D}.Release|x64.ActiveCfg = Release|Any CPU
-		{DD9DE1B6-79A4-44B9-A326-B14A65A1407D}.Release|x86.ActiveCfg = Release|Any CPU
-		{2A39343D-9F8D-4CB3-98BC-BF1A5D88AD1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2A39343D-9F8D-4CB3-98BC-BF1A5D88AD1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2A39343D-9F8D-4CB3-98BC-BF1A5D88AD1F}.Debug|x64.ActiveCfg = Debug|x64
-		{2A39343D-9F8D-4CB3-98BC-BF1A5D88AD1F}.Debug|x64.Build.0 = Debug|x64
-		{2A39343D-9F8D-4CB3-98BC-BF1A5D88AD1F}.Debug|x86.ActiveCfg = Debug|x86
-		{2A39343D-9F8D-4CB3-98BC-BF1A5D88AD1F}.Debug|x86.Build.0 = Debug|x86
-		{2A39343D-9F8D-4CB3-98BC-BF1A5D88AD1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2A39343D-9F8D-4CB3-98BC-BF1A5D88AD1F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2A39343D-9F8D-4CB3-98BC-BF1A5D88AD1F}.Release|x64.ActiveCfg = Release|x64
-		{2A39343D-9F8D-4CB3-98BC-BF1A5D88AD1F}.Release|x64.Build.0 = Release|x64
-		{2A39343D-9F8D-4CB3-98BC-BF1A5D88AD1F}.Release|x86.ActiveCfg = Release|x86
-		{2A39343D-9F8D-4CB3-98BC-BF1A5D88AD1F}.Release|x86.Build.0 = Release|x86
-		{7461419B-3FB4-4CEC-8033-37B3D2A53D95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7461419B-3FB4-4CEC-8033-37B3D2A53D95}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7461419B-3FB4-4CEC-8033-37B3D2A53D95}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{7461419B-3FB4-4CEC-8033-37B3D2A53D95}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{7461419B-3FB4-4CEC-8033-37B3D2A53D95}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7461419B-3FB4-4CEC-8033-37B3D2A53D95}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7461419B-3FB4-4CEC-8033-37B3D2A53D95}.Release|x64.ActiveCfg = Release|Any CPU
-		{7461419B-3FB4-4CEC-8033-37B3D2A53D95}.Release|x86.ActiveCfg = Release|Any CPU
-		{C9925492-E4ED-4EDD-B2B1-02D32C46D02D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C9925492-E4ED-4EDD-B2B1-02D32C46D02D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C9925492-E4ED-4EDD-B2B1-02D32C46D02D}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{C9925492-E4ED-4EDD-B2B1-02D32C46D02D}.Debug|x86.ActiveCfg = Debug|x86
-		{C9925492-E4ED-4EDD-B2B1-02D32C46D02D}.Debug|x86.Build.0 = Debug|x86
-		{C9925492-E4ED-4EDD-B2B1-02D32C46D02D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C9925492-E4ED-4EDD-B2B1-02D32C46D02D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C9925492-E4ED-4EDD-B2B1-02D32C46D02D}.Release|x64.ActiveCfg = Release|Any CPU
-		{C9925492-E4ED-4EDD-B2B1-02D32C46D02D}.Release|x86.ActiveCfg = Release|x86
-		{C9925492-E4ED-4EDD-B2B1-02D32C46D02D}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

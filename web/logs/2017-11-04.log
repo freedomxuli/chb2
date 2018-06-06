@@ -1,0 +1,14 @@
+2017-11-04 00:00:17.860 INFO WxPayAPI.NativePay: Native pay mode 2 url is producing...
+2017-11-04 00:00:19.297 DEBUG WxPayApi: UnfiedOrder request : <xml><appid><![CDATA[wxaaa949fd84f8f7e5]]></appid><body><![CDATA[单次充值，充值：2单。共计：20.000元]]></body><mch_id><![CDATA[1487908482]]></mch_id><nonce_str><![CDATA[c4541af102f749bfb59859394c91fa52]]></nonce_str><notify_url><![CDATA[http://test.zhisuroom.com/Pay/wxPayHandler.aspx]]></notify_url><out_trade_no><![CDATA[0120171104000017743]]></out_trade_no><product_id><![CDATA[0120171104000017743]]></product_id><sign><![CDATA[ABD728C8B7226258178A357D2674BA4D]]></sign><spbill_create_ip><![CDATA[8.8.8.8]]></spbill_create_ip><total_fee>2000</total_fee><trade_type><![CDATA[NATIVE]]></trade_type></xml>
+2017-11-04 00:00:19.494 DEBUG WxPayApi: UnfiedOrder response : <xml><return_code><![CDATA[SUCCESS]]></return_code>
+<return_msg><![CDATA[OK]]></return_msg>
+<appid><![CDATA[wxaaa949fd84f8f7e5]]></appid>
+<mch_id><![CDATA[1487908482]]></mch_id>
+<nonce_str><![CDATA[w8KVFAmP02N8cyGN]]></nonce_str>
+<sign><![CDATA[63DBBFD53720592131ED7DB4B482BA57]]></sign>
+<result_code><![CDATA[SUCCESS]]></result_code>
+<prepay_id><![CDATA[wx20171104000038bd1caeae510632733899]]></prepay_id>
+<trade_type><![CDATA[NATIVE]]></trade_type>
+<code_url><![CDATA[weixin://wxpay/bizpayurl?pr=G4EFYug]]></code_url>
+</xml>
+2017-11-04 00:00:19.495 INFO WxPayAPI.NativePay: Get native pay mode 2 url : weixin://wxpay/bizpayurl?pr=G4EFYug

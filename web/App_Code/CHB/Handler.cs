@@ -20,6 +20,8 @@ using System.Collections;
 using SmartFramework4v2.Web.Common.JSON;
 using Aspose.Cells;
 using System.Text.RegularExpressions;
+using System.Net.Sockets;
+using System.Web.Script.Serialization;
 
 /// <summary>
 /// Handler 的摘要说明
@@ -671,6 +673,90 @@ public class Handler
                             }
 
                             dbc.CommitTransaction();
+
+                            if (UserID == "4ddd6496-f031-4f4a-a50b-10742ff70462")//中石油接口处理
+                            {
+                                sql = "select CarNumber from YunDan where YunDanDenno = @YunDanDenno";
+                                SqlCommand cmd_car = dbc.CreateCommand(sql);
+                                cmd_car.Parameters.Add("@YunDanDenno", dr_yundan["YunDanDenno"]);
+                                DataTable dt_car = dbc.ExecuteDataTable(cmd_car);
+                                if (dt_car.Rows.Count > 0)
+                                {
+                                    Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                                    IPAddress ipa = IPAddress.Parse("210.12.209.156");
+                                    try
+                                    {
+                                        s.Connect(ipa, 9004);
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        s.Close();
+                                        throw ex;
+                                    }
+                                    try
+                                    {
+                                        if (s.Connected == true)
+                                        {
+                                            DateTime dtStart = TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970, 1, 1));
+                                            TimeSpan toNow = DateTime.Now.Subtract(dtStart);
+                                            long timeStamp = toNow.Ticks;
+                                            timeStamp = long.Parse(timeStamp.ToString().Substring(0, timeStamp.ToString().Length - 4));
+                                            string str = "";
+                                            ArrayList eventList = new ArrayList();
+                                            Hashtable ht_data = new Hashtable();
+                                            ht_data.Add("deptName", SuoShuGongSi.TrimEnd(' ').TrimStart(' '));//所属单位
+                                            ht_data.Add("longitude", newlng);
+                                            ht_data.Add("latitude", newlat);
+                                            ht_data.Add("positionDes", newinfo);
+                                            ht_data.Add("plateNumber", dt_car.Rows[0]["CarNumber"].ToString());
+                                            ht_data.Add("direction", ja.First()["direct"].ToString());
+                                            ht_data.Add("mileage", ja.First()["totalDis"].ToString());
+                                            ht_data.Add("speed", ja.First()["speed"].ToString());
+                                            ht_data.Add("positioningTime", ja.First()["gpstime"].ToString());
+                                            ht_data.Add("status", ja.First()["status"].ToString());
+                                            ht_data.Add("addstatus", ja.First()["status"].ToString());
+                                            eventList.Add(ht_data);
+                                            JavaScriptSerializer ser = new JavaScriptSerializer();
+                                            String jsonStr = ser.Serialize(eventList);
+
+                                            Hashtable ht = new Hashtable();
+                                            ht.Add("source", "03");//定位信息来源系统
+                                            ht.Add("time", DateTime.Now.ToString());
+                                            ht.Add("sysId", "10013");
+                                            ht.Add("data", jsonStr);
+                                            JavaScriptSerializer ser1 = new JavaScriptSerializer();
+                                            str = ser.Serialize(ht);
+
+                                            byte[] content = Encoding.UTF8.GetBytes(str);
+                                            //BitArray content_array = new BitArray(content);
+                                            ByteBuffer buffer = ByteBuffer.Allocate(content.Length + 8);
+                                            buffer.WriteShort((short)97);
+                                            buffer.WriteShort((short)0);
+                                            buffer.WriteInt(content.Length);
+                                            buffer.WriteBytes(content);
+                                            s.Send(buffer.ToArray());
+
+                                            byte[] result = new byte[1024];
+                                            try
+                                            {
+                                                int receiveLength = s.Receive(result);
+                                                string res = Encoding.UTF8.GetString(result, 0, receiveLength);
+                                                int a = 0;
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                s.Close();
+                                            }
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        s.Close();
+                                        //throw ex;
+                                    }   
+                                }
+                            }
                         }
                     }
                     else
@@ -733,7 +819,7 @@ public class Handler
     }
 
     [CSMethod("SaveYunDanNew")]
-    public bool SaveYunDanNew(string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string SuoShuGongSi, string UserDenno, string GpsDeviceID, string IsYJ, string IsSendMessage, string MessageTel, JSReader jsr1, JSReader[] jsr)
+    public bool SaveYunDanNew(string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string SuoShuGongSi, string UserDenno, string GpsDeviceID, string IsYJ, string IsSendMessage,string Expect_Hour, string MessageTel, JSReader jsr1, JSReader[] jsr)
     {
         using (var dbc = new DBConnection())
         {
@@ -964,7 +1050,7 @@ public class Handler
                             dr_yundan["MessageTel"] = MessageTel;
                             dr_yundan["QiShiZhan_QX"] = QiShiZhan_Qx;
                             dr_yundan["DaoDaZhan_QX"] = DaoDaZhan_Qx;
-                            dr_yundan["Expect_Hour"] = 999999;
+                            dr_yundan["Expect_Hour"] = Convert.ToDecimal(Expect_Hour) > 999 ? 999 : Convert.ToDecimal(Expect_Hour);
 
                             DataTable dt_field = dbc.GetEmptyDataTable("YunDanField");
 
@@ -1161,7 +1247,7 @@ public class Handler
                             dr_yundan["MessageTel"] = MessageTel;
                             dr_yundan["QiShiZhan_QX"] = QiShiZhan_Qx;
                             dr_yundan["DaoDaZhan_QX"] = DaoDaZhan_Qx;
-                            dr_yundan["Expect_Hour"] = 999999;
+                            dr_yundan["Expect_Hour"] = Convert.ToDecimal(Expect_Hour) > 999 ? 999 : Convert.ToDecimal(Expect_Hour);
 
                             DataTable dt_field = dbc.GetEmptyDataTable("YunDanField");
 
@@ -1211,6 +1297,88 @@ public class Handler
                             }
 
                             dbc.CommitTransaction();
+
+                            if (UserID == "4ddd6496-f031-4f4a-a50b-10742ff70462")//中石油接口处理
+                            {
+                                sql = "select CarNumber from YunDan where YunDanDenno = @YunDanDenno";
+                                SqlCommand cmd_car = dbc.CreateCommand(sql);
+                                cmd_car.Parameters.Add("@YunDanDenno", dr_yundan["YunDanDenno"]);
+                                DataTable dt_car = dbc.ExecuteDataTable(cmd_car);
+                                if (dt_car.Rows.Count > 0)
+                                {
+                                    Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                                    IPAddress ipa = IPAddress.Parse("210.12.209.156");
+                                    try
+                                    {
+                                        s.Connect(ipa, 9004);
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        s.Close();
+                                        throw ex;
+                                    }
+                                    try
+                                    {
+                                        if (s.Connected == true)
+                                        {
+                                            DateTime dtStart = TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970, 1, 1));
+                                            TimeSpan toNow = DateTime.Now.Subtract(dtStart);
+                                            long timeStamp = toNow.Ticks;
+                                            timeStamp = long.Parse(timeStamp.ToString().Substring(0, timeStamp.ToString().Length - 4));
+                                            string str = "";
+                                            ArrayList eventList = new ArrayList();
+                                            Hashtable ht_data = new Hashtable();
+                                            ht_data.Add("deptName", SuoShuGongSi.TrimEnd(' ').TrimStart(' '));//所属单位
+                                            ht_data.Add("longitude", newlng);
+                                            ht_data.Add("latitude", newlat);
+                                            ht_data.Add("positionDes", newinfo);
+                                            ht_data.Add("plateNumber", dt_car.Rows[0]["CarNumber"].ToString());
+                                            ht_data.Add("direction", ja.First()["direct"].ToString());
+                                            ht_data.Add("mileage", ja.First()["totalDis"].ToString());
+                                            ht_data.Add("speed", ja.First()["speed"].ToString());
+                                            ht_data.Add("positioningTime", ja.First()["gpstime"].ToString());
+                                            ht_data.Add("status", ja.First()["state"].ToString());
+                                            ht_data.Add("addstatus", ja.First()["state"].ToString());
+                                            eventList.Add(ht_data);
+
+                                            Hashtable ht = new Hashtable();
+                                            ht.Add("source", "03");//定位信息来源系统
+                                            ht.Add("time", DateTime.Now.ToString());
+                                            ht.Add("sysId", "10013");
+                                            ht.Add("data", eventList);
+                                            JavaScriptSerializer ser = new JavaScriptSerializer();
+                                            str = ser.Serialize(ht);
+
+                                            byte[] content = Encoding.UTF8.GetBytes(str);
+                                            //BitArray content_array = new BitArray(content);
+                                            ByteBuffer buffer = ByteBuffer.Allocate(content.Length + 8);
+                                            buffer.WriteShort((short)97);
+                                            buffer.WriteShort((short)0);
+                                            buffer.WriteInt(content.Length);
+                                            buffer.WriteBytes(content);
+                                            s.Send(buffer.ToArray());
+
+                                            byte[] result = new byte[1024];
+                                            try
+                                            {
+                                                int receiveLength = s.Receive(result);
+                                                string res = Encoding.UTF8.GetString(result, 0, receiveLength);
+                                                int a = 0;
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                s.Close();
+                                            }
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        s.Close();
+                                        //throw ex;
+                                    }
+                                }
+                            }
                         }
                     }
                     else
@@ -1681,20 +1849,21 @@ public class Handler
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    if (dt_distance.Rows.Count > 0)
+                    DataRow[] drs = dt_distance.Select("YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'");
+                    if (drs.Length > 0)
                     {
-                        if (!string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_distance"].ToString()) && !string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_duration"].ToString()))
+                        if (!string.IsNullOrEmpty(drs[0]["Gps_distance"].ToString()) && !string.IsNullOrEmpty(drs[0]["Gps_duration"].ToString()))
                         {
-                            dt.Rows[i]["Gps_distance"] = dt_distance.Rows[0]["Gps_distance"].ToString() + "公里";
+                            dt.Rows[i]["Gps_distance"] = drs[0]["Gps_distance"].ToString() + "公里";
 
                             int hour = 0;
                             int minute = 0;
-                            if (Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) / 60) == 0)
-                                dt.Rows[i]["Gps_duration"] = Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()).ToString("F0") + "分钟";
+                            if (Convert.ToInt32(Convert.ToDouble(drs[0]["Gps_duration"].ToString()) / 60) == 0)
+                                dt.Rows[i]["Gps_duration"] = Convert.ToDouble(drs[0]["Gps_duration"].ToString()).ToString("F0") + "分钟";
                             else
                             {
-                                hour = Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) / 60);
-                                minute = Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) % 60);
+                                hour = Convert.ToInt32(Convert.ToDouble(drs[0]["Gps_duration"].ToString()) / 60);
+                                minute = Convert.ToInt32(Convert.ToDouble(drs[0]["Gps_duration"].ToString()) % 60);
                                 dt.Rows[i]["Gps_duration"] = hour + "小时" + minute + "分钟";
                             }
                         }
@@ -1874,20 +2043,21 @@ public class Handler
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    if (dt_distance.Rows.Count > 0)
+                    DataRow[] drs = dt_distance.Select("YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'");
+                    if (drs.Length > 0)
                     {
-                        if (!string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_distance"].ToString()) && !string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_duration"].ToString()))
+                        if (!string.IsNullOrEmpty(drs[0]["Gps_distance"].ToString()) && !string.IsNullOrEmpty(drs[0]["Gps_duration"].ToString()))
                         {
-                            dt.Rows[i]["Gps_distance"] = dt_distance.Rows[0]["Gps_distance"].ToString() + "公里";
+                            dt.Rows[i]["Gps_distance"] = drs[0]["Gps_distance"].ToString() + "公里";
 
                             int hour = 0;
                             int minute = 0;
-                            if (Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) / 60) == 0)
-                                dt.Rows[i]["Gps_duration"] = Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()).ToString("F0") + "分钟";
+                            if (Convert.ToInt32(Convert.ToDouble(drs[0]["Gps_duration"].ToString()) / 60) == 0)
+                                dt.Rows[i]["Gps_duration"] = Convert.ToDouble(drs[0]["Gps_duration"].ToString()).ToString("F0") + "分钟";
                             else
                             {
-                                hour = Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) / 60);
-                                minute = Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) % 60);
+                                hour = Convert.ToInt32(Convert.ToDouble(drs[0]["Gps_duration"].ToString()) / 60);
+                                minute = Convert.ToInt32(Convert.ToDouble(drs[0]["Gps_duration"].ToString()) % 60);
                                 dt.Rows[i]["Gps_duration"] = hour + "小时" + minute + "分钟";
                             }
                         }
@@ -2066,20 +2236,21 @@ public class Handler
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    if (dt_distance.Rows.Count > 0)
+                    DataRow[] drs = dt_distance.Select("YunDanDenno = '" + dt.Rows[i]["YunDanDenno"].ToString() + "'");
+                    if (drs.Length > 0)
                     {
-                        if (!string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_distance"].ToString()) && !string.IsNullOrEmpty(dt_distance.Rows[0]["Gps_duration"].ToString()))
+                        if (!string.IsNullOrEmpty(drs[0]["Gps_distance"].ToString()) && !string.IsNullOrEmpty(drs[0]["Gps_duration"].ToString()))
                         {
-                            dt.Rows[i]["Gps_distance"] = dt_distance.Rows[0]["Gps_distance"].ToString() + "公里";
+                            dt.Rows[i]["Gps_distance"] = drs[0]["Gps_distance"].ToString() + "公里";
 
                             int hour = 0;
                             int minute = 0;
-                            if (Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) / 60) == 0)
-                                dt.Rows[i]["Gps_duration"] = Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()).ToString("F0") + "分钟";
+                            if (Convert.ToInt32(Convert.ToDouble(drs[0]["Gps_duration"].ToString()) / 60) == 0)
+                                dt.Rows[i]["Gps_duration"] = Convert.ToDouble(drs[0]["Gps_duration"].ToString()).ToString("F0") + "分钟";
                             else
                             {
-                                hour = Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) / 60);
-                                minute = Convert.ToInt32(Convert.ToDouble(dt_distance.Rows[0]["Gps_duration"].ToString()) % 60);
+                                hour = Convert.ToInt32(Convert.ToDouble(drs[0]["Gps_duration"].ToString()) / 60);
+                                minute = Convert.ToInt32(Convert.ToDouble(drs[0]["Gps_duration"].ToString()) % 60);
                                 dt.Rows[i]["Gps_duration"] = hour + "小时" + minute + "分钟";
                             }
                         }
@@ -4272,13 +4443,13 @@ public class Handler
                             case "出发地区县":
                                 dr["QiShiZhan_Qx"] = dt_new.Rows[i]["VAL"].ToString();
                                 break;
-                            case "到达地省份":
+                            case "目的地省份":
                                 dr["DaoDaZhan_Province"] = dt_new.Rows[i]["VAL"].ToString();
                                 break;
-                            case "到达地城市":
+                            case "目的地城市":
                                 dr["DaoDaZhan_City"] = dt_new.Rows[i]["VAL"].ToString();
                                 break;
-                            case "到达地区县":
+                            case "目的地区县":
                                 dr["DaoDaZhan_Qx"] = dt_new.Rows[i]["VAL"].ToString();
                                 break;
                             case "建单公司":
@@ -4287,7 +4458,7 @@ public class Handler
                             case "建单号":
                                 dr["UserDenno"] = dt_new.Rows[i]["VAL"].ToString();
                                 break;
-                            case "预计到达时间":
+                            case "预计到达时间（小时）":
                                 dr["Expect_Hour"] = dt_new.Rows[i]["VAL"].ToString();
                                 break;
                             case "推送短信":
@@ -4305,7 +4476,7 @@ public class Handler
                             case "货物信息备注":
                                 dr["YunDanRemark"] = dt_new.Rows[i]["VAL"].ToString();
                                 break;
-                            case "承运公司":
+                            case "承运公司（专线）":
                                 dr["CarrierCompany"] = dt_new.Rows[i]["VAL"].ToString();
                                 break;
                             case "负责人":
@@ -4394,13 +4565,13 @@ public class Handler
                                 case "出发地区县":
                                     dr["QiShiZhan_Qx"] = dt_new.Rows[i]["VAL"].ToString();
                                     break;
-                                case "到达地省份":
+                                case "目的地省份":
                                     dr["DaoDaZhan_Province"] = dt_new.Rows[i]["VAL"].ToString();
                                     break;
-                                case "到达地城市":
+                                case "目的地城市":
                                     dr["DaoDaZhan_City"] = dt_new.Rows[i]["VAL"].ToString();
                                     break;
-                                case "到达地区县":
+                                case "目的地区县":
                                     dr["DaoDaZhan_Qx"] = dt_new.Rows[i]["VAL"].ToString();
                                     break;
                                 case "建单公司":
@@ -4409,7 +4580,7 @@ public class Handler
                                 case "建单号":
                                     dr["UserDenno"] = dt_new.Rows[i]["VAL"].ToString();
                                     break;
-                                case "预计到达时间":
+                                case "预计到达时间（小时）":
                                     dr["Expect_Hour"] = dt_new.Rows[i]["VAL"].ToString();
                                     break;
                                 case "推送短信":
@@ -7380,7 +7551,7 @@ public class Handler
     }
 
     [CSMethod("GJMap")]
-    public DataTable GJMap(string UserID, string YunDanDenno)
+    public DataTable GJMap(string UserID, string YunDanDenno,string st,string et)
     {
         using (var db = new DBConnection())
         {
@@ -7393,18 +7564,25 @@ public class Handler
             DataTable dt_yun = db.ExecuteDataTable(cmd);
 
             string conn = "";
-            if (dt_yun.Rows[0]["IsBangding"].ToString() == "False")
-            {
-                conn += " and Gps_time <= @JieBangTime";
-            }
+            conn += " and Gps_time <= @JieBangTime";
 
             string sql = "select Gps_lng,Gps_lat from GpsLocation2 where GpsDeviceID = @GpsDeviceID and Gps_time >= @BangDingTime " + conn + " order by GpsLocationID";
             SqlCommand cmd2 = db.CreateCommand(sql);
             cmd2.Parameters.AddWithValue("@GpsDeviceID", dt_yun.Rows[0]["GpsDeviceID"].ToString());
-            cmd2.Parameters.AddWithValue("@BangDingTime", Convert.ToDateTime(dt_yun.Rows[0]["BangDingTime"].ToString()));
+            if (Convert.ToDateTime(dt_yun.Rows[0]["BangDingTime"].ToString()) > Convert.ToDateTime(st))
+                cmd2.Parameters.AddWithValue("@BangDingTime", Convert.ToDateTime(dt_yun.Rows[0]["BangDingTime"].ToString()));
+            else
+                cmd2.Parameters.AddWithValue("@BangDingTime", Convert.ToDateTime(st));
             if (dt_yun.Rows[0]["IsBangding"].ToString() == "False")
             {
-                cmd2.Parameters.AddWithValue("@JieBangTime", Convert.ToDateTime(dt_yun.Rows[0]["JieBangTime"].ToString()));
+                if (Convert.ToDateTime(dt_yun.Rows[0]["JieBangTime"].ToString()) > Convert.ToDateTime(et))
+                    cmd2.Parameters.AddWithValue("@JieBangTime", Convert.ToDateTime(et));
+                else
+                    cmd2.Parameters.AddWithValue("@JieBangTime", Convert.ToDateTime(dt_yun.Rows[0]["JieBangTime"].ToString()));
+            }
+            else
+            {
+                cmd2.Parameters.AddWithValue("@JieBangTime", Convert.ToDateTime(et));
             }
             DataTable dt_location = db.ExecuteDataTable(cmd2);
             return dt_location;
