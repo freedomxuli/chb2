@@ -103,6 +103,20 @@ Ext.onReady(function () {
                             },
                             {
                                 xtype: 'gridcolumn',
+                                dataIndex: 'IsOut',
+                                flex: 1,
+                                sortable: false,
+                                menuDisabled: true,
+                                text: '是否审核',
+                                renderer: function (value,cellmeta,record,rowIndex,columnIndex,store) {
+                                    if(value==false)
+                                        return "未审核";
+                                    else
+                                        return "已审核";
+                                }
+                            },
+                            {
+                                xtype: 'gridcolumn',
                                 dataIndex: 'InvoiceId',
                                 flex: 1,
                                 sortable: false,

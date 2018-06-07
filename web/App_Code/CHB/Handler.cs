@@ -7589,6 +7589,85 @@ public class Handler
         }
     }
 
+    [CSMethod("EditYunDan")]
+    public object EditYunDan(string YunDanDenno)
+    {
+        using (var dbc = new DBConnection())
+        {
+            string sql = "select * from YunDan where YunDanDenno = @YunDanDenno";
+            SqlCommand cmd = dbc.CreateCommand(sql);
+            cmd.Parameters.Add("@YunDanDenno", YunDanDenno);
+            DataTable dt = dbc.ExecuteDataTable(cmd);
+
+            sql = "select * from YunDanDetails where YunDanDenno = @YunDanDenno";
+            cmd = dbc.CreateCommand(sql);
+            cmd.Parameters.Add("@YunDanDenno", YunDanDenno);
+            DataTable dt_detail = dbc.ExecuteDataTable(cmd);
+
+            return new { dt = dt, dt_detail = dt_detail };
+        }
+    }
+
+    [CSMethod("EditYunDanNew")]
+    public object EditYunDanNew(string YunDanDenno)
+    {
+        using (var dbc = new DBConnection())
+        {
+            string sql = "select * from YunDan where YunDanDenno = @YunDanDenno";
+            SqlCommand cmd = dbc.CreateCommand(sql);
+            cmd.Parameters.Add("@YunDanDenno", YunDanDenno);
+            DataTable dt = dbc.ExecuteDataTable(cmd);
+
+            sql = "select * from YunDanDetails where YunDanDenno = @YunDanDenno";
+            cmd = dbc.CreateCommand(sql);
+            cmd.Parameters.Add("@YunDanDenno", YunDanDenno);
+            DataTable dt_detail = dbc.ExecuteDataTable(cmd);
+
+            string userid = SystemUser.CurrentUser.UserID;
+            sql = "select * from DingDanSetList where UserID = @UserID and DingDanSetListBS is not null order by DingDanSetListPX";
+            cmd = dbc.CreateCommand(sql);
+            cmd.Parameters.AddWithValue("@UserID", userid);
+            DataTable dt_field = dbc.ExecuteDataTable(cmd);
+
+            sql = "select * from YunDanField where YunDanDenno = @YunDanDenno";
+            cmd = dbc.CreateCommand(sql);
+            cmd.Parameters.Add("@YunDanDenno", YunDanDenno);
+            DataTable dt_field_valule = dbc.ExecuteDataTable(cmd);
+            return new { dt = dt, dt_detail = dt_detail, dt_field = dt_field, dt_field_valule = dt_field_valule };
+        }
+    }
+
+    [CSMethod("XiaoFeiJiLu")]
+    public DataTable XiaoFeiJiLu(string UserName)
+    {
+        using (var dbc = new DBConnection())
+        {
+            string sql = "select UserID from [dbo].[User] where UserName = @UserName and UserLeiXing = 'APP'";
+            SqlCommand cmd = dbc.CreateCommand(sql);
+            cmd.Parameters.Add("@UserName", UserName);
+            DataTable dt_user = dbc.ExecuteDataTable(cmd);
+
+            sql = "select * from ChongZhi where UserID = @UserID and ZhiFuZhuangTai = 1 order by ChongZhiTime desc";
+            cmd = dbc.CreateCommand(sql);
+            cmd.Parameters.Add("@UserID", dt_user.Rows[0]["UserID"].ToString());
+            DataTable dt_xfjl = dbc.ExecuteDataTable(cmd);
+            dt_xfjl.Columns.Add("ISKP");
+
+            sql = "select b.ChongZhiID from InvoiceModel a left join InvoiceMxModel b on a.InvoiceId = b.InvoiceId where a.IsOut = 1";
+            DataTable dt_invoice = dbc.ExecuteDataTable(sql);
+
+            for (var i = 0; i < dt_xfjl.Rows.Count; i++)
+            { 
+                DataRow[] drs = dt_invoice.Select("ChongZhiID = '"+dt_xfjl.Rows[i]["ChongZhiID"].ToString()+"'");
+                if(drs.Length>0)
+                    dt_xfjl.Rows[i]["ISKP"] = "已审";
+                else
+                    dt_xfjl.Rows[i]["ISKP"] = "未审";
+            }
+            return dt_xfjl;
+        }
+    }
+
     public System.Collections.Hashtable Gethttpresult(string url, string data)
     {
         WebRequest request = WebRequest.Create(url);

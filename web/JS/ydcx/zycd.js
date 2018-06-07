@@ -111,7 +111,7 @@ Ext.onReady(function () {
                                 width: 200,
                                 sortable: false,
                                 menuDisabled: true,
-                                text: '到达详细地址'
+                                text: '目的地详细地址'
                             },
                             {
                                 xtype: 'gridcolumn',

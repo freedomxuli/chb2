@@ -86,6 +86,9 @@ public class InterFaceHandler : IHttpHandler {
             case "ZiYouChaDan":
                 str = ZiYouChaDan(context);
                 break;
+            case "XiaoFeiJiLu":
+                str = XiaoFeiJiLu(context);
+                break;
         }
         context.Response.Write(str);
         context.Response.End();
@@ -995,6 +998,39 @@ public class InterFaceHandler : IHttpHandler {
             hash["msg"] = "自由查单失败，错误:" + ex.Message;
         }
 
+
+        return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
+    }
+
+    public string XiaoFeiJiLu(HttpContext context)
+    {
+        Newtonsoft.Json.Linq.JObject hash = new Newtonsoft.Json.Linq.JObject();
+        hash["sign"] = "0";
+        hash["msg"] = "消费记录查询失败！";
+
+        try
+        {
+            System.Text.Encoding utf8 = System.Text.Encoding.UTF8;
+            string UserName = context.Request["UserName"];
+            UserName = HttpUtility.UrlDecode(UserName.ToUpper(), utf8);
+
+            Handler App_Handler = new Handler();
+            System.Data.DataTable dt = App_Handler.XiaoFeiJiLu(UserName);
+            if (dt.Rows.Count > 0)
+            {
+                Newtonsoft.Json.Linq.JArray jary = new Newtonsoft.Json.Linq.JArray();
+                jary = Newtonsoft.Json.JsonConvert.DeserializeObject(Newtonsoft.Json.JsonConvert.SerializeObject(dt)) as Newtonsoft.Json.Linq.JArray;
+
+                hash["sign"] = "1";
+                hash["msg"] = "消费记录查询成功！";
+                hash["xiaofeijilulist"] = jary;
+            }
+        }
+        catch (Exception ex)
+        {
+            hash["sign"] = "0";
+            hash["msg"] = "消费记录查询失败，错误:" + ex.Message;
+        }
 
         return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
     }
