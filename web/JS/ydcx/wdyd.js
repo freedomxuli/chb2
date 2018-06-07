@@ -9,7 +9,7 @@ var myStore = createSFW4Store({
     total: 1,
     currentPage: 1,
     fields: [
-       'IsBangding', 'BangDingTime', 'UserDenno', 'QiShiZhan', 'DaoDaZhan', 'SuoShuGongSi', 'GpsDeviceID', 'YunDanRemark', 'Gps_lastinfo', 'YunDanDenno', 'UserID', 'Gps_lasttime', 'Gps_distance', 'Gps_duration', 'QiShiZhan_QX', 'DaoDaZhan_QX', 'SalePerson', 'Purchaser', 'PurchaserPerson', 'PurchaserTel', 'CarrierCompany', 'CarrierPerson', 'CarrierTel', 'SpecialLine', 'SpecialLinePerson', 'SpecialLinePersonTel', 'SpecialLineTel', 'DaoDaAddress', 'QiShiAddress', 'Expect_Hour', 'Expect_ArriveTime', 'Actual_ArriveTime'
+       'IsBangding', 'BangDingTime', 'UserDenno', 'QiShiZhan', 'DaoDaZhan', 'SuoShuGongSi', 'GpsDeviceID', 'YunDanRemark', 'Gps_lastinfo', 'YunDanDenno', 'UserID', 'Gps_lasttime', 'Gps_distance', 'Gps_duration', 'QiShiZhan_QX', 'DaoDaZhan_QX', 'SalePerson', 'Purchaser', 'PurchaserPerson', 'PurchaserTel', 'CarrierCompany', 'CarrierPerson', 'CarrierTel', 'SpecialLine', 'SpecialLinePerson', 'SpecialLinePersonTel', 'SpecialLineTel', 'DaoDaAddress', 'QiShiAddress', 'Expect_Hour', 'Expect_ArriveTime', 'Actual_ArriveTime', 'speed', 'direct', 'temp', 'oil', 'battery', 'totalDis', 'vhcofflinemin', 'parkingmin'
     ],
     onPageChange: function (sto, nPage, sorters) {
         DataBind(nPage);
@@ -21,7 +21,7 @@ var yjStore = createSFW4Store({
     total: 1,
     currentPage: 1,
     fields: [
-       'IsBangding', 'BangDingTime', 'UserDenno', 'QiShiZhan', 'DaoDaZhan', 'SuoShuGongSi', 'GpsDeviceID', 'YunDanRemark', 'Gps_lastinfo', 'YunDanDenno', 'UserID', 'Gps_lasttime', 'Gps_distance', 'Gps_duration', 'QiShiZhan_QX', 'DaoDaZhan_QX', 'SalePerson', 'Purchaser', 'PurchaserPerson', 'PurchaserTel', 'CarrierCompany', 'CarrierPerson', 'CarrierTel', 'SpecialLine', 'SpecialLinePerson', 'SpecialLinePersonTel', 'SpecialLineTel', 'DaoDaAddress', 'QiShiAddress', 'Expect_Hour', 'Expect_ArriveTime', 'Actual_ArriveTime'
+       'IsBangding', 'BangDingTime', 'UserDenno', 'QiShiZhan', 'DaoDaZhan', 'SuoShuGongSi', 'GpsDeviceID', 'YunDanRemark', 'Gps_lastinfo', 'YunDanDenno', 'UserID', 'Gps_lasttime', 'Gps_distance', 'Gps_duration', 'QiShiZhan_QX', 'DaoDaZhan_QX', 'SalePerson', 'Purchaser', 'PurchaserPerson', 'PurchaserTel', 'CarrierCompany', 'CarrierPerson', 'CarrierTel', 'SpecialLine', 'SpecialLinePerson', 'SpecialLinePersonTel', 'SpecialLineTel', 'DaoDaAddress', 'QiShiAddress', 'Expect_Hour', 'Expect_ArriveTime', 'Actual_ArriveTime', 'speed', 'direct', 'temp', 'oil', 'battery', 'totalDis', 'vhcofflinemin', 'parkingmin'
     ],
     onPageChange: function (sto, nPage, sorters) {
         DataBindYJ(nPage);
@@ -33,7 +33,7 @@ var lsStore = createSFW4Store({
     total: 1,
     currentPage: 1,
     fields: [
-       'IsBangding', 'BangDingTime', 'UserDenno', 'QiShiZhan', 'DaoDaZhan', 'SuoShuGongSi', 'GpsDeviceID', 'YunDanRemark', 'Gps_lastinfo', 'YunDanDenno', 'UserID', 'Gps_lasttime', 'Gps_distance', 'Gps_duration', 'QiShiZhan_QX', 'DaoDaZhan_QX', 'SalePerson', 'Purchaser', 'PurchaserPerson', 'PurchaserTel', 'CarrierCompany', 'CarrierPerson', 'CarrierTel', 'SpecialLine', 'SpecialLinePerson', 'SpecialLinePersonTel', 'SpecialLineTel', 'DaoDaAddress', 'QiShiAddress', 'Expect_Hour', 'Expect_ArriveTime', 'Actual_ArriveTime'
+       'IsBangding', 'BangDingTime', 'UserDenno', 'QiShiZhan', 'DaoDaZhan', 'SuoShuGongSi', 'GpsDeviceID', 'YunDanRemark', 'Gps_lastinfo', 'YunDanDenno', 'UserID', 'Gps_lasttime', 'Gps_distance', 'Gps_duration', 'QiShiZhan_QX', 'DaoDaZhan_QX', 'SalePerson', 'Purchaser', 'PurchaserPerson', 'PurchaserTel', 'CarrierCompany', 'CarrierPerson', 'CarrierTel', 'SpecialLine', 'SpecialLinePerson', 'SpecialLinePersonTel', 'SpecialLineTel', 'DaoDaAddress', 'QiShiAddress', 'Expect_Hour', 'Expect_ArriveTime', 'Actual_ArriveTime', 'speed', 'direct', 'temp', 'oil', 'battery', 'totalDis', 'vhcofflinemin', 'parkingmin'
     ],
     onPageChange: function (sto, nPage, sorters) {
         DataBindLS(nPage);
@@ -120,16 +120,16 @@ Ext.onReady(function () {
                                             {
                                                 xtype: 'gridcolumn',
                                                 dataIndex: 'UserID',
-                                                width: 150,
+                                                width: 200,
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 text: '查看轨迹',
                                                 locked: true,
                                                 renderer: function (value, cellmeta, record, rowIndex, columnIndex, store) {
                                                     if (record.data.IsBangding == true)
-                                                        return "<a href='javascript:void(0);' onClick='ShowGJ(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看轨迹</a>　<a href='javascript:void(0);' onClick='JCBD(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>解除绑定</a>";
+                                                        return "<a href='javascript:void(0);' onClick='ShowGJ(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看轨迹</a>　<a href='javascript:void(0);' onClick='JCBD(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>解除绑定</a>　<a href='javascript:void(0);' onClick='showmx(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看明细</a>";
                                                     else
-                                                        return "<a href='javascript:void(0);' onClick='ShowGJ(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看轨迹</a>";
+                                                        return "<a href='javascript:void(0);' onClick='ShowGJ(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看轨迹</a>　<a href='javascript:void(0);' onClick='showmx(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看明细</a>";
                                                 }
                                             },
                                             {
@@ -371,6 +371,78 @@ Ext.onReady(function () {
                                                 menuDisabled: true,
                                                 hidden: true,
                                                 text: '负责人'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'speed',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '速度'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'direct',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '方向'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'temp',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '温度'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'oil',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '油量'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'battery',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '电池'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'totalDis',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '总里程'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'vhcofflinemin',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '不在线时长'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'parkingmin',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '停车超时时长'
                                             }
                                         ],
                                         dockedItems: [
@@ -567,16 +639,16 @@ Ext.onReady(function () {
                                             {
                                                 xtype: 'gridcolumn',
                                                 dataIndex: 'UserID',
-                                                width: 150,
+                                                width: 200,
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 text: '查看轨迹',
                                                 locked: true,
                                                 renderer: function (value, cellmeta, record, rowIndex, columnIndex, store) {
                                                     if (record.data.IsBangding == true)
-                                                        return "<a href='javascript:void(0);' onClick='ShowGJ(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看轨迹</a>　<a href='javascript:void(0);' onClick='JCBD(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>解除绑定</a>";
+                                                        return "<a href='javascript:void(0);' onClick='ShowGJ(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看轨迹</a>　<a href='javascript:void(0);' onClick='JCBD(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>解除绑定</a>　<a href='javascript:void(0);' onClick='showmx(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看明细</a>";
                                                     else
-                                                        return "<a href='javascript:void(0);' onClick='ShowGJ(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看轨迹</a>";
+                                                        return "<a href='javascript:void(0);' onClick='ShowGJ(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看轨迹</a>　<a href='javascript:void(0);' onClick='showmx(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看明细</a>";
                                                 }
                                             },
                                             {
@@ -818,6 +890,78 @@ Ext.onReady(function () {
                                                 menuDisabled: true,
                                                 hidden: true,
                                                 text: '负责人'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'speed',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '速度'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'direct',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '方向'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'temp',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '温度'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'oil',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '油量'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'battery',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '电池'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'totalDis',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '总里程'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'vhcofflinemin',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '不在线时长'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'parkingmin',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '停车超时时长'
                                             }
                                         ],
                                         dockedItems: [
@@ -1014,16 +1158,16 @@ Ext.onReady(function () {
                                             {
                                                 xtype: 'gridcolumn',
                                                 dataIndex: 'UserID',
-                                                width: 150,
+                                                width: 200,
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 text: '查看轨迹',
                                                 locked: true,
                                                 renderer: function (value, cellmeta, record, rowIndex, columnIndex, store) {
                                                     if (record.data.IsBangding == true)
-                                                        return "<a href='javascript:void(0);' onClick='ShowGJ(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看轨迹</a>　<a href='javascript:void(0);' onClick='JCBD(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>解除绑定</a>";
+                                                        return "<a href='javascript:void(0);' onClick='ShowGJ(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看轨迹</a>　<a href='javascript:void(0);' onClick='JCBD(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>解除绑定</a>　<a href='javascript:void(0);' onClick='showmx(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看明细</a>";
                                                     else
-                                                        return "<a href='javascript:void(0);' onClick='ShowGJ(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看轨迹</a>";
+                                                        return "<a href='javascript:void(0);' onClick='ShowGJ(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看轨迹</a>　<a href='javascript:void(0);' onClick='showmx(\"" + value + "\",\"" + record.data.YunDanDenno + "\");'>查看明细</a>";
                                                 }
                                             },
                                             {
@@ -1265,6 +1409,78 @@ Ext.onReady(function () {
                                                 menuDisabled: true,
                                                 hidden: true,
                                                 text: '负责人'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'speed',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '速度'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'direct',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '方向'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'temp',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '温度'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'oil',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '油量'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'battery',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '电池'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'totalDis',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '总里程'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'vhcofflinemin',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '不在线时长'
+                                            },
+                                            {
+                                                xtype: 'gridcolumn',
+                                                dataIndex: 'parkingmin',
+                                                width: 100,
+                                                sortable: false,
+                                                menuDisabled: true,
+                                                hidden: false,
+                                                text: '停车超时时长'
                                             }
                                         ],
                                         dockedItems: [
@@ -1464,6 +1680,27 @@ Ext.onReady(function () {
 
     cityBind();
 });
+
+function showmx(UserID, YunDanDenno)
+{
+    CS('CZCLZ.Handler.SelectModelByUser', function (retVal) {
+        if (retVal) {
+            FrameStack.pushFrame({
+                url: "approot/r/page/zhidan/EditYunDanNew.html?UserID=" + UserID + "&YunDanDenno=" + YunDanDenno,
+                onClose: function (ret) {
+
+                }
+            });
+        } else {
+            FrameStack.pushFrame({
+                url: "approot/r/page/zhidan/EditYunDan.html?UserID=" + UserID + "&YunDanDenno=" + YunDanDenno,
+                onClose: function (ret) {
+
+                }
+            });
+        }
+    }, CS.onError);
+}
 
 function cityBind() {
     var provincesData = [];

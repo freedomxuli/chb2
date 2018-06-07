@@ -41,7 +41,7 @@ public class PlanTime : Registry
             {
                 if (dt.Rows[i]["DeviceCode"].ToString() == "1919")
                 {
-                    Schedule<MyJobByGps1>().ToRunNow().AndEvery(10).Minutes();
+                    Schedule<MyJobByGps1>().ToRunNow().AndEvery(Convert.ToInt32(dt.Rows[i]["DeviceTime"].ToString())).Minutes();
                 }
                 else if (dt.Rows[i]["DeviceCode"].ToString() == "8630")
                 {
@@ -105,6 +105,8 @@ public class MyJobByGps1 : IJob
                     string gpsvid = "";
                     string gpsvkey = "";
 
+                    bool isbsj = true;
+
                     Hashtable gpslocation = GethttpresultBybsj("http://47.98.58.55:8998/gpsonline/GPSAPI?method=loadLocation&DeviceID=" + dt_yun.Rows[i]["GpsDeviceID"] + "");
                     //Hashtable gpslocation = Gethttpresult("http://47.98.58.55:8998/gpsonline/GPSAPI", "method=loadLocation&DeviceID=" + dt_yun.Rows[i]["GpsDeviceID"] + "");
                     if (gpslocation["success"].ToString().ToUpper() != "True".ToUpper())
@@ -127,6 +129,7 @@ public class MyJobByGps1 : IJob
 
                         gpslocation = Gethttpresult("http://101.37.253.238:89/gpsonline/GPSAPI", "version=1&method=loadLocation&vid=" + gpsvid + "&vKey=" + gpsvkey + "");
 
+                        isbsj = false;
                         if (gpslocation["success"].ToString().ToUpper() != "True".ToUpper())
                         {
                             continue;
@@ -162,6 +165,17 @@ public class MyJobByGps1 : IJob
                         dr_yun_up["Gps_lastlng"] = newlng;
                         dr_yun_up["Gps_lastlat"] = newlat;
                         dr_yun_up["Gps_lastinfo"] = newinfo;
+                        if (isbsj)
+                        {
+                            dr_yun_up["speed"] = ja.First()["speed"].ToString();
+                            dr_yun_up["direct"] = ja.First()["direct"].ToString();
+                            dr_yun_up["temp"] = ja.First()["temp"].ToString();
+                            dr_yun_up["oil"] = ja.First()["oil"].ToString();
+                            dr_yun_up["battery"] = ja.First()["battery"].ToString();
+                            dr_yun_up["totalDis"] = ja.First()["totalDis"].ToString();
+                            dr_yun_up["vhcofflinemin"] = ja.First()["vhcofflinemin"].ToString();
+                            dr_yun_up["parkingmin"] = ja.First()["parkingmin"].ToString();
+                        }
                         if (gpsvid != "")
                         {
                             dr_yun_up["GpsDevicevid"] = gpsvid;
