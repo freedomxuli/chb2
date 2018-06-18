@@ -59,6 +59,9 @@ public class InterFaceHandler : IHttpHandler {
             case "GetLocationList":
                 str = GetLocationList(context);
                 break;
+            case "GetWheelPathList":
+                str = GetWheelPathList(context);
+                break;
             case "WoDeYunDanByAll":
                 str = WoDeYunDanByAll(context);
                 break;
@@ -382,10 +385,11 @@ public class InterFaceHandler : IHttpHandler {
             string SuoShuGongSi = context.Request["Company"];
             string UserDenno = context.Request["UserDenno"];
             string GpsDeviceID = context.Request["GpsDeviceID"];
+            string ExpectHour = context.Request["ExpectHour"];
             string YunDanRemark = context.Request["Memo"];
             
             Handler App_Handler = new Handler();
-            int sign = App_Handler.AddWayBill(UserID, QiShiZhan, DaoDaZhan, SuoShuGongSi, UserDenno, GpsDeviceID, YunDanRemark);
+            int sign = App_Handler.AddWayBill(UserID, QiShiZhan, DaoDaZhan, SuoShuGongSi, UserDenno, GpsDeviceID, ExpectHour, YunDanRemark);
             if (sign == 1)
             {
                 hash["sign"] = "1";
@@ -568,6 +572,41 @@ public class InterFaceHandler : IHttpHandler {
             hash["msg"] = "获取定位数据失败，错误:" + ex.Message;
         }
         
+
+        return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
+    }
+
+    public string GetWheelPathList(HttpContext context)
+    {
+        Newtonsoft.Json.Linq.JObject hash = new Newtonsoft.Json.Linq.JObject();
+        hash["sign"] = "0";
+        hash["msg"] = "获取定位数据失败！";
+
+        try
+        {
+            if (!string.IsNullOrEmpty(context.Request["UserDenno"]) && !string.IsNullOrEmpty(context.Request["UserID"]))
+            {
+                Handler App_Handler = new Handler();
+                System.Data.DataTable dt = App_Handler.GetWheelPathList(context.Request["UserID"], context.Request["UserDenno"]);
+                Newtonsoft.Json.Linq.JArray jary = new Newtonsoft.Json.Linq.JArray();
+                jary = Newtonsoft.Json.JsonConvert.DeserializeObject(Newtonsoft.Json.JsonConvert.SerializeObject(dt)) as Newtonsoft.Json.Linq.JArray;
+
+                hash["sign"] = "1";
+                hash["msg"] = "获取定位数据成功！";
+                hash["info"] = jary;
+            }
+            else
+            {
+                hash["sign"] = "2";
+                hash["msg"] = "获取定位数据失败，用户标示或单号不能为空";
+            }
+        }
+        catch (Exception ex)
+        {
+            hash["sign"] = "0";
+            hash["msg"] = "获取定位数据失败，错误:" + ex.Message;
+        }
+
 
         return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
     }

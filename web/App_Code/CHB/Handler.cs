@@ -5562,7 +5562,7 @@ public class Handler
         }
     }
 
-    public int AddWayBill(string UserID, string QiShiZhan, string DaoDaZhan, string SuoShuGongSi, string UserDenno, string GpsDeviceID, string YunDanRemark)
+    public int AddWayBill(string UserID, string QiShiZhan, string DaoDaZhan, string SuoShuGongSi, string UserDenno, string GpsDeviceID,string ExpectHour, string YunDanRemark)
     {
         using (var db = new DBConnection())
         {
@@ -5724,6 +5724,7 @@ public class Handler
                                         dr_yundan["Gps_lastinfo"] = newinfo;
                                         dr_yundan["IsBangding"] = true;
                                         dr_yundan["YunDanRemark"] = YunDanRemark;
+                                        dr_yundan["Expect_Hour"] = Convert.ToDecimal(ExpectHour);
                                         dr_yundan["QiShiZhan_lat"] = QiShiZhan_lat;
                                         dr_yundan["QiShiZhan_lng"] = QiShiZhan_lng;
                                         dr_yundan["DaoDaZhan_lat"] = DaoDaZhan_lat;
@@ -5822,6 +5823,7 @@ public class Handler
                                         dr_yundan["Gps_lastinfo"] = newinfo;
                                         dr_yundan["IsBangding"] = true;
                                         dr_yundan["YunDanRemark"] = YunDanRemark;
+                                        dr_yundan["Expect_Hour"] = Convert.ToDecimal(ExpectHour);
                                         dr_yundan["QiShiZhan_lat"] = QiShiZhan_lat;
                                         dr_yundan["QiShiZhan_lng"] = QiShiZhan_lng;
                                         dr_yundan["DaoDaZhan_lat"] = DaoDaZhan_lat;
@@ -5927,6 +5929,7 @@ public class Handler
                 cmd.Parameters.AddWithValue("@UserDenno", UserDenno);
                 DataTable dt = db.ExecuteDataTable(cmd);
                 dt.Columns.Add("ArriveState");
+                dt.Columns.Add("WarnState");
 
                 if (dt.Rows.Count == 0)
                 {
@@ -5959,6 +5962,27 @@ public class Handler
                 else
                 { 
                    dt.Rows[0]["ArriveState"] = 0;//未达
+                }
+
+                sql = @"select * from YunDanDistance where YunDanDenno in (select a.YunDanDenno from YunDan a 
+                        inner join (
+                	        select DATEDIFF(mi,dateadd(SS,duration,getdate()),dateadd(HH,a.Expect_Hour,a.BangDingTime)) TimeCZ,a.YunDanDenno from YunDan a
+                	        inner join (select *,cast(Gps_duration as decimal) duration from YunDanDistance where Gps_duration is not null) b on a.YunDanDenno = b.YunDanDenno
+                	        where a.Expect_Hour is not null and a.UserID = @UserID and a.IsBangding = 1 
+                        ) b on a.YunDanDenno = b.YunDanDenno
+                        where a.UserID = @UserID and a.IsBangding = 1 and TimeCZ < 0 and a.UserDenno = @UserDenno and a.YunDanDenno not in (select YunDanDenno from YunDanIsArrive))";
+                cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID", UserID);
+                cmd.Parameters.AddWithValue("@UserDenno", UserDenno);
+                DataTable dt_yj = db.ExecuteDataTable(cmd);
+
+                if (dt_yj.Rows.Count > 0)
+                {
+                    dt.Rows[0]["WarnState"] = "1";
+                }
+                else
+                {
+                    dt.Rows[0]["WarnState"] = "0";
                 }
 
                 return dt;
@@ -6006,6 +6030,45 @@ public class Handler
             {
                 throw ex;
             } 
+        }
+    }
+
+    public DataTable GetWheelPathList(string UserID, string UserDenno)
+    {
+        using (var db = new DBConnection())
+        {
+            try
+            {
+
+                string sql = "select * from YunDan where UserID = @UserID and UserDenno = @UserDenno";
+                SqlCommand cmd = db.CreateCommand(sql);
+                cmd.Parameters.AddWithValue("@UserID", UserID);
+                cmd.Parameters.AddWithValue("@UserDenno", UserDenno);
+                DataTable dt = db.ExecuteDataTable(cmd);
+
+                if (dt.Rows.Count == 0)
+                {
+                    DataTable dt_gps = new DataTable();
+                    dt_gps.Columns.Add("Gps_lat");
+                    dt_gps.Columns.Add("Gps_lng");
+                    dt_gps.Columns.Add("Gps_time");
+                    dt_gps.Columns.Add("Gps_info");
+                    return dt_gps;
+                }
+                else
+                {
+                    string conn = "";
+                    if (dt.Rows[0]["IsBangding"].ToString() == "False")
+                        conn = " and Gps_time < '" + Convert.ToDateTime(dt.Rows[0]["JieBangTime"].ToString()) + "'";
+                    sql = "select Gps_lat,Gps_lng,Gps_time,Gps_info from GpsLocation2 where GpsDeviceID = '" + dt.Rows[0]["GpsDeviceID"].ToString() + "' and Gps_time > '" + Convert.ToDateTime(dt.Rows[0]["BangDingTime"].ToString()).AddHours(-1) + "'" + conn;
+                    DataTable dt_gps = db.ExecuteDataTable(sql);
+                    return dt_gps;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 
