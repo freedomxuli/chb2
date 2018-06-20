@@ -5943,7 +5943,7 @@ public class Handler
                 DataTable dt_arrive = db.ExecuteDataTable(cmd);
                 if (dt_arrive.Rows.Count > 0)
                 {
-                    string DaoDaZhan = dt.Rows[0]["DaoDaZhan"].ToString().Replace(" ", "");
+                    string DaoDaZhan = dt.Rows[0]["Destination"].ToString().Replace(" ", "");
                     string[] LastZhanArray = dt.Rows[0]["Gps_lastinfo"].ToString().Split(' ');
                     string LastZhan = "";
                     if (LastZhanArray.Length >= 2)
