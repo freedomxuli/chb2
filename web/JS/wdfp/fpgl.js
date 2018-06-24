@@ -87,20 +87,20 @@ Ext.onReady(function () {
                                 menuDisabled: true,
                                 text: '申领时间'
                             },
-                            {
-                                xtype: 'gridcolumn',
-                                dataIndex: 'IsOut',
-                                flex: 1,
-                                sortable: false,
-                                menuDisabled: true,
-                                text: '是否发出',
-                                renderer: function (value,cellmeta,record,rowIndex,columnIndex,store) {
-                                    if(value==false)
-                                        return "未发出";
-                                    else
-                                        return "已发出";
-                                }
-                            },
+                            //{
+                            //    xtype: 'gridcolumn',
+                            //    dataIndex: 'IsOut',
+                            //    flex: 1,
+                            //    sortable: false,
+                            //    menuDisabled: true,
+                            //    text: '是否发出',
+                            //    renderer: function (value,cellmeta,record,rowIndex,columnIndex,store) {
+                            //        if(value==false)
+                            //            return "未发出";
+                            //        else
+                            //            return "已发出";
+                            //    }
+                            //},
                             {
                                 xtype: 'gridcolumn',
                                 dataIndex: 'IsOut',

@@ -1778,7 +1778,7 @@ public class Handler
                 if (!string.IsNullOrEmpty(CarrierCompany))
                     conn += " and CarrierCompany like @CarrierCompany";
 
-                string sql = "select * from YunDan where UserID = @UserID and IsBangding = 1" + conn + " order by BangDingTime desc";
+                string sql = "select a.* from YunDan a left join YunDanDistance b on a.YunDanDenno = b.YunDanDenno where a.UserID = @UserID and a.IsBangding = 1" + conn + " order by b.Gps_duration asc, b.Gps_distance asc, a.BangDingTime desc";
 //                if (isyj == 1)
 //                {
 //                    sql = @"select a.* from YunDan a 
@@ -4467,7 +4467,7 @@ public class Handler
                             case "出发地详细地址":
                                 dr["QiShiAddress"] = dt_new.Rows[i]["VAL"].ToString();
                                 break;
-                            case "到达地详细地址":
+                            case "目的地详细地址":
                                 dr["DaoDaAddress"] = dt_new.Rows[i]["VAL"].ToString();
                                 break;
                             case "销售员":

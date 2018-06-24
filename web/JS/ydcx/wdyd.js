@@ -379,7 +379,7 @@ Ext.onReady(function () {
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 hidden: false,
-                                                text: '速度'
+                                                text: '速度(KM/h)'
                                             },
                                             {
                                                 xtype: 'gridcolumn',
@@ -397,7 +397,7 @@ Ext.onReady(function () {
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 hidden: false,
-                                                text: '温度'
+                                                text: '温度(℃)'
                                             },
                                             {
                                                 xtype: 'gridcolumn',
@@ -406,7 +406,7 @@ Ext.onReady(function () {
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 hidden: false,
-                                                text: '油量'
+                                                text: '油量(L)'
                                             },
                                             {
                                                 xtype: 'gridcolumn',
@@ -415,7 +415,7 @@ Ext.onReady(function () {
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 hidden: false,
-                                                text: '电池'
+                                                text: '电池(%)'
                                             },
                                             {
                                                 xtype: 'gridcolumn',
@@ -424,7 +424,7 @@ Ext.onReady(function () {
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 hidden: false,
-                                                text: '总里程'
+                                                text: '总里程(Km)'
                                             },
                                             {
                                                 xtype: 'gridcolumn',
@@ -433,7 +433,7 @@ Ext.onReady(function () {
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 hidden: false,
-                                                text: '不在线时长'
+                                                text: '不在线时长(min)'
                                             },
                                             {
                                                 xtype: 'gridcolumn',
@@ -442,7 +442,7 @@ Ext.onReady(function () {
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 hidden: false,
-                                                text: '停车超时时长'
+                                                text: '停车超时时长(min)'
                                             }
                                         ],
                                         dockedItems: [
@@ -898,7 +898,7 @@ Ext.onReady(function () {
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 hidden: false,
-                                                text: '速度'
+                                                text: '速度(Km/h)'
                                             },
                                             {
                                                 xtype: 'gridcolumn',
@@ -916,7 +916,7 @@ Ext.onReady(function () {
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 hidden: false,
-                                                text: '温度'
+                                                text: '温度(℃)'
                                             },
                                             {
                                                 xtype: 'gridcolumn',
@@ -925,7 +925,7 @@ Ext.onReady(function () {
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 hidden: false,
-                                                text: '油量'
+                                                text: '油量(L)'
                                             },
                                             {
                                                 xtype: 'gridcolumn',
@@ -934,7 +934,7 @@ Ext.onReady(function () {
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 hidden: false,
-                                                text: '电池'
+                                                text: '电池(%)'
                                             },
                                             {
                                                 xtype: 'gridcolumn',
@@ -943,7 +943,7 @@ Ext.onReady(function () {
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 hidden: false,
-                                                text: '总里程'
+                                                text: '总里程(Km)'
                                             },
                                             {
                                                 xtype: 'gridcolumn',
@@ -952,7 +952,7 @@ Ext.onReady(function () {
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 hidden: false,
-                                                text: '不在线时长'
+                                                text: '不在线时长(min)'
                                             },
                                             {
                                                 xtype: 'gridcolumn',
@@ -961,7 +961,7 @@ Ext.onReady(function () {
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 hidden: false,
-                                                text: '停车超时时长'
+                                                text: '停车超时时长(min)'
                                             }
                                         ],
                                         dockedItems: [
@@ -1153,7 +1153,6 @@ Ext.onReady(function () {
                                         columnLines: 1,
                                         border: 1,
                                         store: lsStore,
-                                        autoScroll: true,
                                         columns: [
                                             {
                                                 xtype: 'gridcolumn',
@@ -1417,7 +1416,7 @@ Ext.onReady(function () {
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 hidden: false,
-                                                text: '速度'
+                                                text: '速度(Km/h)'
                                             },
                                             {
                                                 xtype: 'gridcolumn',
@@ -1435,7 +1434,7 @@ Ext.onReady(function () {
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 hidden: false,
-                                                text: '温度'
+                                                text: '温度(℃)'
                                             },
                                             {
                                                 xtype: 'gridcolumn',
@@ -1444,7 +1443,7 @@ Ext.onReady(function () {
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 hidden: false,
-                                                text: '油量'
+                                                text: '油量(L)'
                                             },
                                             {
                                                 xtype: 'gridcolumn',
@@ -1453,7 +1452,7 @@ Ext.onReady(function () {
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 hidden: false,
-                                                text: '电池'
+                                                text: '电池(%)'
                                             },
                                             {
                                                 xtype: 'gridcolumn',
@@ -1462,7 +1461,7 @@ Ext.onReady(function () {
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 hidden: false,
-                                                text: '总里程'
+                                                text: '总里程(Km)'
                                             },
                                             {
                                                 xtype: 'gridcolumn',
@@ -1471,7 +1470,7 @@ Ext.onReady(function () {
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 hidden: false,
-                                                text: '不在线时长'
+                                                text: '不在线时长(min)'
                                             },
                                             {
                                                 xtype: 'gridcolumn',
@@ -1480,7 +1479,7 @@ Ext.onReady(function () {
                                                 sortable: false,
                                                 menuDisabled: true,
                                                 hidden: false,
-                                                text: '停车超时时长'
+                                                text: '停车超时时长(min)'
                                             }
                                         ],
                                         dockedItems: [
