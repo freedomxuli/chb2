@@ -51,6 +51,28 @@ var bangStore = Ext.create('Ext.data.Store', {
     ]
 });
 
+var sysjStore = Ext.create('Ext.data.Store', {
+    fields: [
+        'ID', 'MC'
+    ],
+    data: [
+        { 'ID': '', 'MC': '无排序' },
+        { 'ID': '0', 'MC': '从小到大' },
+        { 'ID': '1', 'MC': '从大到小' }
+    ]
+});
+
+var sylcStore = Ext.create('Ext.data.Store', {
+    fields: [
+        'ID', 'MC'
+    ],
+    data: [
+        { 'ID': '', 'MC': '无排序' },
+        { 'ID': '0', 'MC': '从小到大' },
+        { 'ID': '1', 'MC': '从大到小' }
+    ]
+});
+
 var newcity = {};
 
 var newqx = {};
@@ -591,6 +613,28 @@ Ext.onReady(function () {
                                                         labelWidth: 70,
                                                         id: 'CarrierCompany',
                                                         fieldLabel: '承运公司'
+                                                    },
+                                                    {
+                                                        xtype: 'combobox',
+                                                        labelWidth: 90,
+                                                        width: 170,
+                                                        valueField: 'ID',
+                                                        displayField: 'MC',
+                                                        queryMode: 'local',
+                                                        store: sysjStore,
+                                                        id: 'sysjpx',
+                                                        fieldLabel: '剩余时间排序'
+                                                    },
+                                                    {
+                                                        xtype: 'combobox',
+                                                        labelWidth: 90,
+                                                        width: 170,
+                                                        valueField: 'ID',
+                                                        displayField: 'MC',
+                                                        queryMode: 'local',
+                                                        store: sylcStore,
+                                                        id: 'sylcpx',
+                                                        fieldLabel: '剩余路程排序'
                                                     },
                                                     {
                                                         xtype: 'button',
@@ -1740,7 +1784,7 @@ function DataBind(cp) {
                 currentPage: retVal.cp
             });
         }
-    }, CS.onError, cp, pageSize, Ext.getCmp('QiShiZhan_Province').getValue(), Ext.getCmp('QiShiZhan_City').getValue(), Ext.getCmp('QiShiZhan_Qx').getValue(), Ext.getCmp('DaoDaZhan_Province').getValue(), Ext.getCmp('DaoDaZhan_City').getValue(), Ext.getCmp('DaoDaZhan_Qx').getValue(), Ext.getCmp('SuoShuGongSi').getValue(), Ext.getCmp('GpsDeviceID').getValue(), Ext.getCmp('UserDenno').getValue(), Ext.getCmp('StartTime').getValue(), Ext.getCmp('EndTime').getValue(), Ext.getCmp('Purchaser').getValue(), Ext.getCmp('CarrierCompany').getValue());
+    }, CS.onError, cp, pageSize, Ext.getCmp('QiShiZhan_Province').getValue(), Ext.getCmp('QiShiZhan_City').getValue(), Ext.getCmp('QiShiZhan_Qx').getValue(), Ext.getCmp('DaoDaZhan_Province').getValue(), Ext.getCmp('DaoDaZhan_City').getValue(), Ext.getCmp('DaoDaZhan_Qx').getValue(), Ext.getCmp('SuoShuGongSi').getValue(), Ext.getCmp('GpsDeviceID').getValue(), Ext.getCmp('UserDenno').getValue(), Ext.getCmp('StartTime').getValue(), Ext.getCmp('EndTime').getValue(), Ext.getCmp('Purchaser').getValue(), Ext.getCmp('CarrierCompany').getValue(), Ext.getCmp('sysjpx').getValue(), Ext.getCmp('sylcpx').getValue());
 }
 
 function DataBindYJ(cp) {

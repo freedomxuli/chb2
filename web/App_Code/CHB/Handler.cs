@@ -1710,7 +1710,7 @@ public class Handler
     }
 
     [CSMethod("SearchMyYunDanByZT")]
-    public object SearchMyYunDanByZT(int CurrentPage, int PageSize, string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string SuoShuGongSi, string GpsDeviceID, string UserDenno, string StartTime, string EndTime, string Purchaser, string CarrierCompany)
+    public object SearchMyYunDanByZT(int CurrentPage, int PageSize, string QiShiZhan_Province, string QiShiZhan_City, string QiShiZhan_Qx, string DaoDaZhan_Province, string DaoDaZhan_City, string DaoDaZhan_Qx, string SuoShuGongSi, string GpsDeviceID, string UserDenno, string StartTime, string EndTime, string Purchaser, string CarrierCompany,string sysjpx,string sylcpx)
     {
         using(var db = new DBConnection())
         {
@@ -1720,6 +1720,7 @@ public class Handler
                 int ac = 0;
 
                 string conn = "";
+                string where = "";
 
                 string QiShiZhan = "";
                 string DaoDaZhan = "";
@@ -1735,11 +1736,11 @@ public class Handler
                 }
                 if (!string.IsNullOrEmpty(QiShiZhan_Qx))
                 {
-                    conn += " and QiShiZhan_QX like @QiShiZhan_QX";
+                    conn += " and a.QiShiZhan_QX like @QiShiZhan_QX";
                 }
                 if (!string.IsNullOrEmpty(QiShiZhan))
                 {
-                    conn += " and QiShiZhan like @QiShiZhan";
+                    conn += " and a.QiShiZhan like @QiShiZhan";
                 }
                 if (!string.IsNullOrEmpty(DaoDaZhan_Province))
                 {
@@ -1753,32 +1754,58 @@ public class Handler
 
                 if (!string.IsNullOrEmpty(DaoDaZhan_Qx))
                 {
-                    conn += " and DaoDaZhan_QX like @DaoDaZhan_QX";
+                    conn += " and a.DaoDaZhan_QX like @DaoDaZhan_QX";
                 }
                 if (!string.IsNullOrEmpty(DaoDaZhan))
                 {
-                    conn += " and DaoDaZhan like @DaoDaZhan";
+                    conn += " and a.DaoDaZhan like @DaoDaZhan";
                 }
                 if (!string.IsNullOrEmpty(SuoShuGongSi))
                 {
-                    conn += " and SuoShuGongSi like @SuoShuGongSi";
+                    conn += " and a.SuoShuGongSi like @SuoShuGongSi";
                 }
                 if (!string.IsNullOrEmpty(UserDenno))
-                    conn += " and UserDenno like @UserDenno";
+                    conn += " and a.UserDenno like @UserDenno";
 
                 if (!string.IsNullOrEmpty(GpsDeviceID))
-                    conn += " and GpsDeviceID = @GpsDeviceID";
+                    conn += " and a.GpsDeviceID = @GpsDeviceID";
 
                 if (!string.IsNullOrEmpty(StartTime) && !string.IsNullOrEmpty(EndTime))
-                    conn += " and BangDingTime >= @StartTime and BangDingTime <= @EndTime";
+                    conn += " and a.BangDingTime >= @StartTime and a.BangDingTime <= @EndTime";
 
                 if(!string.IsNullOrEmpty(Purchaser))
-                    conn += " and Purchaser like @Purchaser";
+                    conn += " and a.Purchaser like @Purchaser";
 
                 if (!string.IsNullOrEmpty(CarrierCompany))
-                    conn += " and CarrierCompany like @CarrierCompany";
+                    conn += " and a.CarrierCompany like @CarrierCompany";
 
-                string sql = "select a.* from YunDan a left join YunDanDistance b on a.YunDanDenno = b.YunDanDenno where a.UserID = @UserID and a.IsBangding = 1" + conn + " order by b.Gps_duration asc, b.Gps_distance asc, a.BangDingTime desc";
+                if (!string.IsNullOrEmpty(sysjpx))
+                {
+                    if (sysjpx=="0")
+                        where += " a.Gps_duration1 asc,";
+                    else
+                        where += " a.Gps_duration1 desc,";
+                }
+
+                if (!string.IsNullOrEmpty(sylcpx))
+                {
+                    if (sylcpx == "0")
+                        where += " a.Gps_distance1 asc,";
+                    else
+                        where += " a.Gps_distance1 desc,";
+                }
+
+                string sql = @"select a.* from (
+                                    select a.*,convert(decimal,b.Gps_duration) Gps_duration1,convert(decimal,b.Gps_distance) Gps_distance1 from YunDan a left join YunDanDistance b on a.YunDanDenno = b.YunDanDenno where a.UserID = @UserID and a.IsBangding = 1" + conn + @"
+                                ) a order by a.BangDingTime desc";
+
+                if (!string.IsNullOrEmpty(where))
+                {
+                    sql = @"select a.* from (
+                                select a.*,convert(decimal,b.Gps_duration) Gps_duration1,convert(decimal,b.Gps_distance) Gps_distance1 from YunDan a left join YunDanDistance b on a.YunDanDenno = b.YunDanDenno where a.UserID = @UserID and a.IsBangding = 1" + conn + @"
+                            ) a order by " + where.TrimEnd(',');
+                }
+                
 //                if (isyj == 1)
 //                {
 //                    sql = @"select a.* from YunDan a 
@@ -1819,7 +1846,7 @@ public class Handler
                 dt.Columns.Add("Expect_ArriveTime");
                 dt.Columns.Add("Actual_ArriveTime");
 
-                sql = "select * from YunDanDistance where YunDanDenno in (select YunDanDenno from YunDan where UserID = @UserID and IsBangding = 1" + conn + ")";
+                sql = "select * from YunDanDistance where YunDanDenno in (select a.YunDanDenno from YunDan a where a.UserID = @UserID and a.IsBangding = 1" + conn + ")";
                 cmd = db.CreateCommand(sql);
                 cmd.Parameters.AddWithValue("@UserID", SystemUser.CurrentUser.UserID);
                 if (!string.IsNullOrEmpty(UserDenno))
