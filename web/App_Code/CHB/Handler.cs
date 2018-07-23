@@ -884,13 +884,6 @@ public class Handler
                 dbc.ExecuteNonQuery(cmd);
                 #endregion
 
-                #region  更新设备绑定状态
-                sql = "update YunDan set IsBangding = 0 where GpsDeviceID = @GpsDeviceID";
-                cmd = dbc.CreateCommand(sql);
-                cmd.Parameters.AddWithValue("@GpsDeviceID", GpsDeviceID);
-                dbc.ExecuteNonQuery(cmd);
-                #endregion
-
                 #region  插入运单表
                 Hashtable gpsinfo = Gethttpresult("http://101.37.253.238:89/gpsonline/GPSAPI", "version=1&method=vLoginSystem&name=" + GpsDeviceID + "&pwd=123456");
                 if (gpsinfo["success"].ToString().ToUpper() == "True".ToUpper())

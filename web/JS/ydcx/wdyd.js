@@ -1817,7 +1817,7 @@ function ShowGJ(UserID, YunDanDenno) {
     FrameStack.pushFrame({
         url: "chadanyundanguiji.html?UserID=" + UserID + "&YunDanDenno=" + YunDanDenno + "&type=wodeyundan",
         onClose: function (ret) {
-            
+
         }
     });
 }
