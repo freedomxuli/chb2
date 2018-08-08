@@ -5582,6 +5582,71 @@ public class Handler
         }
     }
 
+    public int UpdateYunDanAddress(string UserID, string QiShiZhan, string DaoDaZhan, string UserDenno)
+    { 
+        using(var db = new DBConnection())
+        {
+            int sign = 0;//更新失败
+            try
+            {
+                db.BeginTransaction();
+                string sql_device = "select count(*) NUM from YunDan where UserID = @UserID and UserDenno = @UserDenno and IsBangding = 1";
+                SqlCommand cmd = db.CreateCommand(sql_device);
+                cmd.Parameters.AddWithValue("@UserID", UserID);
+                cmd.Parameters.AddWithValue("@GpsDeviceID", UserDenno);
+                DataTable dt_device = db.ExecuteDataTable(cmd);
+                if (dt_device.Rows[0]["NUM"].ToString() == "0")
+                {
+                    sign = 2;//未找到该运单号
+                }
+                else
+                {
+                    string[] qsz = QiShiZhan.Split(' ');
+                    string qsz1 = "";
+                    string qsz2 = "";
+                    string qsz3 = "";
+                    string[] ddz = DaoDaZhan.Split(' ');
+                    string ddz1 = "";
+                    string ddz2 = "";
+                    string ddz3 = "";
+                    if (ddz.Length > 0 && qsz.Length > 0 && !string.IsNullOrEmpty(QiShiZhan) && !string.IsNullOrEmpty(DaoDaZhan))
+                    {
+                        qsz1 = qsz[0];
+                        qsz2 = qsz[1];
+                        ddz1 = ddz[0];
+                        ddz2 = ddz[1];
+                        if(qsz.Length == 3)
+                            qsz3 = qsz[2];
+                        if (ddz.Length == 3)
+                            ddz3 = ddz[2];
+                        string sql = "update YunDan set QiShiZhan = @QiShiZhan,DaoDaZhan = @DaoDaZhan,QiShiZhan_QX = @QiShiZhan_QX,DaoDaZhan_QX = @DaoDaZhan_QX where UserID = @UserID and UserDenno = @UserDenno and IsBangding = 1";
+                        SqlCommand cmd2 = db.CreateCommand(sql);
+                        cmd2.Parameters.AddWithValue("@QiShiZhan", qsz1 + " " + qsz2);
+                        cmd2.Parameters.AddWithValue("@DaoDaZhan", ddz1 + " " + ddz2);
+                        cmd2.Parameters.AddWithValue("@QiShiZhan_QX", string.IsNullOrEmpty(qsz3) ? DBNull.Value : (object)qsz3);
+                        cmd2.Parameters.AddWithValue("@DaoDaZhan_QX", string.IsNullOrEmpty(ddz3) ? DBNull.Value : (object)ddz3);
+                        cmd2.Parameters.AddWithValue("@UserID", UserID);
+                        cmd2.Parameters.AddWithValue("@UserDenno", UserDenno);
+                        db.ExecuteNonQuery(cmd2);
+                        db.CommitTransaction();
+                        sign = 1;
+                    }
+                    else
+                    {
+                        sign = 3;//起始站或到达站不能为空
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                sign = 100;//内部错误
+                db.RoolbackTransaction();
+            }
+            return sign;
+        }
+    }
+
     public int AddWayBill(string UserID, string QiShiZhan, string DaoDaZhan, string SuoShuGongSi, string UserDenno, string GpsDeviceID,string ExpectHour, string YunDanRemark)
     {
         using (var db = new DBConnection())
@@ -5725,13 +5790,22 @@ public class Handler
 
                                     if (!string.IsNullOrEmpty(QiShiZhan_lat) && !string.IsNullOrEmpty(DaoDaZhan_lat))
                                     {
+                                        string[] qsz = QiShiZhan.Split(' ');
+                                        string qsz1 = "";
+                                        string qsz2 = "";
+                                        string qsz3 = "";
+                                        string[] ddz = DaoDaZhan.Split(' ');
+                                        string ddz1 = "";
+                                        string ddz2 = "";
+                                        string ddz3 = "";
+
                                         DataTable dt_yundan = db.GetEmptyDataTable("YunDan");
                                         DataRow dr_yundan = dt_yundan.NewRow();
                                         dr_yundan["YunDanDenno"] = DateTime.Now.ToString("yyyyMMddHHmmssfff");
                                         dr_yundan["UserDenno"] = UserDenno;
                                         dr_yundan["UserID"] = UserID;
-                                        dr_yundan["QiShiZhan"] = QiShiZhan;
-                                        dr_yundan["DaoDaZhan"] = DaoDaZhan;
+                                        dr_yundan["QiShiZhan"] = qsz1 + " " + qsz2;
+                                        dr_yundan["DaoDaZhan"] = ddz1 + " " + ddz2;
                                         dr_yundan["SuoShuGongSi"] = SuoShuGongSi;
                                         dr_yundan["BangDingTime"] = DateTime.Now;
                                         dr_yundan["GpsDeviceID"] = GpsDeviceID;
@@ -5749,6 +5823,8 @@ public class Handler
                                         dr_yundan["QiShiZhan_lng"] = QiShiZhan_lng;
                                         dr_yundan["DaoDaZhan_lat"] = DaoDaZhan_lat;
                                         dr_yundan["DaoDaZhan_lng"] = DaoDaZhan_lng;
+                                        dr_yundan["QiShiZhan_QX"] = string.IsNullOrEmpty(qsz3) ? DBNull.Value : (object)qsz3;
+                                        dr_yundan["DaoDaZhan_QX"] = string.IsNullOrEmpty(ddz3) ? DBNull.Value : (object)ddz3;
                                         dt_yundan.Rows.Add(dr_yundan);
                                         db.InsertTable(dt_yundan);
                                         sign = 1;
@@ -5824,13 +5900,22 @@ public class Handler
 
                                     if (!string.IsNullOrEmpty(QiShiZhan_lat) && !string.IsNullOrEmpty(DaoDaZhan_lat))
                                     {
+                                        string[] qsz = QiShiZhan.Split(' ');
+                                        string qsz1 = "";
+                                        string qsz2 = "";
+                                        string qsz3 = "";
+                                        string[] ddz = DaoDaZhan.Split(' ');
+                                        string ddz1 = "";
+                                        string ddz2 = "";
+                                        string ddz3 = "";
+
                                         DataTable dt_yundan = db.GetEmptyDataTable("YunDan");
                                         DataRow dr_yundan = dt_yundan.NewRow();
                                         dr_yundan["YunDanDenno"] = DateTime.Now.ToString("yyyyMMddHHmmssfff");
                                         dr_yundan["UserDenno"] = UserDenno;
                                         dr_yundan["UserID"] = UserID;
-                                        dr_yundan["QiShiZhan"] = QiShiZhan;
-                                        dr_yundan["DaoDaZhan"] = DaoDaZhan;
+                                        dr_yundan["QiShiZhan"] = qsz1 + " " + qsz2;
+                                        dr_yundan["DaoDaZhan"] = ddz1 + " " + ddz2;
                                         dr_yundan["SuoShuGongSi"] = SuoShuGongSi;
                                         dr_yundan["BangDingTime"] = DateTime.Now;
                                         dr_yundan["GpsDeviceID"] = GpsDeviceID;
@@ -5848,6 +5933,8 @@ public class Handler
                                         dr_yundan["QiShiZhan_lng"] = QiShiZhan_lng;
                                         dr_yundan["DaoDaZhan_lat"] = DaoDaZhan_lat;
                                         dr_yundan["DaoDaZhan_lng"] = DaoDaZhan_lng;
+                                        dr_yundan["QiShiZhan_QX"] = string.IsNullOrEmpty(qsz3) ? DBNull.Value : (object)qsz3;
+                                        dr_yundan["DaoDaZhan_QX"] = string.IsNullOrEmpty(ddz3) ? DBNull.Value : (object)ddz3;
                                         dt_yundan.Rows.Add(dr_yundan);
                                         db.InsertTable(dt_yundan);
                                         sign = 1;
@@ -5923,11 +6010,16 @@ public class Handler
         {
             try
             {
-                string sql = "select BangDingTime Time,UserDenno,QiShiZhan Departure,DaoDaZhan Destination,SuoShuGongSi Company,GpsDeviceID,YunDanRemark Memo,Gps_lastinfo,Gps_lastlat,Gps_lastlng from YunDan where UserID = @UserID and UserDenno = @UserDenno";
+                string sql = "select BangDingTime Time,UserDenno,QiShiZhan Departure,DaoDaZhan Destination,SuoShuGongSi Company,GpsDeviceID,YunDanRemark Memo,Gps_lastinfo,Gps_lastlat,Gps_lastlng,QiShiZhan_QX,DaoDaZhan_QX from YunDan where UserID = @UserID and UserDenno = @UserDenno";
                 SqlCommand cmd = db.CreateCommand(sql);
                 cmd.Parameters.AddWithValue("@UserID", UserID);
                 cmd.Parameters.AddWithValue("@UserDenno", UserDenno);
                 DataTable dt = db.ExecuteDataTable(cmd);
+                if (dt.Rows.Count > 0)
+                {
+                    dt.Rows[0]["Departure"] = dt.Rows[0]["Departure"].ToString() + " " + dt.Rows[0]["QiShiZhan_QX"];
+                    dt.Rows[0]["Destination"] = dt.Rows[0]["Destination"].ToString() + " " + dt.Rows[0]["DaoDaZhan_QX"];
+                }
                 return dt;
             }
             catch (Exception ex)
@@ -5943,7 +6035,7 @@ public class Handler
         {
             try
             {
-                string sql = "select BangDingTime Time,UserDenno,QiShiZhan Departure,DaoDaZhan Destination,SuoShuGongSi Company,GpsDeviceID,YunDanRemark Memo,Gps_lastinfo,Gps_lastlat,Gps_lastlng,QiShiZhan_lat,QiShiZhan_lng,DaoDaZhan_lat,DaoDaZhan_lng from YunDan where UserID = @UserID and UserDenno = @UserDenno";
+                string sql = "select BangDingTime Time,UserDenno,QiShiZhan Departure,DaoDaZhan Destination,SuoShuGongSi Company,GpsDeviceID,YunDanRemark Memo,Gps_lastinfo,Gps_lastlat,Gps_lastlng,QiShiZhan_lat,QiShiZhan_lng,DaoDaZhan_lat,DaoDaZhan_lng,QiShiZhan_QX,DaoDaZhan_QX from YunDan where UserID = @UserID and UserDenno = @UserDenno";
                 SqlCommand cmd = db.CreateCommand(sql);
                 cmd.Parameters.AddWithValue("@UserID", UserID);
                 cmd.Parameters.AddWithValue("@UserDenno", UserDenno);
@@ -5954,6 +6046,11 @@ public class Handler
                 if (dt.Rows.Count == 0)
                 {
                     return dt;
+                }
+                else
+                {
+                    dt.Rows[0]["Departure"] = dt.Rows[0]["Departure"].ToString() + " " + dt.Rows[0]["QiShiZhan_QX"];
+                    dt.Rows[0]["Destination"] = dt.Rows[0]["Destination"].ToString() + " " + dt.Rows[0]["DaoDaZhan_QX"];
                 }
 
                 sql = "select * from YunDanIsArrive where YunDanDenno in (select YunDanDenno from YunDan where UserID = @UserID and UserDenno = @UserDenno)";

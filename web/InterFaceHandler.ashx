@@ -92,6 +92,9 @@ public class InterFaceHandler : IHttpHandler {
             case "XiaoFeiJiLu":
                 str = XiaoFeiJiLu(context);
                 break;
+            case "UpdateYunDanAddress":
+                str = UpdateYunDanAddress(context);
+                break;
         }
         context.Response.Write(str);
         context.Response.End();
@@ -365,6 +368,51 @@ public class InterFaceHandler : IHttpHandler {
         {
             hash["sign"] = "0";
             hash["msg"] = "获取失败，内部错误:" + ex.Message;
+        }
+        return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
+    }
+
+    public string UpdateYunDanAddress(HttpContext context)
+    {
+        Newtonsoft.Json.Linq.JObject hash = new Newtonsoft.Json.Linq.JObject();
+        hash["sign"] = "0";
+        hash["msg"] = "更新失败！";
+        try {
+            context.Response.ContentType = "text/plain";
+            //用户名
+            System.Text.Encoding utf8 = System.Text.Encoding.UTF8;
+            string UserID = context.Request["UserID"];
+            string UserDenno = context.Request["UserDenno"];
+            string QiShiZhan = context.Request["Departure"];
+            string DaoDaZhan = context.Request["Destination"];
+
+            Handler App_Handler = new Handler();
+            int sign = App_Handler.UpdateYunDanAddress(UserID, QiShiZhan, DaoDaZhan, UserDenno);
+            if (sign == 1)
+            {
+                hash["sign"] = "1";
+                hash["msg"] = "更新成功！";
+            }
+            else if (sign == 2)
+            {
+                hash["sign"] = "2";
+                hash["msg"] = "更新失败，未找到该运单号！";
+            }
+            else if (sign == 3)
+            {
+                hash["sign"] = "3";
+                hash["msg"] = "更新失败，起始站或到达站不能为空！";
+            }
+            else if (sign == 100)
+            {
+                hash["sign"] = "100";
+                hash["msg"] = "更新失败，内部错误！";
+            }
+        }
+        catch (Exception ex)
+        {
+            hash["sign"] = "0";
+            hash["msg"] = "更新失败，错误:" + ex.Message;
         }
         return Newtonsoft.Json.JsonConvert.SerializeObject(hash);
     }
