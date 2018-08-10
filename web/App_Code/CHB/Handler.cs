@@ -5653,6 +5653,7 @@ public class Handler
         {
             db.BeginTransaction();
             int sign = 0;//制单失败
+            
             try
             {
                 string sql_device = "select count(*) NUM from GpsDevice where UserID = @UserID and GpsDeviceID = @GpsDeviceID";
@@ -5775,21 +5776,64 @@ public class Handler
                                     string DaoDaZhan_lat = "";
                                     string DaoDaZhan_lng = "";
 
+                                    var QiShiZhan_old = QiShiZhan;
+                                    var DaoDaZhan_old = DaoDaZhan;
+
+                                    if (!string.IsNullOrEmpty(QiShiZhan))
+                                    {
+                                        string[] qsz1 = QiShiZhan.Split(' ');
+                                        if (qsz1.Length==2)
+                                        {
+                                            if (qsz1[0] == qsz1[1])
+                                            {
+                                                QiShiZhan = qsz1[0];
+                                            }
+                                        }
+                                        else if (qsz1.Length == 3)
+                                        {
+                                            if (qsz1[0] == qsz1[1])
+                                            {
+                                                QiShiZhan = qsz1[1] + " " + qsz1[2];
+                                            }
+                                        }
+                                    }
+
+                                    if (!string.IsNullOrEmpty(DaoDaZhan))
+                                    {
+                                        string[] ddz1 = DaoDaZhan.Split(' ');
+                                        if (ddz1.Length == 2)
+                                        {
+                                            if (ddz1[0] == ddz1[1])
+                                            {
+                                                DaoDaZhan = ddz1[0];
+                                            }
+                                        }
+                                        else if (ddz1.Length == 3)
+                                        {
+                                            if (ddz1[0] == ddz1[1])
+                                            {
+                                                DaoDaZhan = ddz1[1] + " " + ddz1[2];
+                                            }
+                                        }
+                                    }
+
                                     Hashtable addresshash = getmapinfobyaddress(QiShiZhan, "");
                                     if (addresshash["sign"] == "1")
                                     {
                                         QiShiZhan_lng = addresshash["location"].ToString().Split(',')[0];
                                         QiShiZhan_lat = addresshash["location"].ToString().Split(',')[1];
                                     }
+                                    QiShiZhan = QiShiZhan_old;
                                     Hashtable daozhanaddresshash = getmapinfobyaddress(DaoDaZhan, "");
                                     if (daozhanaddresshash["sign"] == "1")
                                     {
                                         DaoDaZhan_lng = daozhanaddresshash["location"].ToString().Split(',')[0];
                                         DaoDaZhan_lat = daozhanaddresshash["location"].ToString().Split(',')[1];
                                     }
-
+                                    DaoDaZhan = DaoDaZhan_old;
                                     if (!string.IsNullOrEmpty(QiShiZhan_lat) && !string.IsNullOrEmpty(DaoDaZhan_lat))
                                     {
+                                        
                                         string[] qsz = QiShiZhan.Split(' ');
                                         string qsz1 = "";
                                         string qsz2 = "";
@@ -5798,36 +5842,54 @@ public class Handler
                                         string ddz1 = "";
                                         string ddz2 = "";
                                         string ddz3 = "";
-
-                                        DataTable dt_yundan = db.GetEmptyDataTable("YunDan");
-                                        DataRow dr_yundan = dt_yundan.NewRow();
-                                        dr_yundan["YunDanDenno"] = DateTime.Now.ToString("yyyyMMddHHmmssfff");
-                                        dr_yundan["UserDenno"] = UserDenno;
-                                        dr_yundan["UserID"] = UserID;
-                                        dr_yundan["QiShiZhan"] = qsz1 + " " + qsz2;
-                                        dr_yundan["DaoDaZhan"] = ddz1 + " " + ddz2;
-                                        dr_yundan["SuoShuGongSi"] = SuoShuGongSi;
-                                        dr_yundan["BangDingTime"] = DateTime.Now;
-                                        dr_yundan["GpsDeviceID"] = GpsDeviceID;
-                                        dr_yundan["Gps_lastlat"] = newlat;
-                                        dr_yundan["Gps_lastlng"] = newlng;
-                                        if (newinfo != "")
+                                        if (ddz.Length > 0 && qsz.Length > 0 && !string.IsNullOrEmpty(QiShiZhan) && !string.IsNullOrEmpty(DaoDaZhan))
                                         {
-                                            dr_yundan["Gps_lasttime"] = gpstm;
+                                            qsz1 = qsz[0];
+                                            qsz2 = qsz[1];
+                                            ddz1 = ddz[0];
+                                            ddz2 = ddz[1];
+                                            if (qsz.Length == 3)
+                                                qsz3 = qsz[2];
+                                            if (ddz.Length == 3)
+                                                ddz3 = ddz[2];
+                                            DataTable dt_yundan = db.GetEmptyDataTable("YunDan");
+                                            DataRow dr_yundan = dt_yundan.NewRow();
+                                            dr_yundan["YunDanDenno"] = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+                                            dr_yundan["UserDenno"] = UserDenno;
+                                            dr_yundan["UserID"] = UserID;
+                                            if (qsz1 == qsz2)
+                                                dr_yundan["QiShiZhan"] = qsz1 + " " + qsz3;
+                                            else
+                                                dr_yundan["QiShiZhan"] = qsz1 + " " + qsz2;
+                                            if (ddz1 == ddz2)
+                                                dr_yundan["DaoDaZhan"] = ddz1 + " " + ddz3;
+                                            else
+                                                dr_yundan["DaoDaZhan"] = ddz1 + " " + ddz2;
+                                            dr_yundan["SuoShuGongSi"] = SuoShuGongSi;
+                                            dr_yundan["BangDingTime"] = DateTime.Now;
+                                            dr_yundan["GpsDeviceID"] = GpsDeviceID;
+                                            dr_yundan["Gps_lastlat"] = newlat;
+                                            dr_yundan["Gps_lastlng"] = newlng;
+                                            if (newinfo != "")
+                                            {
+                                                dr_yundan["Gps_lasttime"] = gpstm;
+                                            }
+                                            dr_yundan["Gps_lastinfo"] = newinfo;
+                                            dr_yundan["IsBangding"] = true;
+                                            dr_yundan["YunDanRemark"] = YunDanRemark;
+                                            dr_yundan["Expect_Hour"] = Convert.ToDecimal(ExpectHour);
+                                            dr_yundan["QiShiZhan_lat"] = QiShiZhan_lat;
+                                            dr_yundan["QiShiZhan_lng"] = QiShiZhan_lng;
+                                            dr_yundan["DaoDaZhan_lat"] = DaoDaZhan_lat;
+                                            dr_yundan["DaoDaZhan_lng"] = DaoDaZhan_lng;
+                                            dr_yundan["QiShiZhan_QX"] = string.IsNullOrEmpty(qsz3) ? DBNull.Value : (object)qsz3;
+                                            dr_yundan["DaoDaZhan_QX"] = string.IsNullOrEmpty(ddz3) ? DBNull.Value : (object)ddz3;
+                                            dt_yundan.Rows.Add(dr_yundan);
+                                            db.InsertTable(dt_yundan);
+                                            sign = 1;
                                         }
-                                        dr_yundan["Gps_lastinfo"] = newinfo;
-                                        dr_yundan["IsBangding"] = true;
-                                        dr_yundan["YunDanRemark"] = YunDanRemark;
-                                        dr_yundan["Expect_Hour"] = Convert.ToDecimal(ExpectHour);
-                                        dr_yundan["QiShiZhan_lat"] = QiShiZhan_lat;
-                                        dr_yundan["QiShiZhan_lng"] = QiShiZhan_lng;
-                                        dr_yundan["DaoDaZhan_lat"] = DaoDaZhan_lat;
-                                        dr_yundan["DaoDaZhan_lng"] = DaoDaZhan_lng;
-                                        dr_yundan["QiShiZhan_QX"] = string.IsNullOrEmpty(qsz3) ? DBNull.Value : (object)qsz3;
-                                        dr_yundan["DaoDaZhan_QX"] = string.IsNullOrEmpty(ddz3) ? DBNull.Value : (object)ddz3;
-                                        dt_yundan.Rows.Add(dr_yundan);
-                                        db.InsertTable(dt_yundan);
-                                        sign = 1;
+
+                                        
                                         db.CommitTransaction();
                                     }
                                     else
@@ -5884,6 +5946,45 @@ public class Handler
                                     string QiShiZhan_lng = "";
                                     string DaoDaZhan_lat = "";
                                     string DaoDaZhan_lng = "";
+                                    var QiShiZhan_old = QiShiZhan;
+                                    var DaoDaZhan_old = DaoDaZhan;
+                                    if (!string.IsNullOrEmpty(QiShiZhan))
+                                    {
+                                        string[] qsz1 = QiShiZhan.Split(' ');
+                                        if (qsz1.Length == 2)
+                                        {
+                                            if (qsz1[0] == qsz1[1])
+                                            {
+                                                QiShiZhan = qsz1[0];
+                                            }
+                                        }
+                                        else if (qsz1.Length == 3)
+                                        {
+                                            if (qsz1[0] == qsz1[1])
+                                            {
+                                                QiShiZhan = qsz1[1] + " " + qsz1[2];
+                                            }
+                                        }
+                                    }
+
+                                    if (!string.IsNullOrEmpty(DaoDaZhan))
+                                    {
+                                        string[] ddz1 = DaoDaZhan.Split(' ');
+                                        if (ddz1.Length == 2)
+                                        {
+                                            if (ddz1[0] == ddz1[1])
+                                            {
+                                                DaoDaZhan = ddz1[0];
+                                            }
+                                        }
+                                        else if (ddz1.Length == 3)
+                                        {
+                                            if (ddz1[0] == ddz1[1])
+                                            {
+                                                DaoDaZhan = ddz1[1] + " " + ddz1[2];
+                                            }
+                                        }
+                                    }
 
                                     Hashtable addresshash = getmapinfobyaddress(QiShiZhan, "");
                                     if (addresshash["sign"] == "1")
@@ -5891,13 +5992,14 @@ public class Handler
                                         QiShiZhan_lng = addresshash["location"].ToString().Split(',')[0];
                                         QiShiZhan_lat = addresshash["location"].ToString().Split(',')[1];
                                     }
+                                    QiShiZhan = QiShiZhan_old;
                                     Hashtable daozhanaddresshash = getmapinfobyaddress(DaoDaZhan, "");
                                     if (daozhanaddresshash["sign"] == "1")
                                     {
                                         DaoDaZhan_lng = daozhanaddresshash["location"].ToString().Split(',')[0];
                                         DaoDaZhan_lat = daozhanaddresshash["location"].ToString().Split(',')[1];
                                     }
-
+                                    DaoDaZhan = DaoDaZhan_old;
                                     if (!string.IsNullOrEmpty(QiShiZhan_lat) && !string.IsNullOrEmpty(DaoDaZhan_lat))
                                     {
                                         string[] qsz = QiShiZhan.Split(' ');
@@ -5909,35 +6011,52 @@ public class Handler
                                         string ddz2 = "";
                                         string ddz3 = "";
 
-                                        DataTable dt_yundan = db.GetEmptyDataTable("YunDan");
-                                        DataRow dr_yundan = dt_yundan.NewRow();
-                                        dr_yundan["YunDanDenno"] = DateTime.Now.ToString("yyyyMMddHHmmssfff");
-                                        dr_yundan["UserDenno"] = UserDenno;
-                                        dr_yundan["UserID"] = UserID;
-                                        dr_yundan["QiShiZhan"] = qsz1 + " " + qsz2;
-                                        dr_yundan["DaoDaZhan"] = ddz1 + " " + ddz2;
-                                        dr_yundan["SuoShuGongSi"] = SuoShuGongSi;
-                                        dr_yundan["BangDingTime"] = DateTime.Now;
-                                        dr_yundan["GpsDeviceID"] = GpsDeviceID;
-                                        dr_yundan["Gps_lastlat"] = newlat;
-                                        dr_yundan["Gps_lastlng"] = newlng;
-                                        if (newinfo != "")
+                                        if (ddz.Length > 0 && qsz.Length > 0 && !string.IsNullOrEmpty(QiShiZhan) && !string.IsNullOrEmpty(DaoDaZhan))
                                         {
-                                            dr_yundan["Gps_lasttime"] = gpstm;
+                                            qsz1 = qsz[0];
+                                            qsz2 = qsz[1];
+                                            ddz1 = ddz[0];
+                                            ddz2 = ddz[1];
+                                            if (qsz.Length == 3)
+                                                qsz3 = qsz[2];
+                                            if (ddz.Length == 3)
+                                                ddz3 = ddz[2];
+                                            DataTable dt_yundan = db.GetEmptyDataTable("YunDan");
+                                            DataRow dr_yundan = dt_yundan.NewRow();
+                                            dr_yundan["YunDanDenno"] = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+                                            dr_yundan["UserDenno"] = UserDenno;
+                                            dr_yundan["UserID"] = UserID;
+                                            if (qsz1 == qsz2)
+                                                dr_yundan["QiShiZhan"] = qsz1 + " " + qsz3;
+                                            else
+                                                dr_yundan["QiShiZhan"] = qsz1 + " " + qsz2;
+                                            if (ddz1 == ddz2)
+                                                dr_yundan["DaoDaZhan"] = ddz1 + " " + ddz3;
+                                            else
+                                                dr_yundan["DaoDaZhan"] = ddz1 + " " + ddz2;
+                                            dr_yundan["SuoShuGongSi"] = SuoShuGongSi;
+                                            dr_yundan["BangDingTime"] = DateTime.Now;
+                                            dr_yundan["GpsDeviceID"] = GpsDeviceID;
+                                            dr_yundan["Gps_lastlat"] = newlat;
+                                            dr_yundan["Gps_lastlng"] = newlng;
+                                            if (newinfo != "")
+                                            {
+                                                dr_yundan["Gps_lasttime"] = gpstm;
+                                            }
+                                            dr_yundan["Gps_lastinfo"] = newinfo;
+                                            dr_yundan["IsBangding"] = true;
+                                            dr_yundan["YunDanRemark"] = YunDanRemark;
+                                            dr_yundan["Expect_Hour"] = Convert.ToDecimal(ExpectHour);
+                                            dr_yundan["QiShiZhan_lat"] = QiShiZhan_lat;
+                                            dr_yundan["QiShiZhan_lng"] = QiShiZhan_lng;
+                                            dr_yundan["DaoDaZhan_lat"] = DaoDaZhan_lat;
+                                            dr_yundan["DaoDaZhan_lng"] = DaoDaZhan_lng;
+                                            dr_yundan["QiShiZhan_QX"] = string.IsNullOrEmpty(qsz3) ? DBNull.Value : (object)qsz3;
+                                            dr_yundan["DaoDaZhan_QX"] = string.IsNullOrEmpty(ddz3) ? DBNull.Value : (object)ddz3;
+                                            dt_yundan.Rows.Add(dr_yundan);
+                                            db.InsertTable(dt_yundan);
+                                            sign = 1;
                                         }
-                                        dr_yundan["Gps_lastinfo"] = newinfo;
-                                        dr_yundan["IsBangding"] = true;
-                                        dr_yundan["YunDanRemark"] = YunDanRemark;
-                                        dr_yundan["Expect_Hour"] = Convert.ToDecimal(ExpectHour);
-                                        dr_yundan["QiShiZhan_lat"] = QiShiZhan_lat;
-                                        dr_yundan["QiShiZhan_lng"] = QiShiZhan_lng;
-                                        dr_yundan["DaoDaZhan_lat"] = DaoDaZhan_lat;
-                                        dr_yundan["DaoDaZhan_lng"] = DaoDaZhan_lng;
-                                        dr_yundan["QiShiZhan_QX"] = string.IsNullOrEmpty(qsz3) ? DBNull.Value : (object)qsz3;
-                                        dr_yundan["DaoDaZhan_QX"] = string.IsNullOrEmpty(ddz3) ? DBNull.Value : (object)ddz3;
-                                        dt_yundan.Rows.Add(dr_yundan);
-                                        db.InsertTable(dt_yundan);
-                                        sign = 1;
                                         db.CommitTransaction();
                                     }
                                     else
@@ -6010,7 +6129,7 @@ public class Handler
         {
             try
             {
-                string sql = "select BangDingTime Time,UserDenno,QiShiZhan Departure,DaoDaZhan Destination,SuoShuGongSi Company,GpsDeviceID,YunDanRemark Memo,Gps_lastinfo,Gps_lastlat,Gps_lastlng,QiShiZhan_QX,DaoDaZhan_QX from YunDan where UserID = @UserID and UserDenno = @UserDenno";
+                string sql = "select BangDingTime Time,UserDenno,QiShiZhan Departure,DaoDaZhan Destination,SuoShuGongSi Company,GpsDeviceID,YunDanRemark Memo,Gps_lastinfo,Gps_lastlat,Gps_lastlng,Gps_lasttime,QiShiZhan_QX,DaoDaZhan_QX,battery from YunDan where UserID = @UserID and UserDenno = @UserDenno";
                 SqlCommand cmd = db.CreateCommand(sql);
                 cmd.Parameters.AddWithValue("@UserID", UserID);
                 cmd.Parameters.AddWithValue("@UserDenno", UserDenno);
@@ -6035,7 +6154,7 @@ public class Handler
         {
             try
             {
-                string sql = "select BangDingTime Time,UserDenno,QiShiZhan Departure,DaoDaZhan Destination,SuoShuGongSi Company,GpsDeviceID,YunDanRemark Memo,Gps_lastinfo,Gps_lastlat,Gps_lastlng,QiShiZhan_lat,QiShiZhan_lng,DaoDaZhan_lat,DaoDaZhan_lng,QiShiZhan_QX,DaoDaZhan_QX from YunDan where UserID = @UserID and UserDenno = @UserDenno";
+                string sql = "select BangDingTime Time,UserDenno,QiShiZhan Departure,DaoDaZhan Destination,SuoShuGongSi Company,GpsDeviceID,YunDanRemark Memo,Gps_lastinfo,Gps_lastlat,Gps_lasttime,Gps_lastlng,QiShiZhan_lat,QiShiZhan_lng,DaoDaZhan_lat,DaoDaZhan_lng,QiShiZhan_QX,DaoDaZhan_QX,battery from YunDan where UserID = @UserID and UserDenno = @UserDenno";
                 SqlCommand cmd = db.CreateCommand(sql);
                 cmd.Parameters.AddWithValue("@UserID", UserID);
                 cmd.Parameters.AddWithValue("@UserDenno", UserDenno);
